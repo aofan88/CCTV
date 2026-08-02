@@ -183,7 +183,7 @@ export function useServerCardData(props) {
     const parts = []
 
     if (days > 0) parts.push(zh ? `${days}天` : `${days}d`)
-    if (hours > 0) parts.push(zh ? `${hours}小时` : `${hours}h`)
+    if (hours > 0) parts.push(zh ? `${hours}小時` : `${hours}h`)
     if (minutes > 0) parts.push(zh ? `${minutes}分` : `${minutes}m`)
     if (seconds > 0 || parts.length === 0) parts.push(zh ? `${seconds}秒` : `${seconds}s`)
 

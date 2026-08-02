@@ -119,7 +119,7 @@ const osConfigs = [
   {
     name: 'Alibaba Cloud Linux',
     image: 'os-alibaba.svg',
-    keywords: ['alibaba', 'aliyun', 'alinux', 'anolis', 'openanolis', '阿里', '龙蜥']
+    keywords: ['alibaba', 'aliyun', 'alinux', 'anolis', 'openanolis', '阿里', '龍蜥']
   },
   {
     name: 'OpenCloudOS',

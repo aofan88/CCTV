@@ -43,7 +43,7 @@ function envPlugin() {
   const backgroundImage = env.BACKGROUND_IMAGE || ''
   const title = env.TITLE || ''
 
-  // API_BASE 与 CSP_API 合并，写入运行时 apiBase meta。
+  // API_BASE 與 CSP_API 合併，寫入運行時 apiBase meta。
   const rawApiDomains = [
     ...parseCspOrigins(apiBaseRaw),
     ...parseCspOrigins(cspApiRaw)

@@ -23,7 +23,7 @@ if (fs.existsSync(publicDir)) {
   console.log('Copied all static assets');
 }
 
-// 重命名为 dashboard.html，避免 ASSETS 直接拦截首页
+// 重命名為 dashboard.html，避免 ASSETS 直接攔截首頁
 const indexHtmlPath = path.join(distDir, 'index.html');
 const dashboardHtmlPath = path.join(distDir, 'dashboard.html');
 if (fs.existsSync(indexHtmlPath)) {

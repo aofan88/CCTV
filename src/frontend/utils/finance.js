@@ -407,6 +407,6 @@ function setLocalStorageItem(key, value) {
   try {
     localStorage.setItem(key, value)
   } catch (_) {
-    // 汇率缓存失败不影响前端统计，下一次刷新会重新请求或使用内置汇率。
+    // 匯率緩存失敗不影響前端統計，下一次重新整理會重新請求或使用內置匯率。
   }
 }

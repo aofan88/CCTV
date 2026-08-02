@@ -1,41 +1,41 @@
 ﻿#Requires -Version 5.1
 <#
 .SYNOPSIS
-    CF-Server-Monitor Windows 探针 (PowerShell 版)
+    CF-Server-Monitor Windows 探針 (PowerShell 版)
 .DESCRIPTION
-    无 Python 依赖，纯 PowerShell 实现，功能对齐 Linux install.sh
+    無 Python 依賴，純 PowerShell 實現，功能對齊 Linux install.sh
 .PARAMETER Action
-    install   - 安装并启动探针服务
-    uninstall - 卸载探针服务
-    run       - 前台运行（调试用）
-    status    - 查看运行状态
-    stop      - 停止探针
+    install   - 安裝並啟動探針服務
+    uninstall - 卸載探針服務
+    run       - 前臺運行（調試用）
+    status    - 查看運行狀態
+    stop      - 停止探針
 .PARAMETER Id
-    服务器 ID
+    服務器 ID
 .PARAMETER Secret
-    API 认证密钥
+    API 認證密鑰
 .PARAMETER Url
-    Worker 上报地址
+    Worker 上報地址
 .PARAMETER CollectInterval
-    兼容参数。Windows PowerShell 版不使用 samples 采样缓存，始终按上报间隔采集并上报。
+    兼容參數。Windows PowerShell 版不使用 samples 採樣緩存，始終按上報間隔採集並上報。
 .PARAMETER ReportInterval
-    上报间隔（秒），默认 60
+    上報間隔（秒），默認 60
 .PARAMETER ResetDay
-    流量重置日（1-31, 0=不重置），默认 1
+    流量重置日（1-31, 0=不重置），默認 1
 .PARAMETER AutoUpdate
-    自动更新探针（0/1），默认 0
+    自動更新探針（0/1），默認 0
 .PARAMETER RxCorrection
-    下行流量校正（GB），直接设置当月下行数据
+    下行流量校正（GB），直接設置當月下行數據
 .PARAMETER TxCorrection
-    上行流量校正（GB），直接设置当月上行数据
+    上行流量校正（GB），直接設置當月上行數據
 .PARAMETER CtNode
-    自定义 CT 测试节点
+    自定義 CT 測試節點
 .PARAMETER CuNode
-    自定义 CU 测试节点
+    自定義 CU 測試節點
 .PARAMETER CmNode
-    自定义 CM 测试节点
+    自定義 CM 測試節點
 .PARAMETER BdNode
-    自定义 BD 测试节点
+    自定義 BD 測試節點
 .EXAMPLE
     .\cf-server-monitor.ps1 install -Id "xxx" -Secret "yyy" -Url "https://worker.example.com/update"
 .EXAMPLE
@@ -100,7 +100,7 @@ $ErrorActionPreference = "Stop"
 $APP_NAME = "CF-Server-Monitor"
 $AGENT_VERSION = "1.3.8"
 $TASK_NAME = "CFProbe"
-# 获取脚本所在目录
+# 獲取腳本所在目錄
 if ($MyInvocation.MyCommand.Path) {
     $SCRIPT_PATH = $MyInvocation.MyCommand.Path
 } elseif ($PSCommandPath) {
@@ -119,7 +119,7 @@ $MAX_TRAFFIC_CORRECTION_GB = 1000000
 $MAX_LOG_SIZE = 1MB
 
 # ============================================================
-# 工具函数
+# 工具函數
 # ============================================================
 
 function Write-Log {
@@ -153,23 +153,23 @@ function Write-Log {
         }
         [System.IO.File]::AppendAllText($LOG_FILE, $line + "`r`n", [System.Text.Encoding]::UTF8)
     } catch {
-        # 日志写入失败，忽略
+        # 日誌寫入失敗，忽略
     }
     Write-Host $line
 }
 
 function Load-Config {
-    Write-Log "尝试加载配置文件: $CONFIG_FILE" "DEBUG"
+    Write-Log "嘗試加載配置文件: $CONFIG_FILE" "DEBUG"
     if (Test-Path $CONFIG_FILE) {
         try {
             $content = Get-Content $CONFIG_FILE -Raw -Encoding UTF8
             $raw = $content | ConvertFrom-Json
-            Write-Log "配置文件加载成功" "INFO"
+            Write-Log "配置文件加載成功" "INFO"
             # 清理 URL
             if ($raw.worker_url) {
                 $raw.worker_url = $raw.worker_url.Trim().Trim("'").Trim('"')
             }
-            # 同时清理其他可能包含引号的字段
+            # 同時清理其他可能包含引號的字段
             if ($raw.secret) {
                 $raw.secret = $raw.secret.Trim().Trim("'").Trim('"')
             }
@@ -178,8 +178,8 @@ function Load-Config {
             }
             return $raw
         } catch {
-            Write-Log "配置文件加载失败: $_" "ERROR"
-            Write-Log "错误详情: $($_.Exception.Message)" "ERROR"
+            Write-Log "配置文件加載失敗: $_" "ERROR"
+            Write-Log "錯誤詳情: $($_.Exception.Message)" "ERROR"
             return $null
         }
     } else {
@@ -214,7 +214,7 @@ function Save-Config {
         } else {
             Remove-Item -LiteralPath $backupFile -Force -ErrorAction SilentlyContinue
         }
-        Write-Log "保存配置文件失败: $_" "ERROR"
+        Write-Log "保存配置文件失敗: $_" "ERROR"
         return $false
     }
 }
@@ -254,7 +254,7 @@ function ConvertTo-BinaryFlag {
         return $text
     }
     if ($Strict) {
-        throw "AutoUpdate 参数非法，仅支持 0 或 1"
+        throw "AutoUpdate 參數非法，僅支持 0 或 1"
     }
     return $Default
 }
@@ -291,13 +291,13 @@ function Normalize-NetworkInterfaceList {
     }
 
     if ($invalid) {
-        if ($Strict) { throw "Interface 参数非法，请使用英文逗号分隔的网卡名" }
+        if ($Strict) { throw "Interface 參數非法，請使用英文逗號分隔的網卡名" }
         return ""
     }
 
     $normalized = [string]::Join(',', [string[]]$items)
     if ($normalized.Length -gt 255) {
-        if ($Strict) { throw "Interface 参数非法，请使用英文逗号分隔的网卡名" }
+        if ($Strict) { throw "Interface 參數非法，請使用英文逗號分隔的網卡名" }
         return ""
     }
     return $normalized
@@ -419,9 +419,9 @@ function ConvertFrom-AgentConfigResponse {
 
     $bodyText = if ($null -eq $Body) { "" } else { $Body.Trim() }
     if ([string]::IsNullOrEmpty($bodyText) -or [Text.Encoding]::UTF8.GetByteCount($bodyText) -gt 1024) {
-        throw "动态配置响应长度无效"
+        throw "動態配置響應長度無效"
     }
-    if ($bodyText -notmatch '^[A-Za-z0-9_=&.,:\-]+$') { throw "动态配置包含非法字符" }
+    if ($bodyText -notmatch '^[A-Za-z0-9_=&.,:\-]+$') { throw "動態配置包含非法字符" }
 
     $allowedKeys = @(
         'collect_interval', 'report_interval', 'reset_day', 'schema_version',
@@ -432,17 +432,17 @@ function ConvertFrom-AgentConfigResponse {
     foreach ($part in $bodyText.Split('&')) {
         if ([string]::IsNullOrEmpty($part)) { continue }
         $eqIndex = $part.IndexOf('=')
-        if ($eqIndex -lt 0) { throw "动态配置字段格式无效" }
+        if ($eqIndex -lt 0) { throw "動態配置字段格式無效" }
         $key = $part.Substring(0, $eqIndex)
         $value = $part.Substring($eqIndex + 1)
-        if ($allowedKeys -notcontains $key) { throw "动态配置包含未知字段: $key" }
-        if ($values.ContainsKey($key)) { throw "动态配置包含重复字段: $key" }
+        if ($allowedKeys -notcontains $key) { throw "動態配置包含未知字段: $key" }
+        if ($values.ContainsKey($key)) { throw "動態配置包含重複字段: $key" }
         $values[$key] = $value
     }
 
     $updateValue = if ($values.ContainsKey('update')) { $values['update'] } else { "" }
     if ($updateValue -ne "" -and $updateValue -ne "0" -and $updateValue -ne "1") {
-        throw "动态配置 update 无效"
+        throw "動態配置 update 無效"
     }
 
     $requiredKeys = @('collect_interval', 'report_interval', 'reset_day', 'schema_version', 'custom_ct', 'custom_cu', 'custom_cm', 'custom_bd', 'interface')
@@ -461,26 +461,26 @@ function ConvertFrom-AgentConfigResponse {
                 update = "1"
             }
         }
-        throw "动态配置缺少配置字段"
+        throw "動態配置缺少配置字段"
     }
 
     foreach ($key in $requiredKeys) {
-        if (-not $values.ContainsKey($key)) { throw "动态配置缺少必要字段: $key" }
+        if (-not $values.ContainsKey($key)) { throw "動態配置缺少必要字段: $key" }
     }
 
     $ConfigMd5 = if ($null -eq $ConfigMd5) { "" } else { $ConfigMd5.Trim().ToLowerInvariant() }
-    if ($ConfigMd5 -notmatch '^[a-f0-9]{32}$') { throw "动态配置 MD5 无效" }
+    if ($ConfigMd5 -notmatch '^[a-f0-9]{32}$') { throw "動態配置 MD5 無效" }
 
     foreach ($key in @('collect_interval', 'report_interval', 'reset_day', 'schema_version')) {
-        if ($values[$key] -notmatch '^(0|[1-9][0-9]*)$') { throw "动态配置数值无效" }
+        if ($values[$key] -notmatch '^(0|[1-9][0-9]*)$') { throw "動態配置數值無效" }
     }
     $collect = [int]$values['collect_interval']
     $report = [int]$values['report_interval']
     $reset = [int]$values['reset_day']
     $schema = [int]$values['schema_version']
-    if (@(0, 1, 2, 5, 10) -notcontains $collect) { throw "collect_interval 无效" }
-    if (@(30, 60, 120, 180) -notcontains $report -or $report -lt $collect) { throw "report_interval 无效" }
-    if ($reset -lt 0 -or $reset -gt 31 -or $schema -ne 3) { throw "reset_day 或 schema_version 无效" }
+    if (@(0, 1, 2, 5, 10) -notcontains $collect) { throw "collect_interval 無效" }
+    if (@(30, 60, 120, 180) -notcontains $report -or $report -lt $collect) { throw "report_interval 無效" }
+    if ($reset -lt 0 -or $reset -gt 31 -or $schema -ne 3) { throw "reset_day 或 schema_version 無效" }
     $networkInterface = Normalize-NetworkInterfaceList -Value $values['interface'] -Strict
 
     $result = @{
@@ -542,7 +542,7 @@ function Invoke-AsAdmin {
 }
 
 # ============================================================
-# 指标采集
+# 指標採集
 # ============================================================
 
 function Get-CpuUsage {
@@ -684,7 +684,7 @@ function Get-NetworkStats {
             return @{ rx = $totalRx; tx = $totalTx }
         }
     } catch {}
-    Write-Log "网络流量获取失败" "DEBUG"
+    Write-Log "網絡流量獲取失敗" "DEBUG"
     return @{ rx = 0; tx = 0 }
 }
 
@@ -791,7 +791,7 @@ function Get-LoadAvg {
 }
 
 # ============================================================
-# 网络探测
+# 網絡探測
 # ============================================================
 
 function Resolve-ProbeTarget {
@@ -850,7 +850,7 @@ function Get-Probe {
 }
 
 # ============================================================
-# 异步 Ping 检测（后台执行，结果写入临时文件）
+# 異步 Ping 檢測（後臺執行，結果寫入臨時文件）
 # ============================================================
 
 function Start-PingBackgroundJob {
@@ -957,7 +957,7 @@ function Remove-PingBackgroundJob {
 }
 
 # ============================================================
-# IP 检测
+# IP 檢測
 # ============================================================
 
 function Get-PublicIPv4 {
@@ -985,7 +985,7 @@ function Get-PublicIPv6 {
 }
 
 # ============================================================
-# 流量统计
+# 流量統計
 # ============================================================
 
 function Get-TrafficData {
@@ -1044,7 +1044,7 @@ function Apply-TrafficCorrection {
     $saved.INTERFACE = $normalizedInterface
     $saved.RX_PERIOD = $rxBytes.ToString()
     $saved.TX_PERIOD = $txBytes.ToString()
-    Write-Log "流量校正已应用: RX=${RxCorrection}GB (${rxBytes} bytes) TX=${TxCorrection}GB (${txBytes} bytes)" "INFO"
+    Write-Log "流量校正已應用: RX=${RxCorrection}GB (${rxBytes} bytes) TX=${TxCorrection}GB (${txBytes} bytes)" "INFO"
 
     $nowTs = [long]([DateTimeOffset]::Now.ToUnixTimeSeconds())
     $saved.LAST_CHECK = $nowTs.ToString()
@@ -1082,11 +1082,11 @@ function Send-CorrectionConfirm {
         $response = Invoke-WebRequest -UseBasicParsing -Uri $WorkerUrl -Method Post -Body $payload `
             -ContentType "application/json; charset=utf-8" -TimeoutSec 4 -ErrorAction Stop
         if ([int]$response.StatusCode -ge 200 -and [int]$response.StatusCode -lt 300) {
-            Write-Log "流量校正确认已发送: RX=${rxValue}GB TX=${txValue}GB" "INFO"
+            Write-Log "流量校正確認已發送: RX=${rxValue}GB TX=${txValue}GB" "INFO"
             return $true
         }
     } catch {
-        Write-Log "流量校正确认发送失败: $_" "DEBUG"
+        Write-Log "流量校正確認發送失敗: $_" "DEBUG"
     }
     return $false
 }
@@ -1181,7 +1181,7 @@ function Update-MonthlyTraffic {
 }
 
 # ============================================================
-# 主采集循环
+# 主採集循環
 # ============================================================
 
 function Invoke-TrayCollectLoop {
@@ -1195,25 +1195,25 @@ function Invoke-TrayCollectLoop {
     
     $menu = New-Object System.Windows.Forms.ContextMenuStrip
     $statusItem = New-Object System.Windows.Forms.ToolStripMenuItem
-    $statusItem.Text = "查看状态"
+    $statusItem.Text = "查看狀態"
     $statusItem.Add_Click({
         $config = Load-Config
         $effectiveStatusReportInterval = [math]::Max([int]$config.report_interval, 60)
         $statusAutoUpdate = ConvertTo-BinaryFlag -Value $config.auto_update -Default "0"
-        $msg = "CF-Server-Monitor 状态`n"
+        $msg = "CF-Server-Monitor 狀態`n"
         $msg += "Server ID: $($config.server_id)`n"
         $msg += "Worker URL: $($config.worker_url)`n"
-        $msg += "上报间隔: $($config.report_interval)秒`n"
-        $msg += "实际上报间隔: $effectiveStatusReportInterval秒`n"
-        $msg += "自动更新: $statusAutoUpdate`n"
-        $msg += "日志文件: $LOG_FILE"
+        $msg += "上報間隔: $($config.report_interval)秒`n"
+        $msg += "實際上報間隔: $effectiveStatusReportInterval秒`n"
+        $msg += "自動更新: $statusAutoUpdate`n"
+        $msg += "日誌文件: $LOG_FILE"
         [System.Windows.Forms.MessageBox]::Show($msg, "CF-Server-Monitor", [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Information)
     })
     
     $stopItem = New-Object System.Windows.Forms.ToolStripMenuItem
-    $stopItem.Text = "停止探针"
+    $stopItem.Text = "停止探針"
     $stopItem.Add_Click({
-        Write-Log "用户从托盘菜单停止探针" "INFO"
+        Write-Log "用戶從托盤菜單停止探針" "INFO"
         $trayIcon.Visible = $false
         $trayIcon.Dispose()
         [System.Windows.Forms.Application]::Exit()
@@ -1223,7 +1223,7 @@ function Invoke-TrayCollectLoop {
     $exitItem = New-Object System.Windows.Forms.ToolStripMenuItem
     $exitItem.Text = "退出"
     $exitItem.Add_Click({
-        Write-Log "用户从托盘菜单退出" "INFO"
+        Write-Log "用戶從托盤菜單退出" "INFO"
         $trayIcon.Visible = $false
         $trayIcon.Dispose()
         [System.Windows.Forms.Application]::Exit()
@@ -1235,9 +1235,9 @@ function Invoke-TrayCollectLoop {
     $menu.Items.Add($exitItem)
     $trayIcon.ContextMenuStrip = $menu
     
-    Write-Log "探针已启动（托盘模式）" "INFO"
+    Write-Log "探針已啟動（托盤模式）" "INFO"
     
-    # 使用 Timer + Application.Run 启动消息泵，托盘菜单才能响应
+    # 使用 Timer + Application.Run 啟動消息泵，托盤菜單才能響應
     Start-TimerCollectLoop -TrayIcon $trayIcon
 }
 
@@ -1245,14 +1245,14 @@ function Start-TimerCollectLoop {
     param($TrayIcon = $null)
 
     # ========================================
-    # 加载配置（与原 Invoke-CollectLoop 相同）
+    # 加載配置（與原 Invoke-CollectLoop 相同）
     # ========================================
     $config = Load-Config
     if (-not $config) {
-        Write-Log "配置文件不存在，使用命令行参数..." "WARN"
+        Write-Log "配置文件不存在，使用命令行參數..." "WARN"
         if (-not $Id -or -not $Secret -or -not $Url) {
-            Write-Log "错误: 缺少必要参数" "ERROR"
-            Write-Host "请使用: .\cf-server-monitor.ps1 run -Id 'ID' -Secret '密钥' -Url '地址'" -ForegroundColor Yellow
+            Write-Log "錯誤: 缺少必要參數" "ERROR"
+            Write-Host "請使用: .\cf-server-monitor.ps1 run -Id 'ID' -Secret '密鑰' -Url '地址'" -ForegroundColor Yellow
             return
         }
         try {
@@ -1263,7 +1263,7 @@ function Start-TimerCollectLoop {
             }
             $newInterface = Normalize-NetworkInterfaceList -Value $Interface -Strict
         } catch {
-            Write-Log "错误: $($_.Exception.Message)" "ERROR"
+            Write-Log "錯誤: $($_.Exception.Message)" "ERROR"
             return
         }
         $config = @{
@@ -1312,7 +1312,7 @@ function Start-TimerCollectLoop {
             Normalize-NetworkInterfaceList -Value (Get-ConfigProperty $config 'interface' "")
         }
     } catch {
-        Write-Log "错误: $($_.Exception.Message)" "ERROR"
+        Write-Log "錯誤: $($_.Exception.Message)" "ERROR"
         return
     }
     try {
@@ -1322,7 +1322,7 @@ function Start-TimerCollectLoop {
             ConvertTo-BinaryFlag -Value $config.auto_update -Default "0"
         }
     } catch {
-        Write-Log "错误: $($_.Exception.Message)" "ERROR"
+        Write-Log "錯誤: $($_.Exception.Message)" "ERROR"
         return
     }
     $ctNode = $ctNode.Trim()
@@ -1332,17 +1332,17 @@ function Start-TimerCollectLoop {
     $networkInterface = $networkInterface.Trim()
 
     if ($workerUrl -notmatch '^https?://') {
-        Write-Log "警告: worker_url 格式可能不正确: '$workerUrl'" "WARN"
+        Write-Log "警告: worker_url 格式可能不正確: '$workerUrl'" "WARN"
         $workerUrl = $workerUrl.Trim().Trim("'").Trim('"')
-        Write-Log "清理后的 URL: '$workerUrl'" "WARN"
+        Write-Log "清理後的 URL: '$workerUrl'" "WARN"
     }
     if ($workerUrl -notmatch '^https?://') {
-        Write-Log "错误: worker_url 无效: '$workerUrl'" "ERROR"
-        Write-Log "请检查配置文件: $CONFIG_FILE" "ERROR"
+        Write-Log "錯誤: worker_url 無效: '$workerUrl'" "ERROR"
+        Write-Log "請檢查配置文件: $CONFIG_FILE" "ERROR"
         return
     }
     if (-not $serverId -or -not $secret -or -not $workerUrl) {
-        Write-Log "配置不完整，请填写 server_id, secret, worker_url" "ERROR"
+        Write-Log "配置不完整，請填寫 server_id, secret, worker_url" "ERROR"
         return
     }
     if (@(30, 60, 120, 180) -notcontains $reportInterval) { $reportInterval = 60 }
@@ -1350,7 +1350,7 @@ function Start-TimerCollectLoop {
     $effectiveReportInterval = [math]::Max($reportInterval, 60)
 
     # ========================================
-    # 持久状态变量（脚本作用域，跨 Timer Tick 保持）
+    # 持久狀態變量（腳本作用域，跨 Timer Tick 保持）
     # ========================================
     $script:cs_prevNet = @{ rx = 0; tx = 0; time = 0 }
     $script:cs_lastIpCheck = 0
@@ -1377,19 +1377,19 @@ function Start-TimerCollectLoop {
     $script:cs_autoUpdate = $autoUpdate
 
     # ========================================
-    # 缓存机制变量
+    # 緩存機制變量
     # ========================================
-    # 磁盘检测间隔（秒）- 2分钟
+    # 磁盤檢測間隔（秒）- 2分鐘
     $script:cs_diskCheckInterval = 120
     $script:cs_lastDiskCheck = 0
     $script:cs_diskTotal = 0
     $script:cs_diskUsed = 0
 
-    # 状态检测间隔（秒）- 固定60秒
+    # 狀態檢測間隔（秒）- 固定60秒
     $script:cs_statusCheckInterval = 60
     $script:cs_lastStatusCheck = 0
 
-    # 缓存的状态数据
+    # 緩存的狀態數據
     $script:cs_cpuInfo = ""
     $script:cs_cpuCores = 1
     $script:cs_bootTime = 0
@@ -1406,7 +1406,7 @@ function Start-TimerCollectLoop {
 
     $pingTempFile = [System.IO.Path]::Combine([System.IO.Path]::GetTempPath(), "cf_probe_ping_results.json")
 
-    # 首次 CPU 采样
+    # 首次 CPU 採樣
     try {
         $counter = New-Object System.Diagnostics.PerformanceCounter("Processor", "% Processor Time", "_Total")
         $null = $counter.NextValue()
@@ -1414,16 +1414,16 @@ function Start-TimerCollectLoop {
     } catch {}
 
     $interfaceLogValue = if ($networkInterface) { $networkInterface } else { "auto" }
-    Write-Log "探针已启动。 ServerID=$serverId Url='$workerUrl' ReportInterval=${reportInterval}s EffectiveReportInterval=${effectiveReportInterval}s CollectInterval=ignored Interface=$interfaceLogValue AutoUpdate=$autoUpdate"
+    Write-Log "探針已啟動。 ServerID=$serverId Url='$workerUrl' ReportInterval=${reportInterval}s EffectiveReportInterval=${effectiveReportInterval}s CollectInterval=ignored Interface=$interfaceLogValue AutoUpdate=$autoUpdate"
 
     # ========================================
-    # Timer 驱动采集：每次 Tick 执行一轮采集+上报
+    # Timer 驅動採集：每次 Tick 執行一輪採集+上報
     # ========================================
     $timer = New-Object System.Windows.Forms.Timer
     $timer.Interval = $effectiveReportInterval * 1000
     $timer.Add_Tick({
         try {
-            # 捕获外部参数到局部变量，避免作用域问题
+            # 捕獲外部參數到局部變量，避免作用域問題
             $srvId = $serverId
             $sec = $secret
             $wUrl = $workerUrl
@@ -1438,14 +1438,14 @@ function Start-TimerCollectLoop {
 
             $now = [DateTimeOffset]::Now.ToUnixTimeSeconds()
 
-            # IP 检测（每 10 分钟）
+            # IP 檢測（每 10 分鐘）
             if ($now - $script:cs_lastIpCheck -ge 600 -or $script:cs_lastIpCheck -eq 0) {
                 $script:cs_ipV4 = Get-PublicIPv4
                 $script:cs_ipV6 = Get-PublicIPv6
                 $script:cs_lastIpCheck = $now
             }
 
-            # Ping 跟随上报间隔并限制在 30-60 秒（同时计算延迟和丢包率）
+            # Ping 跟隨上報間隔並限制在 30-60 秒（同時計算延遲和丟包率）
             $probeInterval = [int]$script:cs_reportInterval
             if ($probeInterval -lt 30) { $probeInterval = 30 }
             if ($probeInterval -gt 60) { $probeInterval = 60 }
@@ -1458,7 +1458,7 @@ function Start-TimerCollectLoop {
                 }
             }
 
-            # 读取异步 Ping 检测结果
+            # 讀取異步 Ping 檢測結果
             $pingResults = Read-PingResults -TempFile $pFile
             if ($pingResults) {
                 $props = $pingResults.PSObject.Properties
@@ -1477,7 +1477,7 @@ function Start-TimerCollectLoop {
             if ([string]::IsNullOrWhiteSpace($cmN)) { $script:cs_pingCm = $false; $script:cs_lossCm = $false }
             if ([string]::IsNullOrWhiteSpace($bdN)) { $script:cs_pingBd = $false; $script:cs_lossBd = $false }
 
-            # 实时采集：CPU、内存、网络（网速计算需要每次执行）
+            # 實時採集：CPU、內存、網絡（網速計算需要每次執行）
             $cpuPercent = Get-CpuUsage
             $mem = Get-MemoryInfo
             $swap = Get-SwapInfo
@@ -1493,7 +1493,7 @@ function Start-TimerCollectLoop {
             $txSpeed = [math]::Max(($txNow - $txPrev) / $deltaTime, 0)
             $script:cs_prevNet = @{ rx = $rxNow; tx = $txNow; time = $now }
 
-            # 磁盘检测缓存（每2分钟检测一次）
+            # 磁盤檢測緩存（每2分鐘檢測一次）
             if ($now - $script:cs_lastDiskCheck -ge $script:cs_diskCheckInterval -or $script:cs_lastDiskCheck -eq 0) {
                 $disk = Get-DiskInfo
                 $script:cs_diskTotal = $disk.total
@@ -1501,13 +1501,13 @@ function Start-TimerCollectLoop {
                 $script:cs_lastDiskCheck = $now
             }
 
-            # 静态信息（仅首次运行时获取，运行期间不会变化）
+            # 靜態信息（僅首次運行時獲取，運行期間不會變化）
             if ($script:cs_lastStatusCheck -eq 0) {
                 $script:cs_cpuInfo = Get-CpuInfo
                 $script:cs_cpuCores = Get-CpuCores
                 $script:cs_bootTime = Get-BootTime
                 $script:cs_arch = if ([Environment]::Is64BitOperatingSystem) { "x86_64" } else { "x86" }
-                # 获取操作系统信息（Caption 和 Version），合并调用避免重复查询
+                # 獲取操作系統信息（Caption 和 Version），合併調用避免重複查詢
                 try {
                     $os = Get-CimInstance Win32_OperatingSystem
                     $script:cs_osName = $os.Caption
@@ -1518,9 +1518,9 @@ function Start-TimerCollectLoop {
                 }
             }
 
-            # 状态检测缓存（进程数、连接数、GPU使用率、负载、当月累计流量，每STATUS_CHECK_INTERVAL检测一次）
+            # 狀態檢測緩存（進程數、連接數、GPU使用率、負載、當月累計流量，每STATUS_CHECK_INTERVAL檢測一次）
             if ($now - $script:cs_lastStatusCheck -ge $script:cs_statusCheckInterval -or $script:cs_lastStatusCheck -eq 0) {
-                # 动态状态
+                # 動態狀態
                 $script:cs_loadAvg = Get-LoadAvg -CpuPercent $cpuPercent
                 $script:cs_processCount = Get-ProcessCount
                 $conn = Get-TcpUdpConnections
@@ -1533,7 +1533,7 @@ function Start-TimerCollectLoop {
                     foreach ($gpu in $gpuInfo) { [void]$script:cs_gpuInfoValue.Add($gpu) }
                 }
 
-                # 计算当月累计流量
+                # 計算當月累計流量
                 $netTraffic = Update-MonthlyTraffic -CurrentRx $rxNow -CurrentTx $txNow -ResetDay $rDay -Interface $nicNames
                 $script:cs_rxMonthly = $netTraffic.rx
                 $script:cs_txMonthly = $netTraffic.tx
@@ -1541,7 +1541,7 @@ function Start-TimerCollectLoop {
                 $script:cs_lastStatusCheck = $now
             }
 
-            # 构建指标
+            # 構建指標
             $metrics = @{
                 cpu = $cpuPercent.ToString("F2")
                 ram_total = $mem.total.ToString()
@@ -1579,7 +1579,7 @@ function Start-TimerCollectLoop {
                 loss_bd = $script:cs_lossBd
             }
 
-            # 上报
+            # 上報
             $shouldReport = ($script:cs_lastReportTime -eq 0) -or ($now - $script:cs_lastReportTime -ge $rInterval)
             if ($shouldReport) {
                 $payload = @{
@@ -1647,7 +1647,7 @@ function Start-TimerCollectLoop {
                                         $timer.Interval = $effectiveRemoteReportInterval * 1000
                                         $timer.Start()
                                         $remoteInterfaceLog = if ($script:cs_interface) { $script:cs_interface } else { "auto" }
-                                        Write-Log "动态配置已应用: md5=$($remoteConfig.config_md5) report_interval=$($remoteConfig.report_interval)s interface=$remoteInterfaceLog ct=$($remoteConfig.ct_node) cu=$($remoteConfig.cu_node) cm=$($remoteConfig.cm_node) bd=$($remoteConfig.bd_node)" "INFO"
+                                        Write-Log "動態配置已應用: md5=$($remoteConfig.config_md5) report_interval=$($remoteConfig.report_interval)s interface=$remoteInterfaceLog ct=$($remoteConfig.ct_node) cu=$($remoteConfig.cu_node) cm=$($remoteConfig.cm_node) bd=$($remoteConfig.bd_node)" "INFO"
 
                                         $script:cs_lastPingCheck = 0
                                         $script:cs_pingCt = Get-ProbeInitialValue $script:cs_ctNode
@@ -1681,43 +1681,43 @@ function Start-TimerCollectLoop {
                             }
 
                             if ($remoteConfig.ContainsKey('update') -and $remoteConfig.update -eq "1") {
-                                Write-Log "收到自动更新指令" "DEBUG"
+                                Write-Log "收到自動更新指令" "DEBUG"
                                 Schedule-AgentUpdate -WorkerUrl $wUrl -AutoUpdate $script:cs_autoUpdate
                             }
                         }
                     }
                 } catch {
-                    Write-Log "上报失败: $_" "WARN"
+                    Write-Log "上報失敗: $_" "WARN"
                 }
                 $script:cs_lastReportTime = $now
             }
         } catch {
-            Write-Log "采集异常: $_" "ERROR"
+            Write-Log "採集異常: $_" "ERROR"
         }
     })
 
     $timer.Start()
 
-    # 启动 WinForms 消息泵 — 这是托盘菜单能响应的关键
+    # 啟動 WinForms 消息泵 — 這是托盤菜單能響應的關鍵
     [System.Windows.Forms.Application]::Run()
 }
 
 # ============================================================
-# 服务管理
+# 服務管理
 # ============================================================
 
 function Install-Service {
-    # 添加调试输出
+    # 添加調試輸出
     Write-Host "=============================================" -ForegroundColor Cyan
-    Write-Host "开始安装 CF-Server-Monitor" -ForegroundColor Cyan
+    Write-Host "開始安裝 CF-Server-Monitor" -ForegroundColor Cyan
     Write-Host "=============================================" -ForegroundColor Cyan
-    Write-Host "调试信息:" -ForegroundColor Cyan
+    Write-Host "調試信息:" -ForegroundColor Cyan
     Write-Host "  Id: '$Id'" -ForegroundColor Cyan
     Write-Host "  Secret: '********'" -ForegroundColor Cyan
     Write-Host "  Url: '$Url'" -ForegroundColor Cyan
     Write-Host "  Interface: '$Interface'" -ForegroundColor Cyan
     Write-Host "  AutoUpdate: '$AutoUpdate'" -ForegroundColor Cyan
-    Write-Host "  脚本目录: $SCRIPT_DIR" -ForegroundColor Cyan
+    Write-Host "  腳本目錄: $SCRIPT_DIR" -ForegroundColor Cyan
     Write-Host "  配置文件: $CONFIG_FILE" -ForegroundColor Cyan
     Write-Host "=============================================" -ForegroundColor Cyan
     Write-Host ""
@@ -1726,20 +1726,20 @@ function Install-Service {
         try {
             $null = ConvertTo-BinaryFlag -Value $AutoUpdate -Default "0" -Strict
         } catch {
-            Write-Host "错误: $($_.Exception.Message)" -ForegroundColor Red
+            Write-Host "錯誤: $($_.Exception.Message)" -ForegroundColor Red
             return
         }
     }
     
     if (-not (Test-Admin)) {
-        Write-Host "需要管理员权限，正在提升..." -ForegroundColor Yellow
+        Write-Host "需要管理員權限，正在提升..." -ForegroundColor Yellow
         Invoke-AsAdmin
         return
     }
 
-    # 写入配置
+    # 寫入配置
     $existingConfig = Load-Config
-    # 清理输入参数
+    # 清理輸入參數
     $cleanId = if ($Id) { $Id.Trim().Trim("'").Trim('"') } else { "" }
     $cleanSecret = if ($Secret) { $Secret.Trim().Trim("'").Trim('"') } else { "" }
     $cleanUrl = if ($Url) { $Url.Trim().Trim("'").Trim('"') } else { "" }
@@ -1765,7 +1765,7 @@ function Install-Service {
             $existingAutoUpdate
         }
     } catch {
-        Write-Host "错误: $($_.Exception.Message)" -ForegroundColor Red
+        Write-Host "錯誤: $($_.Exception.Message)" -ForegroundColor Red
         return
     }
 
@@ -1786,8 +1786,8 @@ function Install-Service {
     }
 
     if (-not $config.server_id -or -not $config.secret -or -not $config.worker_url) {
-        Write-Host "错误: 缺少必要参数 -Id, -Secret, -Url" -ForegroundColor Red
-        Write-Host "当前值:" -ForegroundColor Yellow
+        Write-Host "錯誤: 缺少必要參數 -Id, -Secret, -Url" -ForegroundColor Red
+        Write-Host "當前值:" -ForegroundColor Yellow
         Write-Host "  server_id: '$($config.server_id)'" -ForegroundColor Yellow
         Write-Host "  secret: '$($config.secret)'" -ForegroundColor Yellow
         Write-Host "  worker_url: '$($config.worker_url)'" -ForegroundColor Yellow
@@ -1795,19 +1795,19 @@ function Install-Service {
     }
 
     Write-Host "正在保存配置..." -ForegroundColor Cyan
-    Write-Host "配置文件路径: $CONFIG_FILE" -ForegroundColor Cyan
+    Write-Host "配置文件路徑: $CONFIG_FILE" -ForegroundColor Cyan
     $saveResult = Save-Config -Config $config
     if ($saveResult) {
         Write-Host "配置保存成功" -ForegroundColor Green
-        # 验证文件是否存在
+        # 驗證文件是否存在
         if (Test-Path $CONFIG_FILE) {
-            Write-Host "配置文件已创建: $CONFIG_FILE" -ForegroundColor Green
+            Write-Host "配置文件已創建: $CONFIG_FILE" -ForegroundColor Green
         } else {
-            Write-Host "警告: 配置文件保存后未找到！" -ForegroundColor Yellow
+            Write-Host "警告: 配置文件保存後未找到！" -ForegroundColor Yellow
         }
     } else {
-        Write-Host "配置保存失败！" -ForegroundColor Red
-        Write-Host "请检查是否有写入权限: $CONFIG_DIR" -ForegroundColor Yellow
+        Write-Host "配置保存失敗！" -ForegroundColor Red
+        Write-Host "請檢查是否有寫入權限: $CONFIG_DIR" -ForegroundColor Yellow
         return
     }
 
@@ -1815,7 +1815,7 @@ function Install-Service {
     $hasRxCorr = $RxCorrection -ne ""
     $hasTxCorr = $TxCorrection -ne ""
     if ($hasRxCorr -or $hasTxCorr) {
-        Write-Host "应用流量校正..." -ForegroundColor Cyan
+        Write-Host "應用流量校正..." -ForegroundColor Cyan
         $netStat = Get-NetworkStats -Interface ([string]$config.interface)
         $currentRx = [long]$netStat.rx
         $currentTx = [long]$netStat.tx
@@ -1836,7 +1836,7 @@ function Install-Service {
         if ($hasTxCorr) { Write-Host "  上行校正: ${TxCorrection}GB" -ForegroundColor Cyan }
     }
 
-    # 创建计划任务
+    # 創建計劃任務
     if ($MyInvocation.MyCommand.Path) {
         $scriptPath = $MyInvocation.MyCommand.Path
     } elseif ($PSCommandPath) {
@@ -1859,25 +1859,25 @@ function Install-Service {
 
     Write-Host ""
     Write-Host "=============================================" -ForegroundColor Green
-    Write-Host "       CF-Server-Monitor $AGENT_VERSION 安装成功" -ForegroundColor Green
+    Write-Host "       CF-Server-Monitor $AGENT_VERSION 安裝成功" -ForegroundColor Green
     Write-Host "=============================================" -ForegroundColor Green
     Write-Host "  Server ID  : $($config.server_id)"
     Write-Host "  Worker URL : $($config.worker_url)"
-    Write-Host "  上报间隔   : $($config.report_interval)秒"
-    Write-Host "  实际间隔   : $effectiveInstallReportInterval秒"
-    Write-Host "  采样间隔   : Windows PowerShell 版不启用 samples 缓存"
-    Write-Host "  统计网卡   : $(if ($config.interface) { $config.interface } else { '自动汇总' })"
-    Write-Host "  流量重置日 : $($config.reset_day)号"
-    Write-Host "  自动更新   : $($config.auto_update)"
+    Write-Host "  上報間隔   : $($config.report_interval)秒"
+    Write-Host "  實際間隔   : $effectiveInstallReportInterval秒"
+    Write-Host "  採樣間隔   : Windows PowerShell 版不啟用 samples 緩存"
+    Write-Host "  統計網卡   : $(if ($config.interface) { $config.interface } else { '自動彙總' })"
+    Write-Host "  流量重置日 : $($config.reset_day)號"
+    Write-Host "  自動更新   : $($config.auto_update)"
     Write-Host "  配置文件   : $CONFIG_FILE"
-    Write-Host "  日志文件   : $LOG_FILE"
-    Write-Host "  自动启动   : 已注册计划任务 $TASK_NAME"
+    Write-Host "  日誌文件   : $LOG_FILE"
+    Write-Host "  自動啟動   : 已註冊計劃任務 $TASK_NAME"
     Write-Host "=============================================" -ForegroundColor Green
     Write-Host ""
 
 
-    # 先停止已有的探针进程
-    Write-Host "检查并停止已有的探针进程..." -ForegroundColor Cyan
+    # 先停止已有的探針進程
+    Write-Host "檢查並停止已有的探針進程..." -ForegroundColor Cyan
     $existing = @()
     try {
         $processes = Get-CimInstance Win32_Process -Filter "Name='powershell.exe'" -ErrorAction Stop
@@ -1892,19 +1892,19 @@ function Install-Service {
         }
     }
     if ($existing) {
-        Write-Host "发现已有探针进程 (PID: $($existing.Id -join ', '))，正在停止..." -ForegroundColor Yellow
+        Write-Host "發現已有探針進程 (PID: $($existing.Id -join ', '))，正在停止..." -ForegroundColor Yellow
         $existing | Stop-Process -Force -ErrorAction SilentlyContinue
         Start-Sleep -Seconds 1
     }
 
-    # 启动探针，传递必要的参数
-    Write-Host "正在启动探针..." -ForegroundColor Yellow
+    # 啟動探針，傳遞必要的參數
+    Write-Host "正在啟動探針..." -ForegroundColor Yellow
     $runArgs = "-NoProfile -ExecutionPolicy Bypass -STA -File `"$scriptPath`" run -STA"
-    Write-Host "启动命令: powershell.exe $runArgs" -ForegroundColor Cyan
+    Write-Host "啟動命令: powershell.exe $runArgs" -ForegroundColor Cyan
     Start-Process powershell.exe -ArgumentList $runArgs -WindowStyle Hidden
-    Start-Sleep -Seconds 2  # 等待进程启动
+    Start-Sleep -Seconds 2  # 等待進程啟動
 
-    # 检查是否启动成功
+    # 檢查是否啟動成功
     $running = $false
     try {
         $procs = Get-CimInstance Win32_Process -Filter "Name='powershell.exe'" -ErrorAction Stop
@@ -1916,29 +1916,29 @@ function Install-Service {
         }
     } catch {}
     if ($running) {
-        Write-Host "探针已启动" -ForegroundColor Green
+        Write-Host "探針已啟動" -ForegroundColor Green
     } else {
-        Write-Host "警告: 探针可能未启动，请检查日志: $LOG_FILE" -ForegroundColor Yellow
+        Write-Host "警告: 探針可能未啟動，請檢查日誌: $LOG_FILE" -ForegroundColor Yellow
     }
 
-    Write-Host "查看日志: $LOG_FILE" -ForegroundColor Green
+    Write-Host "查看日誌: $LOG_FILE" -ForegroundColor Green
 }
 
 function Uninstall-Service {
     if (-not (Test-Admin)) {
-        Write-Host "需要管理员权限，正在提升..." -ForegroundColor Yellow
+        Write-Host "需要管理員權限，正在提升..." -ForegroundColor Yellow
         Invoke-AsAdmin
         return
     }
 
-    # 删除计划任务
+    # 刪除計劃任務
     $task = Get-ScheduledTask -TaskName $TASK_NAME -ErrorAction SilentlyContinue
     if ($task) {
         Unregister-ScheduledTask -TaskName $TASK_NAME -Confirm:$false
-        Write-Host "已删除计划任务: $TASK_NAME" -ForegroundColor Green
+        Write-Host "已刪除計劃任務: $TASK_NAME" -ForegroundColor Green
     }
 
-    # 终止进程
+    # 終止進程
     try {
         $procs = Get-CimInstance Win32_Process -Filter "Name='powershell.exe'" -ErrorAction Stop
         foreach ($p in $procs) {
@@ -1953,15 +1953,15 @@ function Uninstall-Service {
     if (Test-Path $TRAFFIC_FILE) { Remove-Item $TRAFFIC_FILE -Force }
     if (Test-Path $LOG_FILE) { Remove-Item $LOG_FILE -Force }
 
-    Write-Host "卸载完成。" -ForegroundColor Green
+    Write-Host "卸載完成。" -ForegroundColor Green
 }
 
 function Get-ServiceStatus {
     $task = Get-ScheduledTask -TaskName $TASK_NAME -ErrorAction SilentlyContinue
     if ($task) {
-        Write-Host "计划任务: $($task.State)" -ForegroundColor Green
+        Write-Host "計劃任務: $($task.State)" -ForegroundColor Green
     } else {
-        Write-Host "计划任务: 未注册" -ForegroundColor Yellow
+        Write-Host "計劃任務: 未註冊" -ForegroundColor Yellow
     }
     $running = @()
     try {
@@ -1977,9 +1977,9 @@ function Get-ServiceStatus {
         }
     }
     if ($running) {
-        Write-Host "探针进程: 运行中 (PID: $($running.Id -join ', '))" -ForegroundColor Green
+        Write-Host "探針進程: 運行中 (PID: $($running.Id -join ', '))" -ForegroundColor Green
     } else {
-        Write-Host "探针进程: 未运行" -ForegroundColor Yellow
+        Write-Host "探針進程: 未運行" -ForegroundColor Yellow
     }
     $config = Load-Config
     if ($config) {
@@ -1988,9 +1988,9 @@ function Get-ServiceStatus {
         Write-Host "配置文件: $CONFIG_FILE" -ForegroundColor Cyan
         Write-Host "  Server ID  : $($config.server_id)"
         Write-Host "  Worker URL : $($config.worker_url)"
-        Write-Host "  上报间隔   : $($config.report_interval)秒"
-        Write-Host "  实际间隔   : $effectiveStatusReportInterval秒"
-        Write-Host "  自动更新   : $statusAutoUpdate"
+        Write-Host "  上報間隔   : $($config.report_interval)秒"
+        Write-Host "  實際間隔   : $effectiveStatusReportInterval秒"
+        Write-Host "  自動更新   : $statusAutoUpdate"
     }
 }
 
@@ -2010,9 +2010,9 @@ function Stop-Service {
     }
     if ($running) {
         $running | Stop-Process -Force -ErrorAction SilentlyContinue
-        Write-Host "探针已停止 (PID: $($running.Id -join ', '))。" -ForegroundColor Green
+        Write-Host "探針已停止 (PID: $($running.Id -join ', '))。" -ForegroundColor Green
     } else {
-        Write-Host "探针未运行。" -ForegroundColor Yellow
+        Write-Host "探針未運行。" -ForegroundColor Yellow
     }
 }
 
@@ -2020,7 +2020,7 @@ function Stop-Service {
 # 入口
 # ============================================================
 
-# 入口点 - 添加全局错误捕获
+# 入口點 - 添加全局錯誤捕獲
 try {
     switch ($Action) {
         "install"   { Install-Service }
@@ -2032,8 +2032,8 @@ try {
     }
 } catch {
     Write-Host "=============================================" -ForegroundColor Red
-    Write-Host "错误: $_" -ForegroundColor Red
-    Write-Host "错误详情: $($_.Exception.Message)" -ForegroundColor Red
-    Write-Host "错误行: $($_.InvocationInfo.ScriptLineNumber)" -ForegroundColor Red
+    Write-Host "錯誤: $_" -ForegroundColor Red
+    Write-Host "錯誤詳情: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "錯誤行: $($_.InvocationInfo.ScriptLineNumber)" -ForegroundColor Red
     Write-Host "=============================================" -ForegroundColor Red
 }

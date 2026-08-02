@@ -8,7 +8,7 @@
           <img class="mikus-loading-gif" :src="mikusAsset('loli.gif')" alt="Loading">
           <div class="mikus-loading-brand">
             <img class="mikus-loading-logo" :src="mikusAsset('miku.png')" alt="">
-            <span>{{ sysConfig.site_title || 'Komari' }}</span>
+            <span>{{ sysConfig.site_title || DEFAULT_SITE_TITLE }}</span>
           </div>
           <div class="mikus-loading-progress" aria-hidden="true">
             <div class="mikus-loading-progress-fill"></div>
@@ -105,7 +105,7 @@
 
     <div id="view-card" class="view-panel" :class="{ active: isCardView }">
       <div v-if="groupedServers.length === 0" class="empty-state">
-        [!] {{ trans.noServer }}，请在 <a href="/admin#admin" class="admin-link-color">{{ trans.backToAdmin }}</a> 中添加
+        [!] {{ trans.noServer }}，請在 <a href="/admin#admin" class="admin-link-color">{{ trans.backToAdmin }}</a> 中添加
       </div>
       <div v-else>
         <div v-for="group in groupedServers" :key="group.name" class="group-section">
@@ -496,7 +496,7 @@ const getUpdateTime = (lastUpdated) => {
   const diff = now.value - date.getTime()
 
   const lang = currentLang.value
-  // 时间差为负或小于1秒时，显示0秒前
+  // 時間差為負或小於1秒時，顯示0秒前
   if (diff < 1000) {
     return lang === 'zh' ? `0${trans.value.secondsAgo}` : `0 ${trans.value.secondsAgo}`
   }
@@ -844,8 +844,8 @@ const refreshData = async () => {
 }
 
 // -------------------------------------------------------------------------
-// 实时推送：
-//   - 订阅 "all"，收到任何服务器的更新都会合并对应 server 的指标
+// 即時推送：
+//   - 訂閱 "all"，收到任何伺服器的更新都會合並對應 server 的指標
 // -------------------------------------------------------------------------
 let liveSockets = []
 let themeObserver = null
@@ -854,7 +854,7 @@ let timeUpdateInterval = null
 const startLiveSocket = () => {
   const bases = getApiBases()
 
-  // 按 source 分组，每个 apiBase 只传自己的 server IDs
+  // 按 source 分組，每個 apiBase 只傳自己的 server IDs
   const idsByIndex = new Map()
   for (const s of servers.value) {
     if (!s.id || !s.source) continue
@@ -864,7 +864,7 @@ const startLiveSocket = () => {
     idsByIndex.get(idx).push(s.id)
   }
 
-  // 如果没有配置多个 API bases，使用原来的单连接方式
+  // 如果沒有配置多個 API bases，使用原來的單連線方式
   if (bases.length === 0) {
     const allIds = servers.value.map(s => s.id).filter(Boolean)
     liveSockets = [createLiveSocket('all', {
@@ -877,7 +877,7 @@ const startLiveSocket = () => {
     return
   }
 
-  // 为每个 API base 创建独立的 WebSocket 连接，跳过没有服务器的 base
+  // 為每個 API base 創建獨立的 WebSocket 連線，跳過沒有伺服器的 base
   liveSockets = bases.map((_, index) => {
     const ids = idsByIndex.get(index)
     if (!ids || ids.length === 0) return null
@@ -1037,7 +1037,7 @@ onMounted(async () => {
   await refreshData()
   startLiveSocket()
 
-  // 每秒更新 now 变量，使相对时间实时刷新
+  // 每秒更新 now 變數，使相對時間即時重新整理
   runDashboardTick()
   timeUpdateInterval = setInterval(runDashboardTick, 1000)
 

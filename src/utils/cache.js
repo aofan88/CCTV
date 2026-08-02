@@ -1,11 +1,11 @@
 /**
- * 缓存管理模块
- * 集中管理所有内存缓存，包括：
- * - 服务器列表缓存
- * - 服务器详情（复用服务器列表缓存）
- * - 最新指标缓存
- * - 历史指标缓存
- * - 站点设置缓存
+ * 緩存管理模塊
+ * 集中管理所有內存緩存，包括：
+ * - 服務器列表緩存
+ * - 服務器詳情（複用服務器列表緩存）
+ * - 最新指標緩存
+ * - 歷史指標緩存
+ * - 站點設置緩存
  */
 
 import { clearAppearanceSettingsCache, clearSiteSettingsCache, debug } from './settings.js';
@@ -45,17 +45,17 @@ export async function getAllServers(db, includeHidden = true) {
   const now = Date.now();
   
   if (serversListCache && now - serversListCache.time < SERVERS_LIST_TTL) {
-    debug('服务器列表缓存命中');
+    debug('服務器列表緩存命中');
     return filterServersByHidden(serversListCache.data, includeHidden);
   }
 
   try {
     const { results } = await db.prepare('SELECT * FROM servers ORDER BY sort_order ASC').all();
     serversListCache = { data: results, time: now };
-    debug('服务器列表缓存更新');
+    debug('服務器列表緩存更新');
     return filterServersByHidden(results, includeHidden);
   } catch (e) {
-    debug('获取服务器列表失败:', e);
+    debug('獲取服務器列表失敗:', e);
     return filterServersByHidden(serversListCache?.data, includeHidden);
   }
 }
@@ -75,7 +75,7 @@ export async function getServerDetail(db, id, includeHidden = false) {
   
   if (cached) {
     if (now - cached.time < SERVERS_LIST_TTL) {
-      debug('服务器详情缓存命中');
+      debug('服務器詳情緩存命中');
       const server = cached.data;
       
       if (!server) {
@@ -95,7 +95,7 @@ export async function getServerDetail(db, id, includeHidden = false) {
   const server = await db.prepare('SELECT * FROM servers WHERE id = ?').bind(id).first();
 
   serverDetailCache.set(id, { data: server, time: now });
-  debug('服务器详情缓存更新');
+  debug('服務器詳情緩存更新');
   
   if (!server) {
     return null;
@@ -114,8 +114,8 @@ export async function checkServerExists(db, id) {
 }
 
 /**
- * 获取最新指标缓存信息
- * @returns {object} 包含 cache、time、ttl 字段的对象
+ * 獲取最新指標緩存信息
+ * @returns {object} 包含 cache、time、ttl 字段的對象
  */
 export function getLatestMetricsCache() {
   return { cache: latestAllCache, time: latestAllCacheTime, ttl: LATEST_ALL_TTL };

@@ -1,13 +1,13 @@
 /**
- * 公共工具函数模块
- * 统一存放各处重复定义的函数
+ * 公共工具函數模塊
+ * 統一存放各處重複定義的函數
  */
 
 /**
- * 验证 Turnstile token
+ * 驗證 Turnstile token
  * @param {string} token - Turnstile token
  * @param {string} secretKey - Turnstile secret key
- * @returns {Promise<boolean>} 验证结果
+ * @returns {Promise<boolean>} 驗證結果
  */
 export async function verifyTurnstileToken(token, secretKey) {
   if (!token || !secretKey) {
@@ -35,7 +35,7 @@ export async function verifyTurnstileToken(token, secretKey) {
 }
 
 /**
- * 管理后台密码哈希参数
+ * 管理後臺密碼哈希參數
  */
 export const PASSWORD_HASH_ALGORITHM = 'pbkdf2_sha256';
 export const PASSWORD_HASH_ITERATIONS = 50000;
@@ -170,8 +170,8 @@ export async function verifyPasswordHash(password, storedHash) {
 }
 
 /**
- * 计算 MD5 哈希值，仅用于兼容旧版密码
- * @param {string} input - 输入字符串
+ * 計算 MD5 哈希值，僅用於兼容舊版密碼
+ * @param {string} input - 輸入字符串
  * @returns {Promise<string>} MD5 哈希值
  */
 const MD5_SHIFTS = [

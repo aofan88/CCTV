@@ -38,7 +38,7 @@ const renderMikusStartupLoading = (siteTitle) => {
   const loading = document.getElementById('loading')
   if (!loading || loading.dataset.mikusRendered === '1') return
 
-  const title = escapeHtml(String(siteTitle || 'Komari').trim() || 'Komari')
+  const title = escapeHtml(String(siteTitle || '潤昇創新 RunSing Innovation').trim() || '潤昇創新 RunSing Innovation')
   const loliUrl = getMikusAssetUrl('loli.gif')
   const logoUrl = getMikusAssetUrl('miku.png')
   const petals = Array.from({ length: 18 }, () => '<span class="mikus-background-petal"></span>').join('')
@@ -282,7 +282,7 @@ async function initApp() {
   const currentHash = window.location.hash || ''
   const isAdmin = isAdminPath() || currentHash.startsWith('#admin') || currentHash.startsWith('#/admin')
 
-  // 多站模式公开页面：一次 getAll 获取所有站点配置，检查 Turnstile key 是否可共享。
+  // 多站模式公開頁面：一次 getAll 取得所有站點配置，檢查 Turnstile key 是否可共享。
   let config
   if (isMultipleMode && !isAdmin) {
     try {
@@ -327,7 +327,7 @@ async function initApp() {
 
   applyStartupThemeOptions(config)
 
-  // 仅全局模式需要在启动时验证 Turnstile；登录模式在 Admin 页面的登录表单中验证
+  // 僅全局模式需要在啟動時驗證 Turnstile；登錄模式在 Admin 頁面的登錄表單中驗證
   if (config.turnstile_enabled) {
     if (isMultipleMode) {
       if (!config.verified && config.turnstile_site_key) {

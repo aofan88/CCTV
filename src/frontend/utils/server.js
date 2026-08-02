@@ -7,7 +7,7 @@ export const BILLING_CYCLES = Object.freeze([
   { value: 'quarter', months: 3, labelZh: '季', labelEn: 'Quarterly', shortLabelZh: '季', shortLabelEn: 'Q' },
   { value: 'half_year', months: 6, labelZh: '半年', labelEn: 'Half-yearly', shortLabelZh: '半年', shortLabelEn: 'HY' },
   { value: 'year', months: 12, labelZh: '年', labelEn: 'Yearly', shortLabelZh: '年', shortLabelEn: 'Y' },
-  { value: 'two_years', months: 24, labelZh: '两年', labelEn: 'Two years', shortLabelZh: '2年', shortLabelEn: '2Y' },
+  { value: 'two_years', months: 24, labelZh: '兩年', labelEn: 'Two years', shortLabelZh: '2年', shortLabelEn: '2Y' },
   { value: 'three_years', months: 36, labelZh: '三年', labelEn: 'Three years', shortLabelZh: '3年', shortLabelEn: '3Y' },
   { value: 'four_years', months: 48, labelZh: '四年', labelEn: 'Four years', shortLabelZh: '4年', shortLabelEn: '4Y' },
   { value: 'five_years', months: 60, labelZh: '五年', labelEn: 'Five years', shortLabelZh: '5年', shortLabelEn: '5Y' }
@@ -15,41 +15,41 @@ export const BILLING_CYCLES = Object.freeze([
 
 export const CURRENCY_OPTIONS = Object.freeze([
   { symbol: '$', nameZh: '美元', nameEn: 'US Dollar' },
-  { symbol: '¥', nameZh: '人民币', nameEn: 'Chinese Yuan' },
-  { symbol: '€', nameZh: '欧元', nameEn: 'Euro' },
-  { symbol: '£', nameZh: '英镑', nameEn: 'British Pound' },
+  { symbol: '¥', nameZh: '人民幣', nameEn: 'Chinese Yuan' },
+  { symbol: '€', nameZh: '歐元', nameEn: 'Euro' },
+  { symbol: '£', nameZh: '英鎊', nameEn: 'British Pound' },
   { symbol: '¥JPY', nameZh: '日元', nameEn: 'Japanese Yen' },
-  { symbol: 'HK$', nameZh: '港币', nameEn: 'Hong Kong Dollar' },
+  { symbol: 'HK$', nameZh: '港幣', nameEn: 'Hong Kong Dollar' },
   { symbol: 'A$', nameZh: '澳元', nameEn: 'Australian Dollar' },
   { symbol: 'C$', nameZh: '加拿大元', nameEn: 'Canadian Dollar' },
   { symbol: 'S$', nameZh: '新加坡元', nameEn: 'Singapore Dollar' },
-  { symbol: 'NZ$', nameZh: '新西兰元', nameEn: 'New Zealand Dollar' },
+  { symbol: 'NZ$', nameZh: '新西蘭元', nameEn: 'New Zealand Dollar' },
   { symbol: '₣', nameZh: '瑞士法郎', nameEn: 'Swiss Franc' },
-  { symbol: '₩', nameZh: '韩元', nameEn: 'Korean Won' },
-  { symbol: '₹', nameZh: '印度卢比', nameEn: 'Indian Rupee' },
-  { symbol: '฿', nameZh: '泰铢', nameEn: 'Thai Baht' },
+  { symbol: '₩', nameZh: '韓元', nameEn: 'Korean Won' },
+  { symbol: '₹', nameZh: '印度盧比', nameEn: 'Indian Rupee' },
+  { symbol: '฿', nameZh: '泰銖', nameEn: 'Thai Baht' },
   { symbol: '₫', nameZh: '越南盾', nameEn: 'Vietnamese Dong' },
-  { symbol: '₱', nameZh: '菲律宾比索', nameEn: 'Philippine Peso' },
+  { symbol: '₱', nameZh: '菲律賓比索', nameEn: 'Philippine Peso' },
   { symbol: 'Rp', nameZh: '印尼盾', nameEn: 'Indonesian Rupiah' },
-  { symbol: 'RM', nameZh: '马来西亚林吉特', nameEn: 'Malaysian Ringgit' },
+  { symbol: 'RM', nameZh: '馬來西亞林吉特', nameEn: 'Malaysian Ringgit' },
   { symbol: '₺', nameZh: '土耳其里拉', nameEn: 'Turkish Lira' },
-  { symbol: '₪', nameZh: '以色列新谢克尔', nameEn: 'Israeli Shekel' },
+  { symbol: '₪', nameZh: '以色列新謝克爾', nameEn: 'Israeli Shekel' },
   { symbol: '৳', nameZh: '孟加拉塔卡', nameEn: 'Bangladeshi Taka' },
-  { symbol: '₨', nameZh: '巴基斯坦卢比', nameEn: 'Pakistani Rupee' },
-  { symbol: 'LKR', nameZh: '斯里兰卡卢比', nameEn: 'Sri Lankan Rupee' },
-  { symbol: '₮', nameZh: '蒙古图格里克', nameEn: 'Mongolian Tugrik' },
-  { symbol: '₽', nameZh: '卢布', nameEn: 'Russian Ruble' },
-  { symbol: 'R$', nameZh: '巴西雷亚尔', nameEn: 'Brazilian Real' },
+  { symbol: '₨', nameZh: '巴基斯坦盧比', nameEn: 'Pakistani Rupee' },
+  { symbol: 'LKR', nameZh: '斯里蘭卡盧比', nameEn: 'Sri Lankan Rupee' },
+  { symbol: '₮', nameZh: '蒙古圖格里克', nameEn: 'Mongolian Tugrik' },
+  { symbol: '₽', nameZh: '盧布', nameEn: 'Russian Ruble' },
+  { symbol: 'R$', nameZh: '巴西雷亞爾', nameEn: 'Brazilian Real' },
   { symbol: 'kr', nameZh: '克朗', nameEn: 'Krona (SEK/NOK/DKK)' },
-  { symbol: 'zł', nameZh: '波兰兹罗提', nameEn: 'Polish Zloty' },
-  { symbol: '₴', nameZh: '乌克兰格里夫纳', nameEn: 'Ukrainian Hryvnia' },
-  { symbol: '₸', nameZh: '哈萨克坦戈', nameEn: 'Kazakhstani Tenge' },
-  { symbol: 'R', nameZh: '南非兰特', nameEn: 'South African Rand' },
-  { symbol: '₦', nameZh: '尼日利亚奈拉', nameEn: 'Nigerian Naira' },
-  { symbol: 'EGP', nameZh: '埃及镑', nameEn: 'Egyptian Pound' },
-  { symbol: 'د.إ', nameZh: '阿联酋迪拉姆', nameEn: 'UAE Dirham' },
-  { symbol: '﷼', nameZh: '沙特里亚尔', nameEn: 'Saudi Riyal' },
-  { symbol: 'Q', nameZh: '危地马拉格查尔', nameEn: 'Guatemalan Quetzal' }
+  { symbol: 'zł', nameZh: '波蘭茲羅提', nameEn: 'Polish Zloty' },
+  { symbol: '₴', nameZh: '烏克蘭格里夫納', nameEn: 'Ukrainian Hryvnia' },
+  { symbol: '₸', nameZh: '哈薩克坦戈', nameEn: 'Kazakhstani Tenge' },
+  { symbol: 'R', nameZh: '南非蘭特', nameEn: 'South African Rand' },
+  { symbol: '₦', nameZh: '尼日利亞奈拉', nameEn: 'Nigerian Naira' },
+  { symbol: 'EGP', nameZh: '埃及鎊', nameEn: 'Egyptian Pound' },
+  { symbol: 'د.إ', nameZh: '阿聯酋迪拉姆', nameEn: 'UAE Dirham' },
+  { symbol: '﷼', nameZh: '沙特里亞爾', nameEn: 'Saudi Riyal' },
+  { symbol: 'Q', nameZh: '危地馬拉格查爾', nameEn: 'Guatemalan Quetzal' }
 ]);
 
 const CYCLE_ALIASES = new Map([
@@ -70,7 +70,7 @@ const CYCLE_ALIASES = new Map([
   ['year', 'year'],
   ['yearly', 'year'],
   ['annual', 'year'],
-  ['两年', 'two_years'],
+  ['兩年', 'two_years'],
   ['二年', 'two_years'],
   ['two_years', 'two_years'],
   ['2 years', 'two_years'],
@@ -146,7 +146,7 @@ export function detectBillingCycle(value) {
   if (/五年|5\s*(y|yr|yrs|year|years)/i.test(raw)) return 'five_years';
   if (/四年|4\s*(y|yr|yrs|year|years)/i.test(raw)) return 'four_years';
   if (/三年|3\s*(y|yr|yrs|year|years)/i.test(raw)) return 'three_years';
-  if (/(两年|二年)|2\s*(y|yr|yrs|year|years)/i.test(raw)) return 'two_years';
+  if (/(兩年|二年)|2\s*(y|yr|yrs|year|years)/i.test(raw)) return 'two_years';
   if (/半年|half[-_\s]?year/i.test(raw)) return 'half_year';
   if (/季|quarter|\/q\b/i.test(raw)) return 'quarter';
   if (/年|annual|year|yr\b|\/y\b/i.test(raw)) return 'year';
@@ -247,7 +247,7 @@ export function renewExpireDateIfNeeded(expireDate, billingCycle, autoRenewal, n
 export function formatBillingPrice(server, lang = 'zh') {
   const price = normalizePrice(server?.price);
   if (!price) return '';
-  if (isFreePrice(price)) return lang === 'zh' ? '免费' : 'Free';
+  if (isFreePrice(price)) return lang === 'zh' ? '免費' : 'Free';
 
   const currency = normalizeCurrency(server?.currency || detectCurrencySymbol(server?.price));
   const cycle = getBillingCycleOption(detectBillingCycle(server?.price) || server?.billing_cycle);

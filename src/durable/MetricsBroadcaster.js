@@ -1,15 +1,15 @@
-// Durable Object: 服务器监控指标广播中心
-// 负责维护 WebSocket 连接并在收到新指标时向订阅者实时推送
+// Durable Object: 服務器監控指標廣播中心
+// 負責維護 WebSocket 連接並在收到新指標時向訂閱者實時推送
 //
-// - 连接通过 /api/ws?subscribe=<scope> 建立
-//   scope = 'all'        -> 订阅所有服务器更新（首页）
-//   scope = <serverId>   -> 只订阅某台服务器的更新（详情页）
+// - 連接通過 /api/ws?subscribe=<scope> 建立
+//   scope = 'all'        -> 訂閱所有服務器更新（首頁）
+//   scope = <serverId>   -> 只訂閱某臺服務器的更新（詳情頁）
 //
-// - 后端 /update 处理器在成功写入 DB 后，调用 /__do_push/<id>
-//   由本 DO 向所有订阅者广播刚收到的指标。
+// - 後端 /update 處理器在成功寫入 DB 後，調用 /__do_push/<id>
+//   由本 DO 向所有訂閱者廣播剛收到的指標。
 //
-// - 使用 DO WebSocket Hibernation API，闲置时休眠以节省资源。
-//   通过 setWebSocketAutoResponse 自动响应 ping，无需唤醒 DO。
+// - 使用 DO WebSocket Hibernation API，閒置時休眠以節省資源。
+//   通過 setWebSocketAutoResponse 自動響應 ping，無需喚醒 DO。
 
 const MAX_SUBSCRIBE_IDS = 500;
 const MAX_SERVER_ID_LENGTH = 64;
@@ -210,7 +210,7 @@ export class MetricsBroadcaster {
   constructor(state, env) {
     this.state = state;
     this.env = env;
-    // 仅用于新页面快速接上最近一包数据；DO 重启或休眠回收后允许自然丢失。
+    // 僅用於新頁面快速接上最近一包數據；DO 重啟或休眠回收後允許自然丟失。
     this.latestReportUpdates = new Map();
     this.resourceAlertWindows = new Map();
     this.resourceAlertSnapshotLoaded = false;
@@ -218,8 +218,8 @@ export class MetricsBroadcaster {
     this.resourceAlertLastSnapshotSave = 0;
     this.resourceAlertCacheActiveUntil = 0;
 
-    // 自动响应 ping 心跳，DO 无需被唤醒
-    // @ts-ignore - Cloudflare Workers 运行时提供 WebSocketRequestResponsePair
+    // 自動響應 ping 心跳，DO 無需被喚醒
+    // @ts-ignore - Cloudflare Workers 運行時提供 WebSocketRequestResponsePair
     this.state.setWebSocketAutoResponse(
       // @ts-ignore
       new WebSocketRequestResponsePair(
@@ -280,7 +280,7 @@ export class MetricsBroadcaster {
     return typeof msg.scope === 'string' ? msg.scope : null;
   }
 
-  // 根据 scope 和 serverIds 判断是否需要接收某台服务器的更新
+  // 根據 scope 和 serverIds 判斷是否需要接收某臺服務器的更新
   _shouldDeliver(sessionScope, serverId, serverIds) {
     if (!sessionScope) return false;
     if (sessionScope === 'all') {
@@ -305,7 +305,7 @@ export class MetricsBroadcaster {
       const origin = request.headers.get('Origin');
       const allowedOrigins = parseAllowedOrigins(this.env.CORS_ALLOWED_ORIGINS);
 
-      // Worker 转发时通过 X-Real-Origin 传递真实 origin，替代 DO 内部的 http://internal
+      // Worker 轉發時通過 X-Real-Origin 傳遞真實 origin，替代 DO 內部的 http://internal
       const realOrigin = request.headers.get('X-Real-Origin') || `${url.protocol}//${url.host}`;
       if (origin && allowedOrigins.length > 0 && !allowedOrigins.includes(origin) && origin !== realOrigin) {
         return new Response('Forbidden', { status: 403 });
@@ -317,17 +317,17 @@ export class MetricsBroadcaster {
         return new Response('Invalid subscription scope', { status: 400 });
       }
 
-      // @ts-ignore - Cloudflare Workers 运行时提供 WebSocketPair
+      // @ts-ignore - Cloudflare Workers 運行時提供 WebSocketPair
       const pair = new WebSocketPair();
       const [client, server] = Object.values(pair);
 
-      // 使用 DO WebSocket Hibernation API 接管连接
+      // 使用 DO WebSocket Hibernation API 接管連接
       this.state.acceptWebSocket(server);
 
-      // 将订阅 scope 和空 serverIds 附加到 WebSocket（休眠后仍保留）
+      // 將訂閱 scope 和空 serverIds 附加到 WebSocket（休眠後仍保留）
       server.serializeAttachment({ scope, serverIds: [] });
 
-      // 立即发送 hello 让客户端确认连接成功
+      // 立即發送 hello 讓客戶端確認連接成功
       try {
         server.send(JSON.stringify({
           type: 'hello',
@@ -352,7 +352,7 @@ export class MetricsBroadcaster {
       });
     }
 
-    // ── 2) 广播入口：/update 成功后由 Worker 内部转发 ──
+    // ── 2) 廣播入口：/update 成功後由 Worker 內部轉發 ──
     //     path: /push/<serverId>   body: { metrics } JSON
     if (method === 'POST' && (path.startsWith('/push/') || path.includes('/push/'))) {
       const parts = path.split('/push/');
@@ -432,7 +432,7 @@ export class MetricsBroadcaster {
       });
     }
 
-    // Worker 内部读取每台服务器最近一次上报的完整样本包。
+    // Worker 內部讀取每臺服務器最近一次上報的完整樣本包。
     if (method === 'POST' && path === '/latest-report-updates') {
       let body = null;
       try {
@@ -495,7 +495,7 @@ export class MetricsBroadcaster {
       });
     }
 
-    // ── 3) 健康检查 ────────────────────────────────────
+    // ── 3) 健康檢查 ────────────────────────────────────
     if (method === 'GET' && (path === '/health' || path.endsWith('/health'))) {
       const count = this.state.getWebSockets().length;
       return new Response(JSON.stringify({ ok: true, subscribers: count }), {
@@ -506,7 +506,7 @@ export class MetricsBroadcaster {
     return new Response('Not found', { status: 404 });
   }
 
-  // 向所有匹配 scope 的 WebSocket 广播推送
+  // 向所有匹配 scope 的 WebSocket 廣播推送
   _broadcast(serverId, payload) {
     const ts = Date.now();
     const updates = [{
@@ -531,7 +531,7 @@ export class MetricsBroadcaster {
     for (const update of updates) {
       if (!update || !update.serverId || !Array.isArray(update.samples) || update.samples.length === 0) continue;
       const serverId = String(update.serverId);
-      // delete + set 让 Map 的插入顺序同时代表最近更新时间，便于限制内存上限。
+      // delete + set 讓 Map 的插入順序同時代表最近更新時間，便於限制內存上限。
       this.latestReportUpdates.delete(serverId);
       this.latestReportUpdates.set(serverId, maskPublicIpUpdate({
         serverId,
@@ -792,7 +792,7 @@ export class MetricsBroadcaster {
     return { now, mode, windowMinutes, alerts, evaluatedServerIds, evaluations };
   }
 
-  // WebSocket 收到消息（ping 已被自动响应拦截，不会到达此处）
+  // WebSocket 收到消息（ping 已被自動響應攔截，不會到達此處）
   _normalizeBatchUpdates(updates) {
     const now = Date.now();
     return updates.map(item => {
@@ -837,13 +837,13 @@ export class MetricsBroadcaster {
       try {
         ws.send(message);
       } catch (_) {
-        // WebSocket 已异常关闭，DO 会自动清理
+        // WebSocket 已異常關閉，DO 會自動清理
       }
     }
   }
 
   webSocketMessage(ws, message) {
-    // 保留处理扩展消息的入口
+    // 保留處理擴展消息的入口
     try {
       const msg = JSON.parse(message || '{}');
       if (msg && msg.type === 'subscribe') {
@@ -882,10 +882,10 @@ export class MetricsBroadcaster {
     } catch (_) {}
   }
 
-  // WebSocket 关闭 — DO 自动清理，无需手动移除
+  // WebSocket 關閉 — DO 自動清理，無需手動移除
   webSocketClose(ws, code, reason) {}
 
-  // WebSocket 错误 — DO 自动处理
+  // WebSocket 錯誤 — DO 自動處理
   webSocketError(ws, error) {}
 }
 

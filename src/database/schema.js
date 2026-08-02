@@ -16,7 +16,7 @@ const DEFAULT_HISTORY_MAX_POINTS = 160;
 export async function initDatabase(db) {
   if (dbInitialized) return;
 
-  debug('初始化数据库');
+  debug('初始化數據庫');
   
   try {
     const SettingTableExists = await db.prepare(`
@@ -33,7 +33,7 @@ export async function initDatabase(db) {
       await saveSiteOptions(db, { history_id_optimized: 'true' });
     }
 
-    // 判断servers表是否存在
+    // 判斷servers表是否存在
     const ServerTableExists = await db.prepare(`
       SELECT name FROM sqlite_master WHERE type='table' AND name='servers'
     `).first();
@@ -72,11 +72,11 @@ export async function initDatabase(db) {
         )
       `).run();
     } else {
-      debug('检查servers表优化状态');
+      debug('檢查servers表優化狀態');
       await ensureServerOptimization(db);
     }
 
-    // 判断metrics_history表是否存在
+    // 判斷metrics_history表是否存在
     const historyTableExists = await db.prepare(`
       SELECT name FROM sqlite_master WHERE type='table' AND name='metrics_history'
     `).first();
@@ -128,22 +128,22 @@ export async function initDatabase(db) {
       await ensureHistoryIndex(db);
     }
 
-    debug('✅ 数据库初始化完成');
+    debug('✅ 數據庫初始化完成');
     dbInitialized = true;
   } catch (e) {
-    console.error('❌ 数据库初始化失败:', e);
+    console.error('❌ 數據庫初始化失敗:', e);
   }
 }
 
 export async function clearHistory(db) {
-  debug('开始清空历史数据...');
+  debug('開始清空歷史數據...');
   
   try {
     await db.prepare(`DROP TABLE IF EXISTS metrics_history`).run();
-    debug('✅ 已删除 metrics_history 表');
+    debug('✅ 已刪除 metrics_history 表');
 
     await db.prepare(`DROP TABLE IF EXISTS metrics_history_old`).run();
-    debug('✅ 已删除 metrics_history_old 表');
+    debug('✅ 已刪除 metrics_history_old 表');
     
     dbInitialized = false;
     
@@ -153,14 +153,14 @@ export async function clearHistory(db) {
 
     await clearAllCaches(db);
     
-    debug('✅ 数据库重建完成');
+    debug('✅ 數據庫重建完成');
     
     return {
       success: true,
       message: 'databaseRebuiltSuccess'
     };
   } catch (e) {
-    console.error('❌ 数据库清理失败:', e);
+    console.error('❌ 數據庫清理失敗:', e);
     return {
       success: false,
       message: 'databaseRebuiltFailed',
@@ -228,8 +228,8 @@ export async function getMetricsHistory(
   const historyInfo = await getServerHistoryInfo(db, serverId, server);
   const queryStart = Math.max(cutoff, historyInfo.startTimestamp);
 
-  // 判断是否需要查询 metrics_history_old 表
-  // 如果实际查询起点早于本周日 00:00 UTC（表轮换时间），说明需要查旧表
+  // 判斷是否需要查詢 metrics_history_old 表
+  // 如果實際查詢起點早於本週日 00:00 UTC（表輪換時間），說明需要查舊錶
   const nowDate = new Date(now);
   const day = nowDate.getUTCDay();
   const thisSunday = new Date(Date.UTC(nowDate.getUTCFullYear(), nowDate.getUTCMonth(), nowDate.getUTCDate() - day));
@@ -336,7 +336,7 @@ export async function getMetricsHistory(
     }
 
     if (oldTableExists) {
-      debug('[History] 跨周查询，合并 metrics_history 和 metrics_history_old');
+      debug('[History] 跨周查詢，合併 metrics_history 和 metrics_history_old');
       sourceQueries.push(buildHistorySourceQuery('metrics_history_old', oldUsesIdRange, sourceColumns));
       if (oldUsesIdRange) {
         bindValues.push(idRange.startId, idRange.endId);
@@ -392,45 +392,45 @@ export async function getMetricsHistory(
 
 export async function weeklyCleanup(db) {
   try {
-    debug('[Cleanup] 开始执行表轮换操作...');
+    debug('[Cleanup] 開始執行表輪換操作...');
     
-    // 判断metrics_history有无索引
+    // 判斷metrics_history有無索引
     const index = await db.prepare(
       `SELECT name FROM sqlite_master WHERE type='index' AND tbl_name='metrics_history'`
     ).first();
     if(!index){
       await saveSiteOptions(db, { history_id_optimized: 'true' });
-      debug('✅ 切换到优化模式');
+      debug('✅ 切換到優化模式');
     }else{
-      debug('✅ 继续兼容模式');
+      debug('✅ 繼續兼容模式');
     }
     
-    // 1. 删除旧的 metrics_history_old 表（如果存在）
+    // 1. 刪除舊的 metrics_history_old 表（如果存在）
     await db.prepare(`DROP TABLE IF EXISTS metrics_history_old`).run();
-    debug('[Cleanup] 已删除旧的 metrics_history_old 表');
+    debug('[Cleanup] 已刪除舊的 metrics_history_old 表');
     
-    // 2. 将 metrics_history 重命名为 metrics_history_old
+    // 2. 將 metrics_history 重命名為 metrics_history_old
     const currentTable = await db.prepare(
       `SELECT name FROM sqlite_master WHERE type='table' AND name='metrics_history'`
     ).first();
     
     if (currentTable) {
       await db.prepare(`ALTER TABLE metrics_history RENAME TO metrics_history_old`).run();
-      debug('[Cleanup] 已将 metrics_history 重命名为 metrics_history_old');
+      debug('[Cleanup] 已將 metrics_history 重命名為 metrics_history_old');
     }
   
-    // 3. 重新初始化数据库以创建新的 metrics_history 表
+    // 3. 重新初始化數據庫以創建新的 metrics_history 表
     dbInitialized = false;
     await initDatabase(db);
 
-    debug('[Cleanup] 已创建新的 metrics_history 表');
+    debug('[Cleanup] 已創建新的 metrics_history 表');
     
     return {
       success: true,
-      message: '表轮换成功'
+      message: '表輪換成功'
     };
   } catch (e) {
-    console.error('[Cleanup] 表轮换失败:', e);
+    console.error('[Cleanup] 表輪換失敗:', e);
     return { success: false, error: e.message };
   }
 }
@@ -527,16 +527,16 @@ export async function saveMetricsHistory(db, serverId, historyPartitionId, metri
     await insertHistoryRow();
   } catch (e) {
     if (e?.message && /has no column/i.test(e.message)) {
-      console.warn('检测到数据库字段缺失，尝试添加缺失字段...');
+      console.warn('檢測到數據庫字段缺失，嘗試添加缺失字段...');
       await addHistoryColumns(db);
       try {
         await insertHistoryRow();
       } catch (retryError) {
-        console.error('保存历史数据失败:', retryError);
+        console.error('保存歷史數據失敗:', retryError);
       }
       return;
     }
-    console.error('保存历史数据失败:', e);
+    console.error('保存歷史數據失敗:', e);
   }
 }
 
@@ -568,7 +568,7 @@ export async function getLatestMetrics(db, serverId, server = null) {
     `).bind(serverId).first();
     return result ? normalizeProbeMetricRow(result) : null;
   } catch (e) {
-    console.error('获取最新指标数据失败:', e);
+    console.error('獲取最新指標數據失敗:', e);
     return null;
   }
 }
@@ -580,7 +580,7 @@ export async function getLatestMetricsForAllServers(db) {
     return cacheInfo.cache;
   }
 
-  // 确保 metrics_history 表有 idx_history_server_time 索引
+  // 確保 metrics_history 表有 idx_history_server_time 索引
   await ensureHistoryIndex(db);
 
   try {
@@ -596,7 +596,7 @@ export async function getLatestMetricsForAllServers(db) {
     setLatestMetricsCache(result);
     return result;
   } catch (e) {
-    console.error('获取所有服务器最新指标数据失败:', e);
+    console.error('獲取所有服務器最新指標數據失敗:', e);
     const cacheInfo = getLatestMetricsCache();
     return cacheInfo.cache || new Map();
   }

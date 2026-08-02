@@ -9,31 +9,31 @@ import {
 
 
 export async function updateDatabase(db) {
-  debug('开始执行数据库更新...');
+  debug('開始執行數據庫更新...');
   const results = [];
   
   try {
     const historyIndex = await ensureHistoryIndex(db);
-    results.push({ name: 'metrics_history 索引检查', ...historyIndex });
+    results.push({ name: 'metrics_history 索引檢查', ...historyIndex });
     
     const serversCols = await addServerColumns(db);
     results.push({ name: 'servers 表列更新', ...serversCols });
     
     const cleanupServers = await cleanupServerExtraColumns(db);
-    results.push({ name: 'servers 表多余字段清理', ...cleanupServers });
+    results.push({ name: 'servers 表多餘字段清理', ...cleanupServers });
     
     const historyCols = await addHistoryColumns(db);
     results.push({ name: 'metrics_history 表列更新', ...historyCols });
 
-    // 无需清理metrics_history多余字段，消耗过大，不影响使用，每周执行weeklyCleanup的时候会自动清理
+    // 無需清理metrics_history多餘字段，消耗過大，不影響使用，每週執行weeklyCleanup的時候會自動清理
     
     const staleCleanup = await cleanupStaleSettings(db);
-    results.push({ name: '废弃 settings key 清理', ...staleCleanup });
+    results.push({ name: '廢棄 settings key 清理', ...staleCleanup });
     
     const dropAggregated = await dropMetricsAggregatedTable(db);
-    results.push({ name: '删除弃用的 metrics_aggregated 表', ...dropAggregated });
+    results.push({ name: '刪除棄用的 metrics_aggregated 表', ...dropAggregated });
     
-    debug('✅ 数据库更新完成');
+    debug('✅ 數據庫更新完成');
     
     return {
       success: true,
@@ -41,7 +41,7 @@ export async function updateDatabase(db) {
       results
     };
   } catch (e) {
-    debug('❌ 数据库更新失败:', e);
+    debug('❌ 數據庫更新失敗:', e);
     return {
       success: false,
       message: 'databaseUpgradeFailed',
@@ -60,16 +60,16 @@ export async function isHistoryOptimized(db) {
     ORDER BY id ASC
     LIMIT 1
   `).first();
-  if(!minId) return true;  // 空表，视为已优化
+  if(!minId) return true;  // 空表，視為已優化
   return minId.min_id > 10000000000000;
 }
 
-// 确保 旧版metrics_history 表有索引
+// 確保 舊版metrics_history 表有索引
 export async function ensureHistoryIndex(db) {
   const history_id_optimized = await getSettingByKey(db, 'history_id_optimized', true);
   if(history_id_optimized) {
-    debug('metrics_history 表已优化，无需创建索引');
-    return { success: true, created: false, message: 'metrics_history 表已优化，无需创建索引'};
+    debug('metrics_history 表已優化，無需創建索引');
+    return { success: true, created: false, message: 'metrics_history 表已優化，無需創建索引'};
   }
   
   try {
@@ -78,11 +78,11 @@ export async function ensureHistoryIndex(db) {
     ).first();
 
     if (index) {
-      debug('索引已存在无需创建');
+      debug('索引已存在無需創建');
       return { success: true, created: false, message: '索引已存在' };
     }
 
-    // 获取最小id
+    // 獲取最小id
      const minId = await db.prepare(`
       SELECT id AS min_id
       FROM metrics_history
@@ -91,11 +91,11 @@ export async function ensureHistoryIndex(db) {
     `).first();
 
     if (!minId || minId.min_id > 10000000000000) {
-      debug('metrics_history 表为空或已优化，无需创建索引');
+      debug('metrics_history 表為空或已優化，無需創建索引');
       return {
         success: true,
         created: false,
-        message: 'metrics_history 表为空或已优化，无需创建索引'
+        message: 'metrics_history 表為空或已優化，無需創建索引'
       };
     }
 
@@ -105,11 +105,11 @@ export async function ensureHistoryIndex(db) {
       CREATE INDEX IF NOT EXISTS ${idxName} 
       ON metrics_history(server_id, timestamp)
     `).run();
-    debug(`✅ 已创建索引 ${idxName}`);
+    debug(`✅ 已創建索引 ${idxName}`);
 
-    return { success: true, created: true, message: '已创建索引' };
+    return { success: true, created: true, message: '已創建索引' };
   } catch (e) {
-    debug('检查/创建 metrics_history 索引失败:', e);
+    debug('檢查/創建 metrics_history 索引失敗:', e);
     return { success: false, error: e.message };
   }
 }
@@ -175,7 +175,7 @@ export async function addServerColumns(db) {
     
     return { success: true, added, migratedPrices };
   } catch (e) {
-    debug('添加 servers 表列失败:', e);
+    debug('添加 servers 表列失敗:', e);
     return { success: false, error: e.message };
   }
 }
@@ -189,17 +189,17 @@ async function cleanupServerExtraColumns(db) {
     const colsToDrop = extraCols.filter(col => existingCols.includes(col));
     
     if (colsToDrop.length === 0) {
-      return { success: true, cleaned: 0, message: '无需清理（没有多余字段）' };
+      return { success: true, cleaned: 0, message: '無需清理（沒有多餘字段）' };
     }
     
     for (const col of colsToDrop) {
       await db.prepare(`ALTER TABLE servers DROP COLUMN ${col}`).run();
-      debug(`✅ 已删除 servers 表的 ${col} 字段`);
+      debug(`✅ 已刪除 servers 表的 ${col} 字段`);
     }
     
-    return { success: true, cleaned: colsToDrop.length, message: `已删除 ${colsToDrop.join(', ')} 字段` };
+    return { success: true, cleaned: colsToDrop.length, message: `已刪除 ${colsToDrop.join(', ')} 字段` };
   } catch (e) {
-    debug('清理 servers 表多余字段失败:', e);
+    debug('清理 servers 表多餘字段失敗:', e);
     return { success: false, error: e.message };
   }
 }
@@ -253,27 +253,27 @@ export async function addHistoryColumns(db) {
 }
 
 async function dropMetricsAggregatedTable(db) {
-  debug('开始删除弃用的 metrics_aggregated 表...');
+  debug('開始刪除棄用的 metrics_aggregated 表...');
   try {
     const { results: tables } = await db.prepare(
       `SELECT name FROM sqlite_master WHERE type='table' AND name='metrics_aggregated'`
     ).all();
     
     if (tables.length === 0) {
-      return { success: true, dropped: 0, message: '无需删除（表不存在）' };
+      return { success: true, dropped: 0, message: '無需刪除（表不存在）' };
     }
     
     await db.prepare(`DROP TABLE metrics_aggregated`).run();
-    debug('✅ 已删除 metrics_aggregated 表');
-    return { success: true, dropped: 1, message: '已删除 metrics_aggregated 表' };
+    debug('✅ 已刪除 metrics_aggregated 表');
+    return { success: true, dropped: 1, message: '已刪除 metrics_aggregated 表' };
   } catch (e) {
-    debug('删除 metrics_aggregated 表失败:', e);
+    debug('刪除 metrics_aggregated 表失敗:', e);
     return { success: false, error: e.message };
   }
 }
 
 export async function cleanupStaleSettings(db) {
-  debug('开始清理废弃的 settings key...');
+  debug('開始清理廢棄的 settings key...');
   try {
     const stalePrefixes = ['last_write_%'];
     const staleExact = [
@@ -310,11 +310,11 @@ export async function cleanupStaleSettings(db) {
       `DELETE FROM settings WHERE ${staleKeysWhere}`
     ).bind(...staleBindings).run();
     if (cleanupResult.changes > 0) {
-      debug(`已清理 ${cleanupResult.changes} 个废弃的 settings key`);
+      debug(`已清理 ${cleanupResult.changes} 個廢棄的 settings key`);
     }
     return { success: true, cleaned: cleanupResult.changes };
   } catch (e) {
-    debug('清理废弃 settings key 失败:', e);
+    debug('清理廢棄 settings key 失敗:', e);
     return { success: false, error: e.message };
   }
 }

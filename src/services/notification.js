@@ -11,10 +11,10 @@ const RESOURCE_ALERT_STATE_RECOVERED = 'recovered';
 const RESOURCE_ALERT_STATE_KEY = 'resource_alert_state';
 
 function formatLastReportTime(timestamp) {
-  if (!timestamp) return '无上报记录';
+  if (!timestamp) return '無上報記錄';
 
   const date = new Date(timestamp);
-  if (Number.isNaN(date.getTime())) return '无效时间';
+  if (Number.isNaN(date.getTime())) return '無效時間';
 
   return date.toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' });
 }
@@ -37,12 +37,12 @@ function formatResourceMetric(metric) {
     cpu: 'CPU',
     ram: 'RAM',
     disk: 'DISK',
-    netIn: '下行网速',
-    netOut: '上行网速',
-    netTotal: '总网速'
+    netIn: '下行網速',
+    netOut: '上行網速',
+    netTotal: '總網速'
   };
   const label = metricLabels[metric.metric] || metric.metric;
-  const valueLabel = metric.mode === 'average' ? '平均' : '当前';
+  const valueLabel = metric.mode === 'average' ? '平均' : '當前';
   const value = metric.triggerValue ?? metric.current;
   if (metric.metric === 'cpu' || metric.metric === 'ram' || metric.metric === 'disk') {
     return `${label} ${valueLabel} ${formatPercent(value)} > ${formatPercent(metric.threshold)}`;
@@ -55,9 +55,9 @@ function getResourceMetricLabel(metric) {
     cpu: 'CPU',
     ram: 'RAM',
     disk: 'DISK',
-    netIn: '下行网速',
-    netOut: '上行网速',
-    netTotal: '总网速'
+    netIn: '下行網速',
+    netOut: '上行網速',
+    netTotal: '總網速'
   };
   return metricLabels[metric?.metric] || metric?.metric || '';
 }
@@ -76,7 +76,7 @@ function formatRecoveredResourceMetric(metric) {
   const valueText = formatResourceMetricValue(metric, value);
   const thresholdText = formatResourceMetricValue(metric, metric.threshold);
 
-  return `${label} 当前 ${valueText} < ${thresholdText}`;
+  return `${label} 當前 ${valueText} < ${thresholdText}`;
 }
 
 function parseResourceAlertState(row) {
@@ -169,7 +169,7 @@ function getResourceAlertRuleStateKey(rule, serverId) {
 }
 
 function getResourceAlertRuleName(rule) {
-  return String(rule?.name || '资源负载告警').trim() || '资源负载告警';
+  return String(rule?.name || '資源負載告警').trim() || '資源負載告警';
 }
 
 function getResourceAlertRuleServerIds(rule, servers) {
@@ -254,13 +254,13 @@ export async function sendNotification(settings, msg) {
   if(!settings.tg_bot_token) return;
   const title = "💌 Cloudflare Server Monitor";
   if(settings.tg_bot_token.indexOf("onebot:") == 0) {
-    // OneBot 协议 (QQ 等)，私聊格式: onebot:http://127.0.0.1:3000/send_private_msg?access_token=xxx
+    // OneBot 協議 (QQ 等)，私聊格式: onebot:http://127.0.0.1:3000/send_private_msg?access_token=xxx
     // 群聊格式: onebot:http://127.0.0.1:3000/send_group_msg?access_token=xxx
     let onebotUrl = settings.tg_bot_token.replace("onebot:", "");
     const targetId = settings.tg_chat_id || '';
     const isGroup = onebotUrl.indexOf("send_group_msg") != -1;
     if (!targetId) {
-      return "OneBot 通知失败: 缺少 tg_chat_id（私人: QQ号，群: group:群号）";
+      return "OneBot 通知失敗: 缺少 tg_chat_id（私人: QQ號，群: group:群號）";
     }
     try {
       const endpoint = onebotUrl.trim();
@@ -281,10 +281,10 @@ export async function sendNotification(settings, msg) {
         body: JSON.stringify(body)
       });
     } catch (e) {
-      return "OneBot 通知发送失败: " + e.message;
+      return "OneBot 通知發送失敗: " + e.message;
     }
   }else if(settings.tg_bot_token.includes("open.feishu.cn")) {
-    // 飞书机器人 Webhook
+    // 飛書機器人 Webhook
     try {
       await fetchWithRetry(settings.tg_bot_token, {
         method: 'POST',
@@ -299,10 +299,10 @@ export async function sendNotification(settings, msg) {
         })
       });
     } catch (e) {
-      return "飞书通知发送失败: " + e.message;
+      return "飛書通知發送失敗: " + e.message;
     }
   }else if(settings.tg_bot_token.includes("oapi.dingtalk.com") || settings.tg_bot_token.includes("api.dingtalk.com")) {
-    // 钉钉机器人 Webhook
+    // 釘釘機器人 Webhook
     try {
       await fetchWithRetry(settings.tg_bot_token, {
         method: 'POST',
@@ -313,7 +313,7 @@ export async function sendNotification(settings, msg) {
         })
       });
     } catch (e) {
-      return "钉钉通知发送失败: " + e.message;
+      return "釘釘通知發送失敗: " + e.message;
     }
   }else if(settings.tg_bot_token.includes("https://api.day.app/") || settings.tg_bot_token.indexOf("bark:") == 0) {
     let barkUrl = settings.tg_bot_token;
@@ -331,7 +331,7 @@ export async function sendNotification(settings, msg) {
         })
       });
     } catch (e) {
-      return "Bark通知发送失败: " + e.message;
+      return "Bark通知發送失敗: " + e.message;
     }
   }else if(settings.tg_bot_token.includes("https://qyapi.weixin.qq.com")){
     try {
@@ -346,9 +346,9 @@ export async function sendNotification(settings, msg) {
         })
       });
     } catch (e) {
-      return "企业微信通知发送失败: " + e.message;
+      return "企業微信通知發送失敗: " + e.message;
     }
-  // Server 酱（使用 sendkey）
+  // Server 醬（使用 sendkey）
   }else if(settings.tg_bot_token.includes("https://sctapi.ftqq.com/")) {
     try {
       await fetchWithRetry(settings.tg_bot_token, {
@@ -360,12 +360,12 @@ export async function sendNotification(settings, msg) {
         })
       });
     } catch (e) {
-      return "Server酱通知发送失败: " + e.message;
+      return "Server醬通知發送失敗: " + e.message;
     }
   }else if(settings.tg_bot_token.includes("https://wxpusher.zjiecode.com/api/send/message/SPT_")) {
     const match = settings.tg_bot_token.match(/\/message\/([^/]+)/);
     const spt = match ? match[1] : null;
-    if (!spt) return "WxPusher 通知失败: 无法提取 SPT";
+    if (!spt) return "WxPusher 通知失敗: 無法提取 SPT";
     try {
       await fetchWithRetry("https://wxpusher.zjiecode.com/api/send/message/simple-push", {
         method: 'POST',
@@ -378,7 +378,7 @@ export async function sendNotification(settings, msg) {
         })
       });
     } catch (e) {
-      return "WxPusher通知发送失败: " + e.message;
+      return "WxPusher通知發送失敗: " + e.message;
     }
   }else if(settings.tg_bot_token.includes("/message?token=")) {
     try {
@@ -395,10 +395,10 @@ export async function sendNotification(settings, msg) {
         })
       });
     } catch (e) {
-      return "Gotify通知发送失败: " + e.message;
+      return "Gotify通知發送失敗: " + e.message;
     }
   }else if(settings.tg_chat_id) {
-    // Telegram Bot (最后 fallback，通过 chat_id 判断)
+    // Telegram Bot (最後 fallback，通過 chat_id 判斷)
     try {
       await fetchWithRetry(`https://api.telegram.org/bot${settings.tg_bot_token}/sendMessage`, {
         method: 'POST',
@@ -410,7 +410,7 @@ export async function sendNotification(settings, msg) {
         })
       });
     } catch (e) {
-      return "Telegram 通知发送失败: " + e.message;
+      return "Telegram 通知發送失敗: " + e.message;
     }
   }else {
     return "未知的通知方式";
@@ -479,17 +479,17 @@ export async function checkOfflineNodes(db) {
       const nodeList = offlineNodes
         .map(n => `• ${n.name} - ${formatLastReportTime(n.lastReportTime)}`)
         .join('\n');
-      const msg = `⚠️ **节点离线告警** (${offlineNodes.length}个)\n\n${nodeList}`;
+      const msg = `⚠️ **節點離線告警** (${offlineNodes.length}個)\n\n${nodeList}`;
       await sendNotification(siteSettings, msg);
     }
 
     if (recoveredNodes.length > 0) {
       const nodeList = recoveredNodes.map(n => `• ${n.name}`).join('\n');
-      const msg = `✅ **节点恢复通知** (${recoveredNodes.length}个)\n\n${nodeList}\n\n**时间:** ${new Date().toLocaleString('zh-CN', {timeZone: 'Asia/Shanghai'})}`;
+      const msg = `✅ **節點恢復通知** (${recoveredNodes.length}個)\n\n${nodeList}\n\n**時間:** ${new Date().toLocaleString('zh-CN', {timeZone: 'Asia/Shanghai'})}`;
       await sendNotification(siteSettings, msg);
     }
   } catch (e) {
-    console.error('离线检测失败:', e);
+    console.error('離線檢測失敗:', e);
   }
 }
 
@@ -658,10 +658,10 @@ export async function checkResourceAlerts(env) {
     if (alertNodes.length > 0) {
       const nodeList = alertNodes.map(({ rule, server, alert }) => {
         const metrics = alert.metrics.map(formatResourceMetric).join('；');
-        const modeText = alert.mode === 'average' ? '平均' : '窗口样本连续';
-        return `• ${getResourceAlertRuleName(rule)} / ${server.name} - ${modeText} ${rule.intervalMinutes} 分钟\n  ${metrics}`;
+        const modeText = alert.mode === 'average' ? '平均' : '窗口樣本連續';
+        return `• ${getResourceAlertRuleName(rule)} / ${server.name} - ${modeText} ${rule.intervalMinutes} 分鐘\n  ${metrics}`;
       }).join('\n');
-      messageSections.push(`⚠️ **资源负载告警** (${alertNodes.length}个)\n\n${nodeList}`);
+      messageSections.push(`⚠️ **資源負載告警** (${alertNodes.length}個)\n\n${nodeList}`);
     }
 
     if (recoveredNodes.length > 0) {
@@ -673,7 +673,7 @@ export async function checkResourceAlerts(env) {
           return `• ${getResourceAlertRuleName(rule)} / ${server.name}${metricText}`;
         })
         .join('\n');
-      messageSections.push(`✅ **资源负载恢复** (${recoveredNodes.length}个)\n\n${nodeList}`);
+      messageSections.push(`✅ **資源負載恢復** (${recoveredNodes.length}個)\n\n${nodeList}`);
     }
 
     if (stateChanged) {
@@ -681,14 +681,14 @@ export async function checkResourceAlerts(env) {
     }
 
     if (messageSections.length > 0) {
-      const msg = `${messageSections.join('\n\n')}\n\n**时间:** ${formatCurrentTime()}`;
+      const msg = `${messageSections.join('\n\n')}\n\n**時間:** ${formatCurrentTime()}`;
       const notificationError = await sendNotification(siteSettings, msg);
       if (notificationError) {
         console.warn('[ResourceAlert] notification failed:', notificationError);
       }
     }
   } catch (e) {
-    console.error('资源负载告警检测失败:', e);
+    console.error('資源負載告警檢測失敗:', e);
   }
 }
 
@@ -715,7 +715,7 @@ export async function checkExpiringServers(db) {
         s.expire_date = renewal.expire_date;
         s.billing_cycle = billingCycle;
         hasRenewedServers = true;
-        debug(`[Cron] 服务器 ${s.name} 已自动续费，到期日期更新为 ${s.expire_date}`);
+        debug(`[Cron] 服務器 ${s.name} 已自動續費，到期日期更新為 ${s.expire_date}`);
       }
 
       if (!shouldNotify) continue;
@@ -726,7 +726,7 @@ export async function checkExpiringServers(db) {
       const diff = expTime - now;
       const days = Math.ceil(diff / (1000 * 3600 * 24));
 
-      debug(`[Cron] 检测到服务器 ${s.name} 到期日期 ${s.expire_date}，剩余天数 ${days} 天`);
+      debug(`[Cron] 檢測到服務器 ${s.name} 到期日期 ${s.expire_date}，剩餘天數 ${days} 天`);
 
       if (days > 0 && days <= reminderDays) {
         expiringServers.push({ name: s.name, expire_date: s.expire_date, days });
@@ -738,12 +738,12 @@ export async function checkExpiringServers(db) {
     }
 
     if (expiringServers.length > 0) {
-      const serverList = expiringServers.map(s => `• ${s.name} - 剩余${s.days}天 (${s.expire_date})`).join('\n');
-      const msg = `⏰ **服务器到期提醒** (${expiringServers.length}个)\n\n${serverList}`;
-      debug(`[Cron] 发送到期提醒通知: ${msg}`);
+      const serverList = expiringServers.map(s => `• ${s.name} - 剩餘${s.days}天 (${s.expire_date})`).join('\n');
+      const msg = `⏰ **服務器到期提醒** (${expiringServers.length}個)\n\n${serverList}`;
+      debug(`[Cron] 發送到期提醒通知: ${msg}`);
       await sendNotification(siteSettings, msg);
     }
   } catch (e) {
-    console.error('到期检测失败:', e);
+    console.error('到期檢測失敗:', e);
   }
 }

@@ -1,7 +1,7 @@
 const LATEST_REPORT_TTL_MS = 5 * 60 * 1000;
 const MAX_LATEST_REPORT_SERVERS = 1000;
 
-// 普通 Worker isolate 内的尽力而为缓存；不同 isolate 之间不共享。
+// 普通 Worker isolate 內的盡力而為緩存；不同 isolate 之間不共享。
 const latestReportUpdates = new Map();
 
 function normalizeTimestamp(value, fallback = 0) {
@@ -47,7 +47,7 @@ export function cacheLatestReportUpdate(serverId, samples, reportTs = Date.now()
 
   if (existing) {
     if (existing.latestSampleTs > latestSampleTs) return;
-    // 同一包从 DO 回填时保留更早的 Worker 接收时间，保证回放偏移准确。
+    // 同一包從 DO 回填時保留更早的 Worker 接收時間，保證回放偏移準確。
     if (existing.latestSampleTs === latestSampleTs) {
       existing.reportTs = Math.min(existing.reportTs, normalizedReportTs);
       return;

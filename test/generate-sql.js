@@ -101,10 +101,10 @@ const servers = [
   }
 ];
 
-let sql = `-- CF Server Monitor 模拟数据
--- 生成时间: ${new Date().toISOString()}
+let sql = `-- CF Server Monitor 模擬數據
+-- 生成時間: ${new Date().toISOString()}
 
--- 清空现有数据（注意顺序：先删子表，再删主表）
+-- 清空現有數據（注意順序：先刪子表，再刪主表）
 DROP TABLE IF EXISTS metrics_history;
 DROP TABLE IF EXISTS metrics_history_old;
 DROP TABLE IF EXISTS servers;
@@ -137,7 +137,7 @@ CREATE TABLE IF NOT EXISTS servers (
   sort_order INTEGER DEFAULT 0
 );
 
--- 这里模拟不插入history_partition_id和timestamp
+-- 這裡模擬不插入history_partition_id和timestamp
 
 CREATE TABLE IF NOT EXISTS metrics_history (
   id INTEGER PRIMARY KEY,
@@ -180,9 +180,9 @@ CREATE TABLE IF NOT EXISTS metrics_history (
   net_tx_monthly REAL DEFAULT 0,
   FOREIGN KEY (server_id) REFERENCES servers(id)
 );
--- 模拟外键
+-- 模擬外鍵
 
--- 插入系统配置
+-- 插入系統配置
 `;
 
 const appearanceOptions = {
@@ -211,7 +211,7 @@ const siteOptions = {
 sql += `INSERT INTO settings (key, value) VALUES ('appearance_options', '${JSON.stringify(appearanceOptions)}');\n`;
 sql += `INSERT INTO settings (key, value) VALUES ('site_options', '${JSON.stringify(siteOptions)}');\n`;
 
-sql += `\n-- 插入服务器数据\n`;
+sql += `\n-- 插入服務器數據\n`;
 
 const serverLatestMetrics = {};
 
@@ -226,18 +226,18 @@ for (const server of servers) {
   );\n`;
 }
 
-sql += `\n-- 生成历史指标数据\n`;
+sql += `\n-- 生成歷史指標數據\n`;
 
 const serverConfigs = [
   { hoursBack: 24, intervals: [
-      { minutes: 10, interval: 60 },      // 前10分钟: 每分钟
-      { minutes: Infinity, interval: 60 } // 之后: 每10分钟
+      { minutes: 10, interval: 60 },      // 前10分鐘: 每分鐘
+      { minutes: Infinity, interval: 60 } // 之後: 每10分鐘
     ]},
   { hoursBack: 24 * 7, intervals: [
-      { minutes: 10, interval: 60 },      // 前10分钟: 每分钟
-      { minutes: 60, interval: 60 }, // 1小时后: 每20分钟
-      { minutes: 120, interval: 200 }, // 2小时后: 每20分钟
-      { minutes: Infinity, interval: 400 } // 之后: 每40分钟
+      { minutes: 10, interval: 60 },      // 前10分鐘: 每分鐘
+      { minutes: 60, interval: 60 }, // 1小時後: 每20分鐘
+      { minutes: 120, interval: 200 }, // 2小時後: 每20分鐘
+      { minutes: Infinity, interval: 400 } // 之後: 每40分鐘
     ]}
 ];
 
@@ -354,9 +354,9 @@ const outputPath = path.join(__dirname, 'mock-data.sql');
 fs.writeFileSync(outputPath, sql);
 
 console.log('✅ SQL 文件生成成功:', outputPath);
-console.log('\n📝 使用说明:');
-console.log('  1. 确保你有 wrangler.toml 配置好 D1 数据库');
-console.log('  2. 创建本地 D1 数据库: wrangler d1 create server-monitor-db');
-console.log('  3. 初始化数据库结构（如果还没）: 访问一次 http://localhost:8787');
-console.log('  4. 或者直接执行 SQL: wrangler d1 execute server-monitor-db --file=test/mock-data.sql');
-console.log('  5. 然后运行: npm run dev');
+console.log('\n📝 使用說明:');
+console.log('  1. 確保你有 wrangler.toml 配置好 D1 數據庫');
+console.log('  2. 創建本地 D1 數據庫: wrangler d1 create server-monitor-db');
+console.log('  3. 初始化數據庫結構（如果還沒）: 訪問一次 http://localhost:8787');
+console.log('  4. 或者直接執行 SQL: wrangler d1 execute server-monitor-db --file=test/mock-data.sql');
+console.log('  5. 然後運行: npm run dev');

@@ -13,8 +13,8 @@ import { AppError, createSuccessResponse, createUnauthorizedResponse, createBadR
 import { verifyTurnstileToken } from './utils/common.js';
 import { getCorsAllowedOrigins, createOptionsResponse, applyCors } from './utils/cors.js';
 import { getRemoteVersion } from './utils/version.js';
-// Durable Objects: 实时指标广播
-// 显式 import + extends，确保 wrangler 静态分析器能在入口文件直接识别此 DO 类
+// Durable Objects: 實時指標廣播
+// 顯式 import + extends，確保 wrangler 靜態分析器能在入口文件直接識別此 DO 類
 import { MetricsBroadcaster as _MetricsBroadcaster }
   from './durable/MetricsBroadcaster.js';
 
@@ -158,7 +158,7 @@ async function fetchHistoryData(env, request, id, hours, columns, sys = null) {
   const server = await getServerDetail(env.DB, id, isLoggedIn);
   if (!server) return createNotFoundResponse();
   
-  // 最多查询7天数据
+  // 最多查詢7天數據
   const clampedHours = Math.min(hours, 168);
   const cacheDuration = getCacheDuration(clampedHours);
   const longHistoryPoints = clampedHours > 1
@@ -183,7 +183,7 @@ async function fetchHistoryData(env, request, id, hours, columns, sys = null) {
   } catch (e) {
     const message = e && e.message ? e.message : String(e);
     if (/no such column/i.test(message)) {
-      debug('[History] 数据库字段缺失，可能尚未升级数据库:', message);
+      debug('[History] 數據庫字段缺失，可能尚未升級數據庫:', message);
       return new Response(JSON.stringify({
         message: 'databaseUpgradeRequired'
       }), {
@@ -261,8 +261,8 @@ export default {
       await initDatabase(env.DB);
     }
 
-    // /api/config 在不带 X-Turnstile-Token 且不带 X-Turnstile-Verified 时仍然 bypass（用于初始化判断是否需要验证），
-    // 带 token 或 verified header 时则走完整验证流程，以便复用 verified 字段返回验证结果
+    // /api/config 在不帶 X-Turnstile-Token 且不帶 X-Turnstile-Verified 時仍然 bypass（用於初始化判斷是否需要驗證），
+    // 帶 token 或 verified header 時則走完整驗證流程，以便複用 verified 字段返回驗證結果
     const isTurnstileBypassed = (reqPath) => {
       if (bypassTurnstilePaths.includes(reqPath)) return true;
       if (reqPath === '/api/config' && !request.headers.get('X-Turnstile-Token') && !request.headers.get('X-Turnstile-Verified')) return true;
@@ -277,8 +277,8 @@ export default {
       const turnstileEnabled = sys.turnstile_enabled === 'true';
       const turnstileSecretKey = sys.turnstile_secret_key || '';
       
-      // 全局 Turnstile 验证：仅 turnstile_enabled 开启时拦截所有 API 请求
-      // turnstile_login_enabled 仅在登录时验证，不在此处拦截
+      // 全局 Turnstile 驗證：僅 turnstile_enabled 開啟時攔截所有 API 請求
+      // turnstile_login_enabled 僅在登錄時驗證，不在此處攔截
       if (turnstileEnabled) {
         const hasValidCookie = await isTurnstileVerified(request, env, sys);
         
@@ -381,7 +381,7 @@ export default {
         const id = url.searchParams.get('id');
         const hours = parseFloat(url.searchParams.get('hours') || '24');
         const allColumns = 'cpu, gpu_info, ram_total, ram_used, disk_total, disk_used, processes, net_in_speed, net_out_speed, tcp_conn, udp_conn, ping_ct, ping_cu, ping_cm, ping_bd, loss_ct, loss_cu, loss_cm, loss_bd, swap_total, swap_used, load_avg, region, kernel_version';
-        // 后续版本可以删掉region 字段，用于升级数据库提示
+        // 後續版本可以刪掉region 字段，用於升級數據庫提示
         return fetchHistoryData(env, request, id, hours, allColumns, sys);
       }},
       { method: 'POST', path: '/admin/api', handler: async () => {
@@ -410,7 +410,7 @@ export default {
       if (route.method === method && route.path === path) {
         const response = await route.handler();
 
-        // WebSocket 升级响应直接原样返回，不能修改 response 对象
+        // WebSocket 升級響應直接原樣返回，不能修改 response 對象
         if (response.status === 101) {
           return response;
         }
@@ -443,7 +443,7 @@ export default {
 
   async scheduled(event, env, ctx) {
     const cron = event.cron;
-    debug(`[Cron] 定时任务触发: ${cron}`);
+    debug(`[Cron] 定時任務觸發: ${cron}`);
 
     const now = new Date();
     const day = now.getUTCDay();
@@ -452,36 +452,36 @@ export default {
     
     if (cron === '*/1 * * * *') {
       if (day === 0 && hour === 0 && minute < 5) {
-        debug('[Cron] 每周日0:00-0:05表轮换期间，跳过离线节点检测');
+        debug('[Cron] 每週日0:00-0:05表輪換期間，跳過離線節點檢測');
       } else {
-        debug('[Cron] 开始执行离线节点检测');
+        debug('[Cron] 開始執行離線節點檢測');
         await checkOfflineNodes(env.DB);
-        debug('[Cron] 离线节点检测完成');
-        debug('[Cron] 开始执行资源负载告警检测');
+        debug('[Cron] 離線節點檢測完成');
+        debug('[Cron] 開始執行資源負載告警檢測');
         await checkResourceAlerts(env);
-        debug('[Cron] 资源负载告警检测完成');
+        debug('[Cron] 資源負載告警檢測完成');
       }
     } else if (cron === '0 * * * *') {
       if (day === 0 && hour === 0) {
-        debug('[Cron] 开始执行每周数据清理任务（表轮换）');
+        debug('[Cron] 開始執行每週數據清理任務（表輪換）');
         await weeklyCleanup(env.DB);
-        debug('[Cron] 每周数据清理任务完成');
+        debug('[Cron] 每週數據清理任務完成');
       }
       
       if (hour === 12) {
-        debug('[Cron] 开始执行服务器到期检测');
+        debug('[Cron] 開始執行服務器到期檢測');
         await checkExpiringServers(env.DB);
-        debug('[Cron] 服务器到期检测完成');
+        debug('[Cron] 服務器到期檢測完成');
       }
     }else if(env.DEBUG == 1){
       if (cron === '0 0 * * 0') {
-        debug('[Cron DEBUG] 开始执行每周数据清理任务（表轮换）');
+        debug('[Cron DEBUG] 開始執行每週數據清理任務（表輪換）');
         await weeklyCleanup(env.DB);
-        debug('[Cron DEBUG] 每周数据清理任务完成');
+        debug('[Cron DEBUG] 每週數據清理任務完成');
       } else if (cron === '0 12 * * *') {
-        debug('[Cron DEBUG] 开始执行服务器到期检测');
+        debug('[Cron DEBUG] 開始執行服務器到期檢測');
         await checkExpiringServers(env.DB);
-        debug('[Cron DEBUG] 服务器到期检测完成');
+        debug('[Cron DEBUG] 服務器到期檢測完成');
       }
     }
   }

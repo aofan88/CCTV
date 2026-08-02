@@ -7,7 +7,7 @@
         <div class="form-row">
           <div class="form-group flex-1">
             <label class="form-label">{{ trans.siteTitle }}</label>
-            <input type="text" v-model="settings.site_title" class="form-input" :placeholder="'Cloudflare Server Monitor'">
+            <input type="text" v-model="settings.site_title" class="form-input" :placeholder="'潤昇創新 RunSing Innovation'">
           </div>
 
           <div class="form-group flex-1">
@@ -572,7 +572,7 @@ const resourceAlertToggleText = computed(() => {
   const isZh = currentLang.value === 'zh'
   return resourceAlertExpanded.value
     ? (isZh ? '收起' : 'Collapse')
-    : (isZh ? '展开' : 'Expand')
+    : (isZh ? '展開' : 'Expand')
 })
 
 const toggleResourceAlertExpanded = () => {

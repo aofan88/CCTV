@@ -6,7 +6,7 @@ export const HISTORY_AUTO_OPTIMIZED_MIN_ID = HISTORY_PARTITION_MULTIPLIER;
 export const HISTORY_MAX_PARTITION_ID = 900;
 export const HISTORY_MAX_TIME_KEY = 991231235959;
 
-// 确保servers历史记录分区优化
+// 確保servers歷史記錄分區優化
 export async function ensureServerOptimization(db) {
   const optimized = await getSettingByKey(db, 'servers_optimized', true);
   const { results: columns = [] } = await db.prepare(`PRAGMA table_info(servers)`).all();
@@ -30,7 +30,7 @@ export async function ensureServerOptimization(db) {
   }
 
   if (optimized && addedColumns === 0) {
-    debug('服务器历史记录分区已优化');
+    debug('服務器歷史記錄分區已優化');
     return { success: true, assigned: 0 };
   }
 
@@ -41,7 +41,7 @@ export async function ensureServerOptimization(db) {
   `).all();
   
   if (servers.length === 0) {
-    debug('没有服务器需要优化');
+    debug('沒有服務器需要優化');
     await saveSiteOptions(db, { servers_optimized: 'true' });
     return { success: true, assigned: 0 };
   }
@@ -69,18 +69,18 @@ export async function ensureServerOptimization(db) {
     }
   }
 
-  // 清空服务器列表的缓存
+  // 清空服務器列表的緩存
   clearServersListCache();
 
-  debug(`服务器历史记录分区优化完成，更新了 ${updated} 条记录`);
+  debug(`服務器歷史記錄分區優化完成，更新了 ${updated} 條記錄`);
   
-  // 标记为已优化
+  // 標記為已優化
   await saveSiteOptions(db, { servers_optimized: 'true' });
 
   return { success: true, assigned: updated };
 }
 
-// 获取下一个可用的历史记录分区ID
+// 獲取下一個可用的歷史記錄分區ID
 export async function getNextServerHistoryPartitionId(db) {
   const servers = await getAllServers(db, true);
   const usedIds = new Set(
@@ -100,7 +100,7 @@ function padHistoryTimePart(value) {
   return String(value).padStart(2, '0');
 }
 
-// 格式化历史记录时间戳
+// 格式化歷史記錄時間戳
 export function normalizeHistoryTimestamp(value, fallback = Date.now()) {
   const ts = Number(value);
   if (!Number.isFinite(ts) || ts <= 0) return fallback;

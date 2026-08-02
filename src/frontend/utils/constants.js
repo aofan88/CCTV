@@ -1,4 +1,4 @@
-export const DEFAULT_SITE_TITLE = 'Cloudflare Server Monitor'
+export const DEFAULT_SITE_TITLE = '潤昇創新 RunSing Innovation'
 
 export const TIME = {
   ONLINE_THRESHOLD_MS: 300000,

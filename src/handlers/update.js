@@ -17,8 +17,8 @@ import {
   shouldSendAgentUpdate
 } from '../utils/agentConfig.js';
 
-// 将最新一次上报打包成前端可直接消费的 "当前状态" 对象
-// 与 /api/server 和 /api/servers 返回的字段保持一致，便于页面直接合并
+// 將最新一次上報打包成前端可直接消費的 "當前狀態" 對象
+// 與 /api/server 和 /api/servers 返回的字段保持一致，便於頁面直接合並
 function buildPayloadForBroadcast(id, metrics = {}, extra = {}) {
   const payload = {};
   mergeMetricsIntoServer(payload, metrics);
@@ -30,13 +30,13 @@ function buildPayloadForBroadcast(id, metrics = {}, extra = {}) {
   return payload;
 }
 
-// 批量推送：5秒窗口内合并向 DO 推送一次，减少请求次数
+// 批量推送：5秒窗口內合併向 DO 推送一次，減少請求次數
 const BATCH_WINDOW = 5000;
 const MAX_BATCH_SAMPLES = 300;
 let batchQueue = new Map();
 let flushingPromise = null;
 
-// 用于过滤不需要实时更新的字段
+// 用於過濾不需要實時更新的字段
 const BROADCAST_DELETE_FIELDS = ['id', 'name', 'region', 'arch', 'os', 'kernel_version', 'cpu_info', 'cpu_cores', 'expire_date', 'server_group', 'traffic_limit', 'net_rx_monthly', 'net_tx_monthly', 'boot_time', 'timestamp', 'ip_v4', 'ip_v6'];
 
 function normalizeTimestamp(value, fallback = Date.now()) {
@@ -150,7 +150,7 @@ async function _flushBatch(env) {
 
   if (batchQueue.size === 0) return;
 
-  // 原子性地取出当前队列，避免并发写入干扰
+  // 原子性地取出當前隊列，避免併發寫入干擾
   const queue = batchQueue;
   batchQueue = new Map();
 
@@ -233,7 +233,7 @@ export async function handleUpdate(request, env, ctx) {
       });
     }
 
-    // 从缓存中获取历史记录分区 ID
+    // 從緩存中獲取歷史記錄分區 ID
     const historyPartitionId = serverDetail.history_partition_id;
     if(!historyPartitionId) {
       await ensureServerOptimization(env.DB, id);
@@ -255,7 +255,7 @@ export async function handleUpdate(request, env, ctx) {
       return createBadRequestResponse('Missing metrics');
     }
 
-    // 获取最后一条插入（如果是批量数据，取最后一个样本）
+    // 獲取最後一條插入（如果是批量數據，取最後一個樣本）
     const latestSample = samples[samples.length - 1];
     const latestMetrics = getReportMetrics(data, latestSample);
     await saveMetricsHistory(
@@ -270,7 +270,7 @@ export async function handleUpdate(request, env, ctx) {
 
     const broadcastSamples = toBroadcastSamples(id, samples, regionCode, agentVersion, latestMetrics);
     cacheLatestReportUpdate(id, broadcastSamples, Date.now());
-    // 加入批量队列，由后台定时任务统一推送到 DO
+    // 加入批量隊列，由後臺定時任務統一推送到 DO
     queueBroadcastSamples(id, broadcastSamples);
     ctx.waitUntil(_ensureBatchFlush(env));
 
@@ -339,7 +339,7 @@ export async function handleUpdate(request, env, ctx) {
   }
 }
 
-// 暴露给 index.js 路由使用的 WebSocket 接入函数
+// 暴露給 index.js 路由使用的 WebSocket 接入函數
 export async function handleWebSocketUpgrade(request, env) {
   if (!env || !env.METRICS_BROADCASTER) {
     return new Response(JSON.stringify({ error: 'WebSocket not enabled', code: 503 }), {

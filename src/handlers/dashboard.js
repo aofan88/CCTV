@@ -99,7 +99,7 @@ function mergeLatestReportUpdates(serverIds, durableUpdates, workerUpdates) {
     merged.set(String(update.serverId), update);
   }
 
-  // Worker 缓存后合并：样本更新时取更新的一包；同一包优先使用更准确的 Worker 接收时间。
+  // Worker 緩存後合併：樣本更新時取更新的一包；同一包優先使用更準確的 Worker 接收時間。
   for (const update of workerUpdates) {
     if (!update?.serverId || !Array.isArray(update.samples)) continue;
     const serverId = String(update.serverId);
@@ -129,7 +129,7 @@ async function getLatestReportUpdatesForServers(env, serverIds) {
 
   const durableLatestReportUpdates = await getDurableLatestReportUpdates(env, normalizedServerIds);
 
-  // DO 命中后反向预热当前 Worker isolate，降低随后 DO 休眠造成的空缓存概率。
+  // DO 命中後反向預熱當前 Worker isolate，降低隨後 DO 休眠造成的空緩存概率。
   for (const update of durableLatestReportUpdates) {
     cacheLatestReportUpdate(update.serverId, update.samples, update.reportTs);
   }

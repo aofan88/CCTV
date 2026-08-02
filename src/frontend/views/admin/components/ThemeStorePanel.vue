@@ -114,7 +114,7 @@
             <p v-if="getThemeDescription(theme)" class="theme-desc">{{ getThemeDescription(theme) }}</p>
             <div v-if="theme.author" class="theme-author">by {{ theme.author }}</div>
             
-            <!-- 版本选择 -->
+            <!-- 版本選擇 -->
             <div v-if="theme.versions && theme.versions.length > 0" class="theme-version-selector">
               <label class="version-label">{{ trans.version }}</label>
               <select 
@@ -128,7 +128,7 @@
               </select>
             </div>
 
-            <!-- 当前选中版本信息 -->
+            <!-- 目前選中版本資訊 -->
             <div v-if="getSelectedVersion(theme)" class="theme-version-info">
               <div v-if="getSelectedVersion(theme).releaseDate" class="version-date">
                 📅 {{ getSelectedVersion(theme).releaseDate }}
@@ -209,11 +209,11 @@ const parseThemeOptionsJson = () => {
 const isMikusThemeActive = computed(() => isMikusThemeEnabled(parseThemeOptionsJson()))
 const currentThemeLabel = computed(() => isMikusThemeActive.value ? 'Mikus' : (props.currentThemeUrl || props.trans.builtinTheme))
 const mikusThemeTags = computed(() => currentLang.value === 'zh'
-  ? ['内置', 'Mikus', '樱花']
+  ? ['內置', 'Mikus', '櫻花']
   : ['Built-in', 'Mikus', 'Sakura']
 )
 const mikusThemeDescription = computed(() => currentLang.value === 'zh'
-  ? '内置 Mikus 模式，启用后切回默认主题，并开启 Mikus 配色、加载页与樱花动效。'
+  ? '內置 Mikus 模式，啟用後切回預設主題，並開啟 Mikus 配色、載入頁與櫻花動效。'
   : 'Built-in Mikus mode. Switches back to the default theme and enables Mikus colors, loading screens, and sakura effects.'
 )
 
@@ -249,7 +249,7 @@ const loadThemes = async () => {
     if (result.error) throw new Error(result.error)
     themes.value = Array.isArray(result.data?.themes) ? result.data.themes : []
     
-    // 初始化选中版本为最新版本（索引0）
+    // 初始化選中版本為最新版本（索引0）
     initSelectedVersions(true)
     loaded.value = true
     hydrateMissingThemeVersions()

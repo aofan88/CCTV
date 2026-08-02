@@ -55,7 +55,7 @@ function isMissingColumnError(error) {
 
 async function handleServerMutationError(db, error, fallbackMessage) {
   if (isMissingColumnError(error)) {
-    console.warn('检测到数据库字段缺失，尝试添加缺失字段...');
+    console.warn('檢測到數據庫字段缺失，嘗試添加缺失字段...');
     await addServerColumns(db);
     return createBadRequestResponse('dbColumnsAdded');
   }
@@ -522,7 +522,7 @@ export async function handleAdminAPI(request, env, sys, loadFullSettings = null)
         return createBadRequestResponse('tgBotTokenRequired');
       }
       try {
-        const testMsg = `✅ **测试通知**\n\n这是一条来自 CF Server Monitor 的测试消息。\n\n**时间:** ${new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })}`;
+        const testMsg = `✅ **測試通知**\n\n這是一條來自 CF Server Monitor 的測試消息。\n\n**時間:** ${new Date().toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai' })}`;
         const result = await sendNotification({ tg_bot_token, tg_chat_id: tg_chat_id || '' }, testMsg);
         if(result) {
           console.warn('Test notification failed:', result);
@@ -543,7 +543,7 @@ export async function handleAdminAPI(request, env, sys, loadFullSettings = null)
         return createBadRequestResponse('invalidThemeUrl');
       }
 
-      // 如果 turnstile_enabled 或 turnstile_login_enabled 开启，验证 turnstile_site_key 和 turnstile_secret_key 都不为空
+      // 如果 turnstile_enabled 或 turnstile_login_enabled 開啟，驗證 turnstile_site_key 和 turnstile_secret_key 都不為空
       if (settings.turnstile_enabled === 'true' || settings.turnstile_enabled === true || settings.turnstile_login_enabled === 'true' || settings.turnstile_login_enabled === true) {
         if (!settings.turnstile_site_key || settings.turnstile_site_key.trim().length === 0) {
           return createBadRequestResponse('turnstileSiteKeyRequired');
@@ -553,7 +553,7 @@ export async function handleAdminAPI(request, env, sys, loadFullSettings = null)
         }
       }
 
-      // 如果 tg_notify 或 expire_reminder 开启，验证 tg_bot_token 不为空
+      // 如果 tg_notify 或 expire_reminder 開啟，驗證 tg_bot_token 不為空
       const hasResourceAlertRulesInput = settings.resource_alert_rules !== undefined;
       const tgNotify = settings.tg_notify !== undefined
         ? normalizeTgNotify(settings.tg_notify)
@@ -596,7 +596,7 @@ export async function handleAdminAPI(request, env, sys, loadFullSettings = null)
         for (const field of APPEARANCE_FIELDS) {
           const value = field === 'theme_options' ? nestedAppearanceOptions.theme_options : settings[field];
           if (value !== undefined) {
-            // CSP 字段格式校验：只允许 https:// 开头的域名，逗号分隔
+            // CSP 字段格式校驗：只允許 https:// 開頭的域名，逗號分隔
             if (field === 'csp_static' || field === 'csp_api') {
               appearanceOptions[field] = sanitizeCspDomains(value);
             } else if (field === 'display_mode') {
@@ -972,7 +972,7 @@ export async function handleAdminAPI(request, env, sys, loadFullSettings = null)
     return createBadRequestResponse('unknownAction');
     
   } catch (e) {
-    console.error('Admin API 错误:', e);
+    console.error('Admin API 錯誤:', e);
     return createErrorResponse(e);
   }
 }

@@ -17,7 +17,7 @@
         role="tooltip"
       >{{ updateTitle }}</span>
     </span>
-    <span>Powered by <a href="https://github.com/huilang-me/CF-Server-Monitor" target="_blank">CF-Server-Monitor</a></span>
+    <span><a href="https://github.com/aofan88/CCTV" target="_blank" rel="noopener noreferrer">潤昇創新 RunSing Innovation</a></span>
   </footer>
 </template>
 

@@ -43,7 +43,7 @@ if (fs.existsSync(distDir)) {
 console.log('Building theme frontend...');
 execSync('npx vite build', { cwd: rootDir, stdio: 'inherit', env: { ...process.env, VITE_BASE: './' } });
 
-// 构建时注入配置到 HTML
+// 構建時注入配置到 HTML
 const htmlFiles = fs.readdirSync(distDir).filter(f => f.endsWith('.html'));
 for (const file of htmlFiles) {
   const filePath = path.join(distDir, file);
@@ -52,10 +52,10 @@ for (const file of htmlFiles) {
   // 1. 注入 title
   html = injectTitle(html, title)
 
-  // 2. 注入运行时 meta 标签
+  // 2. 注入運行時 meta 標籤
   html = injectApiBase(html, apiBase)
 
-  // 3. 注入背景图样式
+  // 3. 注入背景圖樣式
   if (backgroundImage) {
     const bgStyle = buildBackgroundStyle(backgroundImage)
     html = html.replace('</head>', `${bgStyle}\n</head>`);

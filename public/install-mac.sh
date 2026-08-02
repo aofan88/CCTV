@@ -1,6 +1,6 @@
 #!/bin/bash
 # ==============================================================================
-# CF-Server-Monitor 安装/卸载脚本 (macOS 适配版)
+# CF-Server-Monitor 安裝/卸載腳本 (macOS 適配版)
 # 支持: macOS Intel / macOS Apple Silicon (M1/M2/M3/M4)
 # ==============================================================================
 
@@ -39,27 +39,27 @@ error() { echo -e "${RED}[✗]${NC} $1"; exit 1; }
 step() { echo -e "${BLUE}[→]${NC} $1"; }
 
 print_usage() {
-    echo -e "${RED}错误: 运行所需的入参不完整。${NC}\n"
+    echo -e "${RED}錯誤: 運行所需的入參不完整。${NC}\n"
     echo "用法:"
-    echo "  sudo bash $0 install -id=SERVER_ID -secret=SECRET -url=WORKER_URL [选项]"
+    echo "  sudo bash $0 install -id=SERVER_ID -secret=SECRET -url=WORKER_URL [選項]"
     echo ""
-    echo "必需参数:"
-    echo "  -id=xxx        服务器ID"
-    echo "  -secret=xxx    密钥"
-    echo "  -url=xxx       上报地址"
+    echo "必需參數:"
+    echo "  -id=xxx        服務器ID"
+    echo "  -secret=xxx    密鑰"
+    echo "  -url=xxx       上報地址"
     echo ""
-    echo "可选参数:"
-    echo "  -interval=N    上报间隔(秒)，默认60"
-    echo "  -collect_interval=N    采样间隔(秒)，默认0"
-    echo "  -ct=HOST       自定义CT测试节点"
-    echo "  -cu=HOST       自定义CU测试节点"
-    echo "  -cm=HOST       自定义CM测试节点"
-    echo "  -bd=HOST       自定义BD测试节点"
-    echo "  -interface=IFACES 指定网卡统计，多个用英文逗号分隔，默认自动汇总"
-    echo "  -reset_day=N   流量重置日(1-31, 0=不重置)，默认1"
-    echo "  -auto_update=0|1 自动更新探针，默认0"
-    echo "  -rx_correction=N  下行流量校正(GB)，覆盖当月下行数据"
-    echo "  -tx_correction=N  上行流量校正(GB)，覆盖当月上行数据"
+    echo "可選參數:"
+    echo "  -interval=N    上報間隔(秒)，默認60"
+    echo "  -collect_interval=N    採樣間隔(秒)，默認0"
+    echo "  -ct=HOST       自定義CT測試節點"
+    echo "  -cu=HOST       自定義CU測試節點"
+    echo "  -cm=HOST       自定義CM測試節點"
+    echo "  -bd=HOST       自定義BD測試節點"
+    echo "  -interface=IFACES 指定網卡統計，多個用英文逗號分隔，默認自動彙總"
+    echo "  -reset_day=N   流量重置日(1-31, 0=不重置)，默認1"
+    echo "  -auto_update=0|1 自動更新探針，默認0"
+    echo "  -rx_correction=N  下行流量校正(GB)，覆蓋當月下行數據"
+    echo "  -tx_correction=N  上行流量校正(GB)，覆蓋當月上行數據"
     echo ""
     echo "示例:"
     echo "  sudo bash $0 install -id=server123 -secret=abc123 -url=https://worker.example.com"
@@ -127,7 +127,7 @@ get_configured_net_bytes() {
 
 check_root() {
     if [ "$(id -u)" != "0" ]; then
-        error "请使用 root 权限运行此脚本: sudo bash $0"
+        error "請使用 root 權限運行此腳本: sudo bash $0"
     fi
 }
 
@@ -135,13 +135,13 @@ detect_macos() {
     local os_name
     os_name=$(uname -s)
     if [ "$os_name" != "Darwin" ]; then
-        error "此脚本仅支持 macOS 系统"
+        error "此腳本僅支持 macOS 系統"
     fi
-    info "macOS 环境检测通过"
+    info "macOS 環境檢測通過"
 }
 
 check_dependencies() {
-    step "检测系统依赖..."
+    step "檢測系統依賴..."
     local deps="curl awk grep sed df ps netstat vm_stat sysctl"
     local missing=""
     for cmd in ${deps}; do
@@ -152,14 +152,14 @@ check_dependencies() {
         fi
     done
     if [ -n "${missing}" ]; then
-        error "缺少必要的系统命令: ${missing}"
+        error "缺少必要的系統命令: ${missing}"
     fi
-    info "所有依赖检测通过"
+    info "所有依賴檢測通過"
 
 }
 
 stop_old_service() {
-    step "清理可能存在的旧服务进程..."
+    step "清理可能存在的舊服務進程..."
     launchctl bootout system "${LAUNCHD_FILE}" 2>/dev/null || \
         launchctl bootout "${LAUNCHD_LABEL}" 2>/dev/null || true
     if pgrep -f "${SERVICE_NAME}.sh" >/dev/null 2>&1; then
@@ -168,7 +168,7 @@ stop_old_service() {
 }
 
 create_script() {
-    step "注入 macOS 监控采集探针..."
+    step "注入 macOS 監控採集探針..."
 
     mkdir -p /usr/local/bin
 
@@ -345,7 +345,7 @@ schedule_agent_update() {
     return 0
 }
 
-# 动态检测 stdout 指向的日志文件
+# 動態檢測 stdout 指向的日誌文件
 PROBE_LOG_FILE=""
 if [ -L /dev/fd/1 ]; then
     _log_target=$(readlink /dev/fd/1 2>/dev/null || echo "")
@@ -684,7 +684,7 @@ get_period_start_ts() {
     month=$(date -u -r "${now_ts}" '+%m' 2>/dev/null || echo "")
     day=$(date -u -r "${now_ts}" '+%d' 2>/dev/null || echo "")
 
-    # date 失败时回退为当前时间
+    # date 失敗時回退為當前時間
     if [ -z "$year" ] || [ -z "$month" ] || [ -z "$day" ]; then
         year=$(date -u '+%Y' 2>/dev/null || echo "1970")
         month=$(date -u '+%m' 2>/dev/null || echo "01")
@@ -1226,20 +1226,20 @@ TX_PREV=$(echo "${NET_STAT}" | awk '{print $2}'); TX_PREV=${TX_PREV:-0}
 
 PREV_LOOP_TIME=$(date +%s)
 
-# 缓存间隔定义
-DISK_CHECK_INTERVAL=120          # 硬盘检测：2分钟
+# 緩存間隔定義
+DISK_CHECK_INTERVAL=120          # 硬盤檢測：2分鐘
 LAST_DISK_CHECK=0
-# 状态检测：固定60秒
+# 狀態檢測：固定60秒
 STATUS_CHECK_INTERVAL=60
 LAST_STATUS_CHECK=0
 
-# set -u 安全初始化：所有缓存变量在循环前初始化为默认值
+# set -u 安全初始化：所有緩存變量在循環前初始化為默認值
 DISK_TOTAL=0; DISK_USED=0
 OS=""; ARCH=""; KERNEL_VERSION=""; BOOT_TIME=0; CPU_INFO=""; CPU_CORES=1
 GPU_INFO_VALUE="null"; LOAD_AVG="0 0 0"; PROCESSES=0; TCP_CONN=0; UDP_CONN=0
 RX_MONTHLY=0; TX_MONTHLY=0
 
-# 基础静态元数据（首次运行时获取）
+# 基礎靜態元數據（首次運行時獲取）
 OS="$(sw_vers -productName 2>/dev/null || echo "macOS") $(sw_vers -productVersion 2>/dev/null || echo "")"
 ARCH=$(uname -m)
 KERNEL_VERSION=$(uname -r 2>/dev/null || echo "")
@@ -1249,7 +1249,7 @@ if [ -z "${CPU_INFO:-}" ] || [ "${CPU_INFO}" = "unknown" ]; then
 fi
 [ -z "${CPU_INFO:-}" ] && CPU_INFO="${ARCH}"
 CPU_CORES=$(sysctl -n hw.ncpu 2>/dev/null || echo "1")
-# BOOT_TIME（静态信息，开机后不会变化）
+# BOOT_TIME（靜態信息，開機後不會變化）
 BOOT_TIME=""
 boot_time_raw=$(sysctl kern.boottime 2>/dev/null || echo "")
 if [ -n "${boot_time_raw:-}" ]; then
@@ -1296,7 +1296,7 @@ while true; do
     SWAP_TOTAL=$(echo "${SWAP_STATS}" | awk '{print $1}'); SWAP_TOTAL=${SWAP_TOTAL:-0}
     SWAP_USED=$(echo "${SWAP_STATS}" | awk '{print $2}'); SWAP_USED=${SWAP_USED:-0}
 
-    # 统计本地数据分区的总容量和使用量（缓存机制：每2分钟检测一次）
+    # 統計本地數據分區的總容量和使用量（緩存機制：每2分鐘檢測一次）
     if [ $((LOOP_START_TIME - LAST_DISK_CHECK)) -ge "${DISK_CHECK_INTERVAL}" ] || [ "${LAST_DISK_CHECK}" -eq 0 ]; then
         DISK_TOTAL=0; DISK_USED=0
         DISK_STATS=$(df -kP 2>/dev/null | awk '
@@ -1326,12 +1326,12 @@ while true; do
 
     CPU=$(get_cpu_stat)
 
-    # 获取网络字节数（网速计算需要每次执行，流量统计也需要）
+    # 獲取網絡字節數（網速計算需要每次執行，流量統計也需要）
     NET_STAT=$(get_net_bytes)
     RX_NOW=$(echo "${NET_STAT}" | awk '{print $1}'); RX_NOW=${RX_NOW:-0}
     TX_NOW=$(echo "${NET_STAT}" | awk '{print $2}'); TX_NOW=${TX_NOW:-0}
 
-    # 状态检测缓存：进程数、连接数、GPU使用率、负载、当月累计流量（每STATUS_CHECK_INTERVAL检测一次）
+    # 狀態檢測緩存：進程數、連接數、GPU使用率、負載、當月累計流量（每STATUS_CHECK_INTERVAL檢測一次）
     if [ $((LOOP_START_TIME - LAST_STATUS_CHECK)) -ge "${STATUS_CHECK_INTERVAL}" ] || [ "${LAST_STATUS_CHECK}" -eq 0 ]; then
         GPU_INFO_VALUE=$(get_gpu_metrics)
         [ -z "${GPU_INFO_VALUE:-}" ] && GPU_INFO_VALUE="null"
@@ -1356,7 +1356,7 @@ while true; do
         UDP_CONN=${UDP_CONN:-0}
         UDP_CONN=$(printf "%d" "${UDP_CONN}")
 
-        # 计算当月累计流量
+        # 計算當月累計流量
         MONTHLY_TRAFFIC=$(calc_monthly_traffic "${RX_NOW}" "${TX_NOW}")
         RX_MONTHLY=$(echo "${MONTHLY_TRAFFIC}" | awk '{print $1}')
         TX_MONTHLY=$(echo "${MONTHLY_TRAFFIC}" | awk '{print $2}')
@@ -1455,11 +1455,11 @@ PROBE_EOF
 
     chmod 755 "${SCRIPT_FILE}"
     chown root:wheel "${SCRIPT_FILE}"
-    info "探针脚本注入完成: ${SCRIPT_FILE}"
+    info "探針腳本注入完成: ${SCRIPT_FILE}"
 }
 
 create_service() {
-    step "构建 launchd 守护配置..."
+    step "構建 launchd 守護配置..."
     
     cat > "${LAUNCHD_FILE}" << EOF
 <?xml version="1.0" encoding="UTF-8"?>
@@ -1500,68 +1500,68 @@ EOF
 
     chown root:wheel "${LAUNCHD_FILE}"
     chmod 644 "${LAUNCHD_FILE}"
-    info "launchd 守护配置文件生成成功: ${LAUNCHD_FILE}"
+    info "launchd 守護配置文件生成成功: ${LAUNCHD_FILE}"
 }
 
 start_service() {
-    step "加载 launchd 服务并激活监控探针..."
+    step "加載 launchd 服務並激活監控探針..."
     
     if ! launchctl bootstrap system "${LAUNCHD_FILE}" 2>/dev/null; then
-        error "探针服务配置加载失败。请执行命令排查原因: launchctl bootstrap system ${LAUNCHD_FILE}"
+        error "探針服務配置加載失敗。請執行命令排查原因: launchctl bootstrap system ${LAUNCHD_FILE}"
     fi
     
     sleep 2
     if launchctl print "${LAUNCHD_LABEL}" 2>/dev/null | grep -q "com.cf.probe"; then
         if pgrep -f "${SERVICE_NAME}.sh" >/dev/null 2>&1; then
-            info "探针监控引擎已进入平稳运行状态。"
+            info "探針監控引擎已進入平穩運行狀態。"
         else
-            warn "探针服务配置已加载，进程未启动，执行强制启动..."
+            warn "探針服務配置已加載，進程未啟動，執行強制啟動..."
             launchctl kickstart -k "${LAUNCHD_LABEL}" 2>/dev/null || true
             sleep 2
             if pgrep -f "${SERVICE_NAME}.sh" >/dev/null 2>&1; then
-                info "探针服务强制启动成功。"
+                info "探針服務強制啟動成功。"
             else
-                error "探针服务未能启动成功。请执行命令排查原因: tail -50 ${LOG_FILE}"
+                error "探針服務未能啟動成功。請執行命令排查原因: tail -50 ${LOG_FILE}"
             fi
         fi
     else
-        error "探针服务配置加载失败。请执行命令排查原因: launchctl print ${LAUNCHD_LABEL}"
+        error "探針服務配置加載失敗。請執行命令排查原因: launchctl print ${LAUNCHD_LABEL}"
     fi
 }
 
 verify_install() {
-    step "执行安装后自检..."
+    step "執行安裝後自檢..."
     
     local all_pass=1
     
-    step "1. 验证 plist 文件格式..."
+    step "1. 驗證 plist 文件格式..."
     if plutil -lint "${LAUNCHD_FILE}" 2>/dev/null; then
-        info "plist 文件格式验证通过"
+        info "plist 文件格式驗證通過"
     else
-        warn "plist 文件格式验证失败"
+        warn "plist 文件格式驗證失敗"
         all_pass=0
     fi
     
-    step "2. 验证 launchd 服务状态..."
+    step "2. 驗證 launchd 服務狀態..."
     if launchctl print "${LAUNCHD_LABEL}" 2>/dev/null | grep -q "com.cf.probe"; then
-        info "launchd 服务配置已加载"
+        info "launchd 服務配置已加載"
     else
-        warn "launchd 服务配置未加载"
+        warn "launchd 服務配置未加載"
         all_pass=0
     fi
     
-    step "3. 验证探针进程..."
+    step "3. 驗證探針進程..."
     if pgrep -f "${SERVICE_NAME}.sh" >/dev/null 2>&1; then
-        info "探针进程运行正常"
+        info "探針進程運行正常"
     else
-        warn "探针进程未检测到"
+        warn "探針進程未檢測到"
         all_pass=0
     fi
     
     if [ "${all_pass}" -eq 1 ]; then
-        info "安装后自检全部通过"
+        info "安裝後自檢全部通過"
     else
-        warn "安装后自检存在问题，请检查日志: tail -50 ${LOG_FILE}"
+        warn "安裝後自檢存在問題，請檢查日誌: tail -50 ${LOG_FILE}"
     fi
 }
 
@@ -1594,7 +1594,7 @@ install_probe() {
             -bd=*) BD_NODE="${arg#-bd=}" ;;
             -interface=*|-interfaces=*|-iface=*) INTERFACE="${arg#*=}" ;;
             -reset_day=*) RESET_DAY="${arg#-reset_day=}" ;;
-            -auto_update=*|-auto-update=*) AUTO_UPDATE=$(normalize_binary_value "${arg#*=}") || error "auto_update 参数非法，仅支持 0 或 1" ;;
+            -auto_update=*|-auto-update=*) AUTO_UPDATE=$(normalize_binary_value "${arg#*=}") || error "auto_update 參數非法，僅支持 0 或 1" ;;
             -rx_correction=*) RX_CORRECTION="${arg#-rx_correction=}" ;;
             -tx_correction=*) TX_CORRECTION="${arg#-tx_correction=}" ;;
         esac
@@ -1607,13 +1607,13 @@ install_probe() {
     stop_old_service
 
     if [ -f "${CONFIG_FILE}" ]; then
-        step "检测到已有配置文件，执行二次安装..."
+        step "檢測到已有配置文件，執行二次安裝..."
 
         if [ -n "${SERVER_ID}" ] && [ -n "${SECRET}" ] && [ -n "${WORKER_URL}" ]; then
             COLLECT_INTERVAL=${COLLECT_INTERVAL:-0}
             REPORT_INTERVAL=${REPORT_INTERVAL:-60}
             [ -z "${RESET_DAY}" ] && RESET_DAY=1
-            AUTO_UPDATE=$(normalize_binary_value "$AUTO_UPDATE" 0) || error "auto_update 参数非法，仅支持 0 或 1"
+            AUTO_UPDATE=$(normalize_binary_value "$AUTO_UPDATE" 0) || error "auto_update 參數非法，僅支持 0 或 1"
 
             step "更新配置文件..."
             INTERFACE=$(normalize_interface_list "${INTERFACE:-}") || error "interface parameter is invalid; use comma-separated interface names"
@@ -1636,7 +1636,7 @@ EOF
             chmod 600 "${CONFIG_FILE}" 2>/dev/null || true
             info "配置文件已更新: ${CONFIG_FILE}"
         else
-            step "从配置文件读取参数..."
+            step "從配置文件讀取參數..."
             while IFS='=' read -r key value; do
                 case "$key" in
                     SERVER_ID) SERVER_ID="${value%\"}"; SERVER_ID="${SERVER_ID#\"}" ;;
@@ -1662,16 +1662,16 @@ EOF
         COLLECT_INTERVAL=${COLLECT_INTERVAL:-0}
         REPORT_INTERVAL=${REPORT_INTERVAL:-60}
         [ -z "${RESET_DAY}" ] && RESET_DAY=1
-        AUTO_UPDATE=$(normalize_binary_value "$AUTO_UPDATE" 0) || error "auto_update 参数非法，仅支持 0 或 1"
+        AUTO_UPDATE=$(normalize_binary_value "$AUTO_UPDATE" 0) || error "auto_update 參數非法，僅支持 0 或 1"
 
-        step "创建配置目录..."
+        step "創建配置目錄..."
         mkdir -p "${CONFIG_DIR}" 2>/dev/null || true
         chown root:wheel "${CONFIG_DIR}" 2>/dev/null || true
         chmod 700 "${CONFIG_DIR}" 2>/dev/null || true
 
         if [ ! -f "${TRAFFIC_DATA_FILE}" ]; then
             touch "${TRAFFIC_DATA_FILE}" 2>/dev/null || true
-            info "创建新流量数据文件"
+            info "創建新流量數據文件"
         fi
 
         step "生成配置文件..."
@@ -1698,12 +1698,12 @@ EOF
 
     COLLECT_INTERVAL=${COLLECT_INTERVAL:-0}
     REPORT_INTERVAL=${REPORT_INTERVAL:-60}
-    AUTO_UPDATE=$(normalize_binary_value "$AUTO_UPDATE" 0) || error "auto_update 参数非法，仅支持 0 或 1"
+    AUTO_UPDATE=$(normalize_binary_value "$AUTO_UPDATE" 0) || error "auto_update 參數非法，僅支持 0 或 1"
 
     INTERFACE=$(normalize_interface_list "${INTERFACE:-}") || error "interface parameter is invalid; use comma-separated interface names"
 
     if [ -n "${RX_CORRECTION}" ] || [ -n "${TX_CORRECTION}" ]; then
-        step "应用流量校正..."
+        step "應用流量校正..."
         
         mkdir -p "${CONFIG_DIR}" 2>/dev/null || true
         chown root:wheel "${CONFIG_DIR}" 2>/dev/null || true
@@ -1736,67 +1736,67 @@ EOF
     verify_install
 
     echo -e "\n${GREEN}============================================="
-    echo -e "         CF-Server-Monitor ${AGENT_VERSION} 安装成功"
+    echo -e "         CF-Server-Monitor ${AGENT_VERSION} 安裝成功"
     echo -e "=============================================${NC}"
-    echo -e "  服务状态 : ${GREEN}Active (Running)${NC}"
-    echo -e "  配置参数 :"
+    echo -e "  服務狀態 : ${GREEN}Active (Running)${NC}"
+    echo -e "  配置參數 :"
     echo -e "    ● Server ID   : ${SERVER_ID}"
     echo -e "    ● Secret      : ********"
     echo -e "    ● Worker URL  : ${WORKER_URL}"
-    echo -e "    ● 上报间隔    : ${REPORT_INTERVAL}秒"
-    printf  '    ● 采样间隔    : %s秒\n' "${COLLECT_INTERVAL}"
-    echo -e "    ● 自动更新    : ${AUTO_UPDATE}"
+    echo -e "    ● 上報間隔    : ${REPORT_INTERVAL}秒"
+    printf  '    ● 採樣間隔    : %s秒\n' "${COLLECT_INTERVAL}"
+    echo -e "    ● 自動更新    : ${AUTO_UPDATE}"
     [ -n "${RX_CORRECTION}" ] && echo -e "    ● 下行校正    : ${RX_CORRECTION}GB"
     [ -n "${TX_CORRECTION}" ] && echo -e "    ● 上行校正    : ${TX_CORRECTION}GB"
     echo -e "    Interface   : ${INTERFACE:-auto}"
     if [ "${RESET_DAY}" = "0" ]; then
         echo -e "    ● 流量重置日  : 不重置"
     else
-        echo -e "    ● 流量重置日  : ${RESET_DAY}号"
+        echo -e "    ● 流量重置日  : ${RESET_DAY}號"
     fi
-    [ -n "${CT_NODE}" ] && echo -e "    ● CT节点      : ${CT_NODE}"
-    [ -n "${CU_NODE}" ] && echo -e "    ● CU节点      : ${CU_NODE}"
-    [ -n "${CM_NODE}" ] && echo -e "    ● CM节点      : ${CM_NODE}"
-    [ -n "${BD_NODE}" ] && echo -e "    ● BD节点      : ${BD_NODE}"
+    [ -n "${CT_NODE}" ] && echo -e "    ● CT節點      : ${CT_NODE}"
+    [ -n "${CU_NODE}" ] && echo -e "    ● CU節點      : ${CU_NODE}"
+    [ -n "${CM_NODE}" ] && echo -e "    ● CM節點      : ${CM_NODE}"
+    [ -n "${BD_NODE}" ] && echo -e "    ● BD節點      : ${BD_NODE}"
     echo -e "  管理指令 :"
-    echo -e "    ● 查看实时日志 : tail -f ${LOG_FILE}"
-    echo -e "    ● 查看运行状态 : launchctl print ${LAUNCHD_LABEL}"
-    echo -e "    ● 停止探针服务 : sudo launchctl bootout ${LAUNCHD_LABEL}"
-    echo -e "    ● 重启探针服务 : sudo launchctl kickstart -k ${LAUNCHD_LABEL}"
+    echo -e "    ● 查看實時日誌 : tail -f ${LOG_FILE}"
+    echo -e "    ● 查看運行狀態 : launchctl print ${LAUNCHD_LABEL}"
+    echo -e "    ● 停止探針服務 : sudo launchctl bootout ${LAUNCHD_LABEL}"
+    echo -e "    ● 重啟探針服務 : sudo launchctl kickstart -k ${LAUNCHD_LABEL}"
     echo -e "=============================================\n"
 }
 
 uninstall_probe() {
     print_banner
-    echo -e "${YELLOW}[!] 开始执行无残留深度卸载清理方案...${NC}\n"
+    echo -e "${YELLOW}[!] 開始執行無殘留深度卸載清理方案...${NC}\n"
     check_root
 
-    step "停用并撤销 launchd 守护进程..."
+    step "停用並撤銷 launchd 守護進程..."
     launchctl bootout system "${LAUNCHD_FILE}" 2>/dev/null || \
         launchctl bootout "${LAUNCHD_LABEL}" 2>/dev/null || true
 
-    step "清理服务描述性系统文件..."
+    step "清理服務描述性系統文件..."
     rm -f "${LAUNCHD_FILE}" 2>/dev/null || true
 
-    step "销毁探针物理可执行代码文件..."
+    step "銷燬探針物理可執行代碼文件..."
     rm -f "${SCRIPT_FILE}" 2>/dev/null || true
 
-    step "抹除临时缓存区..."
+    step "抹除臨時緩存區..."
     rm -rf "${TEMP_DIR}" 2>/dev/null || true
 
-    step "抹除流量追踪数据..."
+    step "抹除流量追蹤數據..."
     rm -rf "${CONFIG_DIR}" 2>/dev/null || true
 
-    step "清理日志文件..."
+    step "清理日誌文件..."
     rm -f "${LOG_FILE}" 2>/dev/null || true
 
-    step "根除孤儿或僵尸状态的探测残留进程..."
+    step "根除孤兒或殭屍狀態的探測殘留進程..."
     if pgrep -f "${SERVICE_NAME}.sh" >/dev/null 2>&1; then
         pkill -9 -f "${SERVICE_NAME}.sh" 2>/dev/null || true
     fi
 
     echo -e "\n${GREEN}╔══════════════════════════════════════════╗"
-    echo -e "║     ✓ 卸载完毕！系统环境无任何残留。     ║"
+    echo -e "║     ✓ 卸載完畢！系統環境無任何殘留。     ║"
     echo -e "╚══════════════════════════════════════════╝${NC}\n"
 }
 
@@ -1809,7 +1809,7 @@ case "${1:-install}" in
         uninstall_probe
         ;;
     *)
-        echo "未知指令. 可选命令: install | uninstall"
+        echo "未知指令. 可選命令: install | uninstall"
         exit 1
         ;;
 esac

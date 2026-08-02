@@ -1,7 +1,7 @@
 {
   "name": "cf-server-monitor",
   "version": "2.7.10",
-  "description": "Cloudflare Workers Server Monitor - 多服务器监控探针",
+  "description": "Cloudflare Workers Server Monitor - 多服務器監控探針",
   "type": "module",
   "scripts": {
     "dev": "wrangler dev",
@@ -22,7 +22,7 @@
     "server",
     "probe"
   ],
-  "author": "",
+  "author": "Joe",
   "license": "MIT",
   "devDependencies": {
     "@vitejs/plugin-vue": "^6.0.0",

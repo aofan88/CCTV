@@ -1,0 +1,13 @@
+name = "cf-server-monitor-theme-emerald"
+main = "cloudflare/worker.ts"
+compatibility_date = "2025-01-01"
+keep_vars = true
+
+[build]
+command = "bun run build:cloudflare"
+
+[assets]
+directory = "./dist"
+binding = "ASSETS"
+run_worker_first = true
+not_found_handling = "single-page-application"

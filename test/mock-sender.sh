@@ -1,8 +1,8 @@
 #!/bin/bash
-# 模拟数据发送脚本
-# 用于测试 CF-Server-Monitor 工作原理
+# 模擬數據發送腳本
+# 用於測試 CF-Server-Monitor 工作原理
 # bash test/mock-sender.sh 550e8400-e29b-41d4-a716-446655440001 123456 http://localhost:8787/update 10 1.3.0 2
-# 第6个参数为GPU数量，默认1
+# 第6個參數為GPU數量，默認1
 # curl -k -i -X POST 'https://localhost:8787/update' \
 #   -H 'Content-Type: application/json' \
 #   -H 'X-Agent-Version: 1.3.0' \
@@ -49,11 +49,11 @@ echo -e "${BLUE}╔════════════════════�
 echo -e "${BLUE}║       CF-Server-Monitor Mock Data Sender         ║${NC}"
 echo -e "${BLUE}╚══════════════════════════════════════════════════╝${NC}"
 echo ""
-info "服务器ID: $SERVER_ID"
-info "上报地址: $WORKER_URL"
-info "上报间隔: ${REPORT_INTERVAL}秒"
+info "服務器ID: $SERVER_ID"
+info "上報地址: $WORKER_URL"
+info "上報間隔: ${REPORT_INTERVAL}秒"
 info "Agent版本: ${AGENT_VERSION}"
-info "GPU数量: ${GPU_COUNT}"
+info "GPU數量: ${GPU_COUNT}"
 echo ""
 
 RX_PREV=$(generate_int 0 100000000)
@@ -131,7 +131,7 @@ while true; do
     EARCH=$(escape_json "${ARCH}")
     ECPU=$(escape_json "${CPU_INFO}")
 
-    # 生成多卡GPU信息数组
+    # 生成多卡GPU信息數組
     GPU_INFO_ARRAY=""
     GPU_UTIL_LOG=""
     for ((g=0; g<GPU_COUNT; g++)); do
@@ -157,9 +157,9 @@ EOF
     RESPONSE=$(curl -s -k -o /dev/null -w "%{http_code}" -X POST -H "Content-Type: application/json" -H "X-Agent-Version: ${AGENT_VERSION}" -d "$PAYLOAD" -m 5 --connect-timeout 2 "$WORKER_URL" 2>/dev/null || echo "000")
     
     if [ "$RESPONSE" = "200" ] || [ "$RESPONSE" = "201" ]; then
-        info "[$(date '+%Y-%m-%d %H:%M:%S')] 数据上报成功 - CPU: ${CPU}% | GPU: [${GPU_UTIL_LOG}] | Loss CT: ${LOSS_CT}% | RAM: ${RAM}% | Disk: ${DISK}%"
+        info "[$(date '+%Y-%m-%d %H:%M:%S')] 數據上報成功 - CPU: ${CPU}% | GPU: [${GPU_UTIL_LOG}] | Loss CT: ${LOSS_CT}% | RAM: ${RAM}% | Disk: ${DISK}%"
     else
-        warn "[$(date '+%Y-%m-%d %H:%M:%S')] 数据上报失败 (HTTP: $RESPONSE)"
+        warn "[$(date '+%Y-%m-%d %H:%M:%S')] 數據上報失敗 (HTTP: $RESPONSE)"
     fi
     
     LOOP_END_TIME=$(date +%s)

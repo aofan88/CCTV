@@ -5,7 +5,7 @@ const themeChangeCallbacks = [];
 
 const currentTheme = ref("auto");
 
-// 跟随系统明暗偏好:浏览器/系统为暗色时返回 dark,否则返回 light
+// 跟隨系統明暗偏好:瀏覽器/系統為暗色時返回 dark,否則返回 light
 const getSystemTheme = () => {
   if (typeof window !== "undefined" && window.matchMedia) {
     return window.matchMedia("(prefers-color-scheme: dark)").matches
@@ -31,7 +31,7 @@ const applyTheme = (theme) => {
   themeChangeCallbacks.forEach((cb) => cb(resolved));
 };
 
-// 模块级媒体查询监听器:仅注册一次,系统明暗变化且处于 auto 模式时实时切换
+// 模塊級媒體查詢監聽器:僅註冊一次,系統明暗變化且處於 auto 模式時即時切換
 let systemThemeMediaQuery = null;
 let systemThemeListener = null;
 const ensureSystemThemeListener = () => {
@@ -48,7 +48,7 @@ const ensureSystemThemeListener = () => {
       applyTheme("auto");
     }
   };
-  // 兼容旧版 Safari:addListener 已废弃但部分浏览器仍需
+  // 兼容舊版 Safari:addListener 已廢棄但部分瀏覽器仍需
   if (systemThemeMediaQuery.addEventListener) {
     systemThemeMediaQuery.addEventListener("change", systemThemeListener);
   } else if (systemThemeMediaQuery.addListener) {

@@ -1,86 +1,86 @@
-# CF-Server-Monitor 第三方主题开发 API 文档
+# CF-Server-Monitor 第三方主題開發 API 文檔
 
-> 面向第三方主题开发作者的 API 参考。
+> 面向第三方主題開發作者的 API 參考。
 >
-> 本文档只保留第三方主题可用的公开 API、WebSocket 和静态目录约定，不介绍后台管理接口。
+> 本文檔只保留第三方主題可用的公開 API、WebSocket 和靜態目錄約定，不介紹後臺管理接口。
 >
-> 管理后台固定由默认主题接管；主题中的管理入口只能跳转到 `/admin#admin`。
+> 管理後臺固定由默認主題接管；主題中的管理入口只能跳轉到 `/admin#admin`。
 
 **Base URL**：`https://<your-worker-domain>`
 
-**统一响应头**：
+**統一響應頭**：
 
-- `Content-Type: application/json`（除特别说明外）
-
-***
-
-## 目录
-
-- [0. 运行时配置、构建产物与版本升级提示](#0-运行时配置构建产物与版本升级提示)
-- [1. 鉴权与 Turnstile 流程](#1-鉴权与-turnstile-流程)
-- **[2. 公开 API](#2-公开-api)**
-  - **[2.1 获取站点配置](#21-获取站点配置)**
-  - **[2.2 获取服务器列表](#22-获取服务器列表)**
-  - [2.3 获取服务器详情](#23-获取服务器详情)
-  - [2.4 获取历史指标](#24-获取历史指标)
-- [3. WebSocket 实时推送](#3-websocket-实时推送)
-- [4. 错误处理](#4-错误处理)
-- [5. 类型定义](#5-类型定义)
+- `Content-Type: application/json`（除特別說明外）
 
 ***
 
-## 0. 运行时配置、构建产物与版本升级提示
+## 目錄
+
+- [0. 運行時配置、構建產物與版本升級提示](#0-運行時配置構建產物與版本升級提示)
+- [1. 鑑權與 Turnstile 流程](#1-鑑權與-turnstile-流程)
+- **[2. 公開 API](#2-公開-api)**
+  - **[2.1 獲取站點配置](#21-獲取站點配置)**
+  - **[2.2 獲取服務器列表](#22-獲取服務器列表)**
+  - [2.3 獲取服務器詳情](#23-獲取服務器詳情)
+  - [2.4 獲取歷史指標](#24-獲取歷史指標)
+- [3. WebSocket 實時推送](#3-websocket-實時推送)
+- [4. 錯誤處理](#4-錯誤處理)
+- [5. 類型定義](#5-類型定義)
+
+***
+
+## 0. 運行時配置、構建產物與版本升級提示
 
 ### 0.1 API Base 配置
 
-`config.json` 已废弃，当前前端不会请求或读取 `config.json`。
+`config.json` 已廢棄，當前前端不會請求或讀取 `config.json`。
 
-默认情况下，前端使用当前页面同源地址作为 API Base，即 `window.location.origin`。Worker/Pages 同域部署时无需额外配置。
+默認情況下，前端使用當前頁面同源地址作為 API Base，即 `window.location.origin`。Worker/Pages 同域部署時無需額外配置。
 
-纯静态主题（例如 GitHub Pages）通过 HTML meta 标签配置后端地址：
+純靜態主題（例如 GitHub Pages）通過 HTML meta 標籤配置後端地址：
 
 ```html
 <meta name="apiBase" content="https://<your-worker-domain>,https://<your-worker-domain2>">
 ```
 
-多个地址用英文逗号分隔。前端会按 `apiBase` 创建对应的 HTTP 请求和 WebSocket 连接，多站模式下每个后端只处理自己返回的服务器 ID。
+多個地址用英文逗號分隔。前端會按 `apiBase` 創建對應的 HTTP 請求和 WebSocket 連接，多站模式下每個後端只處理自己返回的服務器 ID。
 
-跨域部署主题时，还需要在每个源站 Cloudflare Workers 的环境变量中添加 `CORS_ALLOWED_ORIGINS`，位置和添加 `API_SECRET` 相同。把本地开发地址和最终上线域名加入白名单；如果 `API_BASE` 配置了多个 Workers，每个 Workers 都要添加这一项。
+跨域部署主題時，還需要在每個源站 Cloudflare Workers 的環境變量中添加 `CORS_ALLOWED_ORIGINS`，位置和添加 `API_SECRET` 相同。把本地開發地址和最終上線域名加入白名單；如果 `API_BASE` 配置了多個 Workers，每個 Workers 都要添加這一項。
 
 ```
-https://localhost:5173,https://[你的github用户名].github.io
+https://localhost:5173,https://[你的github用戶名].github.io
 ```
 
-该值只填写 origin，多个值用英文逗号分隔，不要包含路径、查询参数或结尾 `/`。如果线上主题域名不是 Worker 同源域名，也必须加入这里，否则浏览器会拦截 API 请求和 WebSocket 连接。
+該值只填寫 origin，多個值用英文逗號分隔，不要包含路徑、查詢參數或結尾 `/`。如果線上主題域名不是 Worker 同源域名，也必須加入這裡，否則瀏覽器會攔截 API 請求和 WebSocket 連接。
 
-使用项目内置静态主题构建脚本时，需要在主题项目 `.env` 中配置：
+使用項目內置靜態主題構建腳本時，需要在主題項目 `.env` 中配置：
 
-| 环境变量 | 说明 | 默认值 |
+| 環境變量 | 說明 | 默認值 |
 | --- | --- | --- |
-| `API_BASE` | 后端地址，多个地址用英文逗号分隔 | 必填 https://<your-worker-domain> |
-| `TITLE` | 静态页面标题 | 选填 |
-| `BACKGROUND_IMAGE` | 静态页面背景图 | 选填 |
-| `CSP_API` | 追加到 `connect-src` 的 API 白名单 | 选填 |
-| `CSP_STATIC` | 追加到静态资源相关 CSP 指令的白名单 | 选填 |
+| `API_BASE` | 後端地址，多個地址用英文逗號分隔 | 必填 https://<your-worker-domain> |
+| `TITLE` | 靜態頁面標題 | 選填 |
+| `BACKGROUND_IMAGE` | 靜態頁面背景圖 | 選填 |
+| `CSP_API` | 追加到 `connect-src` 的 API 白名單 | 選填 |
+| `CSP_STATIC` | 追加到靜態資源相關 CSP 指令的白名單 | 選填 |
 
-运行：
+運行：
 
 ```bash
 npm run build:github-page
 ```
 
-纯静态构建时，`API_BASE`、`TITLE`、`BACKGROUND_IMAGE`、`CSP_API`、`CSP_STATIC` 会写入 HTML 运行时配置。后台外观设置中的 `csp_api` 和 `csp_static` 也会影响页面允许加载的第三方 API 和静态资源域名。
+純靜態構建時，`API_BASE`、`TITLE`、`BACKGROUND_IMAGE`、`CSP_API`、`CSP_STATIC` 會寫入 HTML 運行時配置。後臺外觀設置中的 `csp_api` 和 `csp_static` 也會影響頁面允許加載的第三方 API 和靜態資源域名。
 
-### 0.2 主题构建产物约定
+### 0.2 主題構建產物約定
 
-主题完成后提交到 [huilang-me/CFSM-Theme-Store](https://github.com/huilang-me/CFSM-Theme-Store) 项目。
+主題完成後提交到 [huilang-me/CFSM-Theme-Store](https://github.com/huilang-me/CFSM-Theme-Store) 項目。
 
-主题构建产物仅需要：
+主題構建產物僅需要：
 
 - `index.html`
-- `assets/` 目录
+- `assets/` 目錄
 
-目录结构示例：
+目錄結構示例：
 
 ```
 my-theme/
@@ -91,81 +91,81 @@ my-theme/
     └── logo.webp
 ```
 
-主题开发注意事项：
+主題開發注意事項：
 
-- 主题提交目录只能生成 `index.html` 和 `assets/`；不要依赖其他主题目录或根目录文件
-- 静态资源应放在主题目录的 `assets/` 下，并在 HTML/JS/CSS 中使用 `/assets/...` 或相对 `assets/...`
-- 旗帜和 OS 图标走默认皮肤静态文件，不要打包进主题：旗帜使用 `/flags/<code>.svg`，OS 图标使用 `/os-icons/<filename>`
-- 站点标题、背景图、自定义 `<head>`、自定义脚本由用户后台外观设置控制，主题不要把这些配置写死
-- 主题不可用时应让页面暴露加载错误，不要在主题内静默跳转到其他页面
+- 主題提交目錄只能生成 `index.html` 和 `assets/`；不要依賴其他主題目錄或根目錄文件
+- 靜態資源應放在主題目錄的 `assets/` 下，並在 HTML/JS/CSS 中使用 `/assets/...` 或相對 `assets/...`
+- 旗幟和 OS 圖標走默認皮膚靜態文件，不要打包進主題：旗幟使用 `/flags/<code>.svg`，OS 圖標使用 `/os-icons/<filename>`
+- 站點標題、背景圖、自定義 `<head>`、自定義腳本由用戶後臺外觀設置控制，主題不要把這些配置寫死
+- 主題不可用時應讓頁面暴露加載錯誤，不要在主題內靜默跳轉到其他頁面
 
-路由约定：
+路由約定：
 
-- 首页：`/#/` 或 `/#`
-- 详情页：`/#/server/:id`
-- 管理后台：链接到 `/admin#admin`，由内置默认主题接管，第三方主题不得实现管理页
+- 首頁：`/#/` 或 `/#`
+- 詳情頁：`/#/server/:id`
+- 管理後臺：鏈接到 `/admin#admin`，由內置默認主題接管，第三方主題不得實現管理頁
 
-### 0.3 版本升级提示
+### 0.3 版本升級提示
 
-`GET /api/config` 会返回当前 Workers 版本 `version`。当请求带有有效 JWT 时，后端还会查询远程最新版并额外返回：
+`GET /api/config` 會返回當前 Workers 版本 `version`。當請求帶有有效 JWT 時，後端還會查詢遠程最新版並額外返回：
 
 - `last_workers_version`：最新 Workers 版本
-- `last_agent_version`：最新探针 Agent 版本
+- `last_agent_version`：最新探針 Agent 版本
 
-第三方主题可以将 `version` 与 `last_workers_version` 做字符串比较，自行决定是否展示 Workers 升级提示。`last_agent_version` 仅在登录后返回，可用于可选的 Agent 版本提示。
+第三方主題可以將 `version` 與 `last_workers_version` 做字符串比較，自行決定是否展示 Workers 升級提示。`last_agent_version` 僅在登錄後返回，可用於可選的 Agent 版本提示。
 
-未登录访问 `/api/config` 时不会返回 `last_workers_version` / `last_agent_version`，自定义主题不要依赖匿名请求展示升级提示。
+未登錄訪問 `/api/config` 時不會返回 `last_workers_version` / `last_agent_version`，自定義主題不要依賴匿名請求展示升級提示。
 
 ***
 
-## 1. 鉴权与 Turnstile 流程
+## 1. 鑑權與 Turnstile 流程
 
-### 1.1 鉴权机制
+### 1.1 鑑權機制
 
-项目使用两套鉴权机制：
+項目使用兩套鑑權機制：
 
-| 机制         | 使用位置            | 方式                                           |
+| 機制         | 使用位置            | 方式                                           |
 | ---------- | --------------- | -------------------------------------------- |
-| JWT Bearer | 非公开站点读取公开 API、查看 1 小时以上历史 | `Authorization: Bearer <token>`              |
-| Turnstile  | 公开 API（当启用时）    | `X-Turnstile-Token` 或 `X-Turnstile-Verified` |
+| JWT Bearer | 非公開站點讀取公開 API、查看 1 小時以上歷史 | `Authorization: Bearer <token>`              |
+| Turnstile  | 公開 API（當啟用時）    | `X-Turnstile-Token` 或 `X-Turnstile-Verified` |
 
-### 1.2 Turnstile 人机验证流程
+### 1.2 Turnstile 人機驗證流程
 
 ```
-1. 首次访问 → GET /api/config → 获取 turnstile_site_key
-2. 渲染 Turnstile 组件 → 获取一次性 token
-3. 后续请求 → 携带 X-Turnstile-Token 头
-4. 验证成功 → /api/config 响应体返回 turnstile_verified（加密凭证，有效期 1 小时）
-5. 后续请求 → 可复用 X-Turnstile-Verified，省略 X-Turnstile-Token
+1. 首次訪問 → GET /api/config → 獲取 turnstile_site_key
+2. 渲染 Turnstile 組件 → 獲取一次性 token
+3. 後續請求 → 攜帶 X-Turnstile-Token 頭
+4. 驗證成功 → /api/config 響應體返回 turnstile_verified（加密憑證，有效期 1 小時）
+5. 後續請求 → 可複用 X-Turnstile-Verified，省略 X-Turnstile-Token
 ```
 
-**相关 Header**：
+**相關 Header**：
 
-| Header                 | 方向              | 说明                        |
+| Header                 | 方向              | 說明                        |
 | ---------------------- | --------------- | ------------------------- |
-| `X-Turnstile-Token`    | Client → Server | 当次 Turnstile token（明文）    |
-| `X-Turnstile-Verified` | Client → Server | AES-GCM 加密的已验证凭证，客户端应缓存复用 |
+| `X-Turnstile-Token`    | Client → Server | 當次 Turnstile token（明文）    |
+| `X-Turnstile-Verified` | Client → Server | AES-GCM 加密的已驗證憑證，客戶端應緩存複用 |
 
 **注意**：
 
-- `/api/ws`、`/api/config`（不带 Turnstile Header 时）无需验证
-- `/api/config` 带 `X-Turnstile-Token` 或 `X-Turnstile-Verified` 时会进入验证流程，并通过 `verified` / `turnstile_verified` 返回验证结果
-- `turnstile_enabled` 是全局 API 验证开关，`turnstile_login_enabled` 是内置后台登录页验证开关；第三方主题不实现登录页，管理入口跳转 `/admin#admin`
+- `/api/ws`、`/api/config`（不帶 Turnstile Header 時）無需驗證
+- `/api/config` 帶 `X-Turnstile-Token` 或 `X-Turnstile-Verified` 時會進入驗證流程，並通過 `verified` / `turnstile_verified` 返回驗證結果
+- `turnstile_enabled` 是全局 API 驗證開關，`turnstile_login_enabled` 是內置後臺登錄頁驗證開關；第三方主題不實現登錄頁，管理入口跳轉 `/admin#admin`
 
 ***
 
-## 2. 公开 API
+## 2. 公開 API
 
-> 若站点非公开（`is_public !== 'true'`），所有接口需携带 JWT。
-> 启用 Turnstile 时需携带 `X-Turnstile-Token` 或 `X-Turnstile-Verified`。
+> 若站點非公開（`is_public !== 'true'`），所有接口需攜帶 JWT。
+> 啟用 Turnstile 時需攜帶 `X-Turnstile-Token` 或 `X-Turnstile-Verified`。
 
-### 2.1 获取站点配置
+### 2.1 獲取站點配置
 
 **Request**
 
 ```
 GET /api/config
-Headers: (可选) Authorization: Bearer <jwt>, X-Turnstile-Token / X-Turnstile-Verified
+Headers: (可選) Authorization: Bearer <jwt>, X-Turnstile-Token / X-Turnstile-Verified
 ```
 
 **Response**
@@ -191,25 +191,25 @@ Headers: (可选) Authorization: Bearer <jwt>, X-Turnstile-Token / X-Turnstile-V
 }
 ```
 
-**字段说明**：
+**字段說明**：
 
-| 字段                   | 类型           | 说明              |
+| 字段                   | 類型           | 說明              |
 | -------------------- | ------------ | --------------- |
-| `version`            | string       | 当前 Workers 版本号 |
-| `last_workers_version` | string\|null | 最新 Workers 版本，仅登录后返回 |
-| `last_agent_version` | string\|null | 最新 Agent 版本，仅登录后返回 |
-| `is_public`          | boolean      | 是否公开站点             |
-| `authorization`      | boolean      | 是否通过登录验证       |
-| `turnstile_enabled`  | boolean      | 是否启用全局 API 人机验证 |
-| `turnstile_login_enabled` | boolean | 是否启用登录页人机验证 |
-| `turnstile_site_key` | string       | Turnstile 前端公钥  |
-| `site_title`         | string       | 站点标题 |
-| `theme_options`      | object       | 第三方主题自定义配置；未配置时为空对象 |
-| `verified`           | boolean      | 当前请求是否已验证       |
-| `turnstile_verified` | string\|null | 已验证凭证，缓存复用 1 小时 |
-| `long_history_points` | number      | 长历史查询返回的采样点数，可选 `60`、`120`、`180`、`240` |
+| `version`            | string       | 當前 Workers 版本號 |
+| `last_workers_version` | string\|null | 最新 Workers 版本，僅登錄後返回 |
+| `last_agent_version` | string\|null | 最新 Agent 版本，僅登錄後返回 |
+| `is_public`          | boolean      | 是否公開站點             |
+| `authorization`      | boolean      | 是否通過登錄驗證       |
+| `turnstile_enabled`  | boolean      | 是否啟用全局 API 人機驗證 |
+| `turnstile_login_enabled` | boolean | 是否啟用登錄頁人機驗證 |
+| `turnstile_site_key` | string       | Turnstile 前端公鑰  |
+| `site_title`         | string       | 站點標題 |
+| `theme_options`      | object       | 第三方主題自定義配置；未配置時為空對象 |
+| `verified`           | boolean      | 當前請求是否已驗證       |
+| `turnstile_verified` | string\|null | 已驗證憑證，緩存複用 1 小時 |
+| `long_history_points` | number      | 長曆史查詢返回的採樣點數，可選 `60`、`120`、`180`、`240` |
 
-`theme_options` 对第三方主题是只读运行时配置。需要修改主题配置时，跳转到内置后台 `/admin#admin`，不要在第三方主题内调用管理端接口。
+`theme_options` 對第三方主題是隻讀運行時配置。需要修改主題配置時，跳轉到內置後臺 `/admin#admin`，不要在第三方主題內調用管理端接口。
 
 **示例**：
 
@@ -220,7 +220,7 @@ const config = await res.json();
 
 ***
 
-### 2.2 获取服务器列表
+### 2.2 獲取服務器列表
 
 **Request**
 
@@ -253,14 +253,14 @@ Headers: (按需) Authorization: Bearer <jwt>, X-Turnstile-Token/Verified
 }
 ```
 
-**字段说明**：
+**字段說明**：
 
-| 字段            | 说明                          |
+| 字段            | 說明                          |
 | ------------- | --------------------------- |
-| `servers`     | 服务器列表（含最新指标），未登录用户自动过滤隐藏服务器；`tags` 始终随服务器返回 |
-| `stats`       | 聚合统计（在线阈值 5 分钟）             |
-| `regionStats` | 按区域统计服务器数量                  |
-| `sysConfig`   | 站点开关配置，控制 UI 显示；主题配置请从 `/api/config` 的 `theme_options` 读取 |
+| `servers`     | 服務器列表（含最新指標），未登錄用戶自動過濾隱藏服務器；`tags` 始終隨服務器返回 |
+| `stats`       | 聚合統計（在線閾值 5 分鐘）             |
+| `regionStats` | 按區域統計服務器數量                  |
+| `sysConfig`   | 站點開關配置，控制 UI 顯示；主題配置請從 `/api/config` 的 `theme_options` 讀取 |
 
 **示例**：
 
@@ -273,7 +273,7 @@ const { servers, stats, sysConfig } = await res.json();
 
 ***
 
-### 2.3 获取服务器详情
+### 2.3 獲取服務器詳情
 
 **Request**
 
@@ -351,9 +351,9 @@ Headers: (按需) Authorization, X-Turnstile-Token/Verified
 }
 ```
 
-`tags` 为英文逗号分隔字符串。`note` 属于管理端内部字段，不从 dashboard 公共接口返回。`latestReportUpdates` 与 `/api/servers` 同名字段形状一致，REST 样本统一为 `{ ts, data }` 并按探针采样包透传；内置探针默认只在普通采样点上报 `cpu`、`ram_total`、`ram_used`、`swap_total`、`swap_used`、`net_in_speed`、`net_out_speed`；缓存约 5 分钟，允许为空数组。`gpu` 已废弃，主题应使用 `gpu_info`；新版上报和 WebSocket 实时数据为 `[{ id, name, info }]` 数组，历史/详情 REST 响应中可能是同结构的 JSON 字符串。
+`tags` 為英文逗號分隔字符串。`note` 屬於管理端內部字段，不從 dashboard 公共接口返回。`latestReportUpdates` 與 `/api/servers` 同名字段形狀一致，REST 樣本統一為 `{ ts, data }` 並按探針採樣包透傳；內置探針默認只在普通採樣點上報 `cpu`、`ram_total`、`ram_used`、`swap_total`、`swap_used`、`net_in_speed`、`net_out_speed`；緩存約 5 分鐘，允許為空數組。`gpu` 已廢棄，主題應使用 `gpu_info`；新版上報和 WebSocket 實時數據為 `[{ id, name, info }]` 數組，歷史/詳情 REST 響應中可能是同結構的 JSON 字符串。
 
-**失败返回**：
+**失敗返回**：
 
 - `400 { "error": "Missing ID" }`
 - `404 { "error": "Server not found" }`
@@ -367,7 +367,7 @@ const server = await res.json();
 
 ***
 
-### 2.4 获取历史指标
+### 2.4 獲取歷史指標
 
 **Request**
 
@@ -376,10 +376,10 @@ GET /api/history/all?id=<uuid>&hours=<number>
 Headers: (按需) Authorization, X-Turnstile-Token/Verified
 ```
 
-**参数**：
+**參數**：
 
-- `id`（必填）：服务器 UUID
-- `hours`（可选，默认 24）：查询时长，可选 `0.167`、`0.5`、`1`、`6`、`12`、`24`、`48`、`96`、`168`，最大 168（7 天）
+- `id`（必填）：服務器 UUID
+- `hours`（可選，默認 24）：查詢時長，可選 `0.167`、`0.5`、`1`、`6`、`12`、`24`、`48`、`96`、`168`，最大 168（7 天）
 
 **Response**
 
@@ -392,9 +392,9 @@ Headers: (按需) Authorization, X-Turnstile-Token/Verified
 
 **注意**：
 
-- 未登录用户 `hours > 24` 时返回 `401`
-- 服务端按后台 `long_history_points` 配置返回采样点，默认 120 个点
-- 数据库字段缺失且需要升级时可能返回 `409 { "message": "databaseUpgradeRequired" }`
+- 未登錄用戶 `hours > 24` 時返回 `401`
+- 服務端按後臺 `long_history_points` 配置返回採樣點，默認 120 個點
+- 數據庫字段缺失且需要升級時可能返回 `409 { "message": "databaseUpgradeRequired" }`
 
 **示例**：
 
@@ -405,7 +405,7 @@ const rows = await res.json();
 
 ***
 
-## 3. WebSocket 实时推送
+## 3. WebSocket 實時推送
 
 **Request**
 
@@ -414,60 +414,60 @@ GET /api/ws?subscribe=<all|serverId>
 Headers: Upgrade: websocket, Connection: Upgrade
 ```
 
-**参数**：
+**參數**：
 
-| 参数 | 必填 | 默认值 | 说明 |
+| 參數 | 必填 | 默認值 | 說明 |
 | --- | --- | --- | --- |
-| `subscribe` | 否 | `all` | `all` 订阅所有服务器，`<serverId>` 只订阅指定服务器 |
+| `subscribe` | 否 | `all` | `all` 訂閱所有服務器，`<serverId>` 只訂閱指定服務器 |
 
-**过滤机制**：
+**過濾機制**：
 
-- `subscribe=all` + 通道内发送 `subscribe` 消息：仅接收 `ids` 列表中的服务器更新
-- `subscribe=all` + 未发送 `subscribe` 消息：**不返回任何更新**
-- `subscribe=<serverId>`：始终只接收该服务器更新，不需要发送 `ids`
-- `ids` 最多 500 个，每个 ID 长度 1-64，仅允许字母、数字、`.`、`_`、`:`、`-`
-- `scope` 或 `ids` 格式非法时服务端会关闭 WebSocket 连接（close code `1008`）
-- `ids` 是客户端订阅过滤，不是服务端鉴权
+- `subscribe=all` + 通道內發送 `subscribe` 消息：僅接收 `ids` 列表中的服務器更新
+- `subscribe=all` + 未發送 `subscribe` 消息：**不返回任何更新**
+- `subscribe=<serverId>`：始終只接收該服務器更新，不需要發送 `ids`
+- `ids` 最多 500 個，每個 ID 長度 1-64，僅允許字母、數字、`.`、`_`、`:`、`-`
+- `scope` 或 `ids` 格式非法時服務端會關閉 WebSocket 連接（close code `1008`）
+- `ids` 是客戶端訂閱過濾，不是服務端鑑權
 
-**多 apiBase 注意事项**：
+**多 apiBase 注意事項**：
 
-当配置了多个 `apiBase` 时，前端会为每个 apiBase 创建独立的 WebSocket 连接。每个连接发送的 `ids` 应只包含该 apiBase 返回的服务器 ID，而非全部服务器 ID。每个 Worker/DO 只知道自己的服务器，传入不属于它的 ID 不会产生任何效果。
+當配置了多個 `apiBase` 時，前端會為每個 apiBase 創建獨立的 WebSocket 連接。每個連接發送的 `ids` 應只包含該 apiBase 返回的服務器 ID，而非全部服務器 ID。每個 Worker/DO 只知道自己的服務器，傳入不屬於它的 ID 不會產生任何效果。
 
-**推荐流程**：
+**推薦流程**：
 
-1. 调用 `GET /api/servers` 获取服务器列表（已按登录状态过滤隐藏服务器）
-2. 提取返回的 `servers[].id` 数组
-3. 连接 WebSocket：`?subscribe=all`
-4. 建连后通过 WebSocket 通道发送 `{ type: "subscribe", scope: "all", ids }`
+1. 調用 `GET /api/servers` 獲取服務器列表（已按登錄狀態過濾隱藏服務器）
+2. 提取返回的 `servers[].id` 數組
+3. 連接 WebSocket：`?subscribe=all`
+4. 建連後通過 WebSocket 通道發送 `{ type: "subscribe", scope: "all", ids }`
 
 **推送策略**：
 
-| 订阅类型 | 推送方式 | 消息类型 | 说明 |
+| 訂閱類型 | 推送方式 | 消息類型 | 說明 |
 | -------- | ----- | ----- | --- |
-| `subscribe=all` | 批量合并，每 5 秒一次 | `batchUpdate` | 减少消息数量，降低前端渲染压力 |
-| `subscribe=<serverId>` | 实时推送 | `batchUpdate` | 单台服务器详情页，低延迟，统一消息格式 |
+| `subscribe=all` | 批量合併，每 5 秒一次 | `batchUpdate` | 減少消息數量，降低前端渲染壓力 |
+| `subscribe=<serverId>` | 實時推送 | `batchUpdate` | 單臺服務器詳情頁，低延遲，統一消息格式 |
 
 **消息格式**：
 
-| 类型 | 方向 | 数据结构 |
+| 類型 | 方向 | 數據結構 |
 | --- | --- | --- |
 | `hello` | S → C | `{ type: "hello", ts: number, subscribed: string }` |
 | `subscribe` | C → S | `{ type: "subscribe", scope: string, ids: string[] }` |
 | `subscribed` | S → C | `{ type: "subscribed", ts: number, subscribed: string, count: number }` |
 | `ping` | C → S | `{ type: "ping", ts: number }` |
-| `pong` | 双向 | `{ type: "pong", ts: number }` |
+| `pong` | 雙向 | `{ type: "pong", ts: number }` |
 | `batchUpdate` | S → C | `{ type: "batchUpdate", ts: number, updates: Array<{serverId, samples: Array<{ts, data: Partial<Server>}>}> }` |
 
-`batchUpdate.samples[].data` 是增量字段：批次内的高频采样点主要包含 CPU、内存、Swap、网速和时间字段；每次上报的最后一个样本会额外携带本次完整报告状态，用于同步磁盘、GPU、进程、连接数、探针、Ping/丢包等报告级数据。
+`batchUpdate.samples[].data` 是增量字段：批次內的高頻採樣點主要包含 CPU、內存、Swap、網速和時間字段；每次上報的最後一個樣本會額外攜帶本次完整報告狀態，用於同步磁盤、GPU、進程、連接數、探針、Ping/丟包等報告級數據。
 
-**示例（subscribe=all，带 ID 过滤）**：
+**示例（subscribe=all，帶 ID 過濾）**：
 
 ```js
-// 1. 获取服务器列表
+// 1. 獲取服務器列表
 const { servers } = await (await fetch('/api/servers')).json();
 const ids = servers.map(s => s.id);
 
-// 2. 连接 WebSocket，并通过通道消息提交订阅 ID 列表
+// 2. 連接 WebSocket，並通過通道消息提交訂閱 ID 列表
 const ws = new WebSocket('wss://status.example.com/api/ws?subscribe=all');
 ws.onopen = () => {
   ws.send(JSON.stringify({ type: 'subscribe', scope: 'all', ids }));
@@ -484,7 +484,7 @@ ws.onmessage = (ev) => {
 };
 ```
 
-**示例（subscribe=serverId，实时推送）**：
+**示例（subscribe=serverId，實時推送）**：
 
 ```js
 const ws = new WebSocket('wss://status.example.com/api/ws?subscribe=server-001');
@@ -502,35 +502,35 @@ ws.onmessage = (ev) => {
 
 ***
 
-## 4. 错误处理
+## 4. 錯誤處理
 
-### 统一响应格式
+### 統一響應格式
 
-**成功响应**：
+**成功響應**：
 
-成功响应直接返回业务对象或数组，具体结构见各接口；没有统一的 `success: true` 包装字段。
+成功響應直接返回業務對象或數組，具體結構見各接口；沒有統一的 `success: true` 包裝字段。
 
-**错误响应**：
+**錯誤響應**：
 
 ```json
 { "error": "human readable message", "code": 400 }
 ```
 
-### 错误码速查表
+### 錯誤碼速查表
 
-| code | 含义             | 处理建议                 |
+| code | 含義             | 處理建議                 |
 | ---- | -------------- | -------------------- |
-| 400  | 参数错误           | 检查参数格式和必填项           |
-| 401  | 未授权            | 重新登录或检查 JWT          |
-| 403  | Turnstile 验证失败 | 重新获取 Turnstile token |
-| 404  | 资源不存在          | 检查服务器 ID             |
-| 409  | 数据库需升级        | 提示管理员执行数据库升级      |
-| 500  | 服务器内部错误        | 联系管理员                |
-| 503  | WebSocket 不可用  | 降级为轮询                |
+| 400  | 參數錯誤           | 檢查參數格式和必填項           |
+| 401  | 未授權            | 重新登錄或檢查 JWT          |
+| 403  | Turnstile 驗證失敗 | 重新獲取 Turnstile token |
+| 404  | 資源不存在          | 檢查服務器 ID             |
+| 409  | 數據庫需升級        | 提示管理員執行數據庫升級      |
+| 500  | 服務器內部錯誤        | 聯繫管理員                |
+| 503  | WebSocket 不可用  | 降級為輪詢                |
 
 ***
 
-## 5. 类型定义
+## 5. 類型定義
 
 ```typescript
 interface Server {
@@ -538,7 +538,7 @@ interface Server {
   name: string;
   server_group: string;
   tags: string;
-  price: string; // "0" 或 "-1" 表示免费，空白表示未设置
+  price: string; // "0" 或 "-1" 表示免費，空白表示未設置
   billing_cycle: string;
   auto_renewal: string;
   currency: string;
@@ -581,8 +581,8 @@ interface Server {
   os: string;
   kernel_version: string;
   region: string;
-  ip_v4: '0' | '1'; // 公共 REST 接口仅返回 IPv4 可达性
-  ip_v6: '0' | '1'; // 公共 REST 接口仅返回 IPv6 可达性
+  ip_v4: '0' | '1'; // 公共 REST 接口僅返回 IPv4 可達性
+  ip_v6: '0' | '1'; // 公共 REST 接口僅返回 IPv6 可達性
   boot_time: string;
   agent_version?: string;
   last_updated: number;

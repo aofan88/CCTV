@@ -1,6 +1,6 @@
 const CURRENT_VERSION = '2.8.1 Beta4';
 export const AGENT_VERSION = '1.3.8';
-export const DEFAULT_SITE_TITLE = 'Cloudflare Server Monitor';
+export const DEFAULT_SITE_TITLE = '潤昇創新 RunSing Innovation';
 export const APPEARANCE_FIELDS = ['site_title', 'custom_bg', 'favicon', 'custom_head', 'custom_script', 'csp_static', 'csp_api', 'display_mode', 'theme_options'];
 
 export const SITE_FIELDS = ['is_public', 'show_price', 'show_expire', 'show_tf', 'show_time', 'long_history_points', 'tg_notify', 'tg_bot_token', 'tg_chat_id', 'turnstile_enabled', 'turnstile_login_enabled', 'turnstile_site_key', 'turnstile_secret_key', 'jwt_secret', 'username', 'password', 'cloudflare_account_id', 'cloudflare_token', 'custom_ct', 'custom_cu', 'custom_cm', 'custom_bd', 'expire_reminder', 'resource_alert_rules', 'theme_url', 'history_id_optimized','servers_optimized'];
@@ -401,10 +401,10 @@ export async function loadSiteSettings(db, options = {}) {
   const forceRefresh = options === true || Boolean(options && options.forceRefresh);
   const now = Date.now();
   if (!forceRefresh && cachedSiteSettings && now < siteSettingsCacheExpiry) {
-    debug('Settings缓存命中');
+    debug('Settings緩存命中');
     return cachedSiteSettings;
   }
-  debug('Settings缓存更新');
+  debug('Settings緩存更新');
 
   const result = { ...defaults };
   let siteOptions = null;
@@ -433,7 +433,7 @@ export async function loadSiteSettings(db, options = {}) {
     result.long_history_points = normalizeLongHistoryPoints(result.long_history_points);
     result.resource_alert_rules = normalizeResourceAlertRules(result.resource_alert_rules);
   } catch (e) {
-    console.error('加载站点设置失败:', e);
+    console.error('加載站點設置失敗:', e);
   }
 
   cachedSiteSettings = result;
@@ -449,10 +449,10 @@ export function clearSiteSettingsCache() {
 export async function loadAppearanceOptions(db) {
   const now = Date.now();
   if (cachedAppearanceOptions && now < appearanceOptionsCacheExpiry) {
-    debug('Appearance缓存命中');
+    debug('Appearance緩存命中');
     return cachedAppearanceOptions;
   }
-  debug('Appearance缓存更新');
+  debug('Appearance緩存更新');
 
   const result = {};
   copyFields(result, defaults, APPEARANCE_FIELDS);
@@ -476,7 +476,7 @@ export async function loadAppearanceOptions(db) {
     }
     copyFields(result, appearanceOptions, APPEARANCE_FIELDS);
   } catch (e) {
-    console.error('加载外观设置失败:', e);
+    console.error('加載外觀設置失敗:', e);
   }
 
   cachedAppearanceOptions = result;
