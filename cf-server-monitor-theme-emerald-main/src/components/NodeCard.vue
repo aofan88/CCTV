@@ -11,7 +11,6 @@ import { useAppStore } from '@/stores/app'
 import { getApiAssetUrl } from '@/utils/api'
 import { formatBytesPerSecondWithConfig, formatBytesWithConfig, formatDateTime, formatUptimeWithFormat, getStatus } from '@/utils/helper'
 import { formatOfflineTime, getCustomTags, getPingToneClass, getPriceTags, getRemainingTimeTagClass, getTrafficUsed, getTrafficUsedPercentage, hasRegion, PING_PROVIDERS, showTrafficProgress } from '@/utils/nodeHelper'
-import { getOSImage, getOSName } from '@/utils/osImageHelper'
 import { getRegionCode, getRegionDisplayName } from '@/utils/regionHelper'
 
 const props = defineProps<{ node: NodeData }>()
@@ -58,6 +57,12 @@ const trafficUsed = computed(() => getTrafficUsed(props.node))
 const priceTags = computed(() => getPriceTags(props.node, appStore.lang))
 const remainingTimeTagClass = computed(() => getRemainingTimeTagClass(props.node))
 const customTags = computed(() => getCustomTags(props.node))
+const isTaiwanNode = computed(() => {
+  const region = String(props.node.region || '').trim()
+  const name = String(props.node.name || '')
+  return getRegionCode(region).toUpperCase() === 'TW'
+    || /(^|[^A-Za-z])(TW|台灣|臺灣|中華電信)/i.test(`${region} ${name}`)
+})
 
 function openPingDialog() {
   emit('pingClick', props.node)
@@ -87,9 +92,9 @@ function openPingDialog() {
 
     <template #header-extra>
       <div class="flex gap-2 items-center">
-        <img :src="getOSImage(props.node.os, props.node.source_index)" :alt="getOSName(props.node.os)" class="size-4">
-        <img
-          v-if="hasRegion(props.node.region)" :src="getApiAssetUrl(`flags/${getRegionCode(props.node.region).toLowerCase()}.svg`, props.node.source_index)"
+        <span v-if="isTaiwanNode" class="text-base leading-none" title="臺灣">🇹🇼</span>
+        <img v-else-if="hasRegion(props.node.region)"
+          :src="getApiAssetUrl(`flags/${getRegionCode(props.node.region).toLowerCase()}.svg`, props.node.source_index)"
           :alt="getRegionDisplayName(props.node.region)" class="size-5 shrink-0 rounded-sm"
         >
       </div>

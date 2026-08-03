@@ -2,18 +2,15 @@
 import { Icon } from '@iconify/vue'
 import { computed, inject, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { DataTooltip } from '@/components/ui/data-tooltip'
 import { useAppStore } from '@/stores/app'
-import { buildAdminUrl, getDirectApiAssetUrl } from '@/utils/api'
+import { buildAdminUrl } from '@/utils/api'
 
 const router = useRouter()
 const appStore = useAppStore()
 
 const isScrolled = inject<ReturnType<typeof ref<boolean>>>('isScrolled', ref(false))
-
-const siteFavicon = ref(getDirectApiAssetUrl('favicon.ico'))
 
 const actionButtons = computed(() => {
   const buttons = [
@@ -55,10 +52,7 @@ const sitename = computed(() => appStore.publicSettings?.sitename || '潤昇創�
   >
     <div class="px-4 flex-between h-14 max-w-[1280px] mx-auto">
       <div class="flex items-center gap-3 cursor-pointer" @click="router.push('/')">
-        <Avatar class="size-8 rounded-none">
-          <AvatarImage :src="siteFavicon" :alt="sitename" class="rounded-none" />
-          <AvatarFallback>{{ sitename.slice(0, 1) }}</AvatarFallback>
-        </Avatar>
+        <div class="brand-mark" aria-hidden="true">RS</div>
         <h3 class="m-0 text-lg font-semibold">
           {{ sitename }}
         </h3>

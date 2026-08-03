@@ -12,7 +12,6 @@ import { useAppStore } from '@/stores/app'
 import { getApiAssetUrl } from '@/utils/api'
 import { formatBytesPerSecondWithConfig, formatBytesWithConfig, formatUptimeWithFormat, getStatus } from '@/utils/helper'
 import { formatOfflineTime, getCustomTags, getPriceTags, getRemainingTimeTagClass, getTrafficUsed, getTrafficUsedPercentage, hasRegion, showTrafficProgress } from '@/utils/nodeHelper'
-import { getOSImage, getOSName } from '@/utils/osImageHelper'
 import { getRegionCode, getRegionDisplayName } from '@/utils/regionHelper'
 
 interface ColumnConfig {
@@ -40,7 +39,6 @@ const { pickSurfaceClass } = useBackgroundSurface()
 
 const columns: ColumnConfig[] = [
   { key: 'status', label: '狀態', width: '40px', sortable: true },
-  { key: 'os', label: '系統', width: '40px', sortable: true },
   { key: 'name', label: '節點', width: 'minmax(150px, 0.8fr)', sortable: true },
   { key: 'tags', label: '標籤', width: 'minmax(180px, 1fr)', sortable: false },
   { key: 'cpu', label: 'CPU', width: '100px', sortable: true },
@@ -86,9 +84,6 @@ const sortedNodes = computed(() => {
         return dir * (va < vb ? -1 : va > vb ? 1 : 0)
       }
       case 'uptime': return dir * ((a.uptime ?? 0) - (b.uptime ?? 0))
-      case 'os': {
-        return dir * getOSName(a.os).localeCompare(getOSName(b.os), 'zh-CN')
-      }
       case 'cpu': return dir * ((a.cpu ?? 0) - (b.cpu ?? 0))
       case 'mem': return dir * ((a.ram ?? 0) / (a.mem_total || 1) - (b.ram ?? 0) / (b.mem_total || 1))
       case 'disk': return dir * ((a.disk ?? 0) / (a.disk_total || 1) - (b.disk ?? 0) / (b.disk_total || 1))
@@ -127,6 +122,12 @@ function getFlagSrc(region: string, apiIndex?: number): string {
   return getApiAssetUrl(`flags/${getRegionCode(region).toLowerCase()}.svg`, apiIndex)
 }
 
+function isTaiwanNode(node: NodeData): boolean {
+  const region = String(node.region || '').trim()
+  return getRegionCode(region).toUpperCase() === 'TW'
+    || /(^|[^A-Za-z])(TW|台灣|臺灣|中華電信)/i.test(`${region} ${node.name || ''}`)
+}
+
 function handleClick(node: NodeData) {
   emit('click', node)
 }
@@ -157,7 +158,7 @@ function getRowTransitionStyle(index: number): Record<string, string> {
       >
         <div
           v-for="col in columns" :key="col.key"
-          :class="[col.sortable ? 'cursor-pointer' : '', ['status', 'os'].includes(col.key) ? 'text-center' : 'text-left']"
+          :class="[col.sortable ? 'cursor-pointer' : '', col.key === 'status' ? 'text-center' : 'text-left']"
           @click="handleSort(col)"
         >
           <span class="text-xs text-muted-foreground">
@@ -196,8 +197,9 @@ function getRowTransitionStyle(index: number): Record<string, string> {
               <!-- 節點名稱 -->
               <div v-else-if="col.key === 'name'" class="space-y-0.5" :class="[!node.online && 'blur-sm opacity-30']">
                 <div class="flex gap-1 items-center text-xs font-semibold">
+                  <span v-if="isTaiwanNode(node)" class="text-base leading-none" title="臺灣">🇹🇼</span>
                   <img
-                    v-if="hasRegion(node.region)" :src="getFlagSrc(node.region, node.source_index)"
+                    v-else-if="hasRegion(node.region)" :src="getFlagSrc(node.region, node.source_index)"
                     :alt="getRegionDisplayName(node.region)" class="size-5 rounded-sm"
                   >
                   <span class="truncate">{{ node.name }}</span>
@@ -243,11 +245,6 @@ function getRowTransitionStyle(index: number): Record<string, string> {
                   @keydown.enter.stop.prevent="openPingDialog(node)"
                   @keydown.space.stop.prevent="openPingDialog(node)"
                 />
-              </div>
-
-              <!-- 操作系統 -->
-              <div v-else-if="col.key === 'os'" class="flex justify-center">
-                <img :src="getOSImage(node.os, node.source_index)" :alt="getOSName(node.os)" class="size-4">
               </div>
 
               <!-- CPU -->

@@ -32,9 +32,11 @@ const showFiling = computed(() => showIcp.value || showPolice.value)
 
 <template>
   <VisitorInfoCard v-if="appStore.visitorInfoCardEnabled" />
-  <footer class="w-full sm:flex-row sm:gap-4 max-w-[1280px] mx-auto p-4">
-    <div class="flex flex-row items-center justify-between  text-xs text-muted-foreground">
-      <div class="flex gap-1 items-center">
+  <footer class="runsing-footer w-full max-w-[1280px] mx-auto px-4 pb-6 pt-3">
+    <div class="flex flex-col gap-2 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+      <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+        <span>© 2026</span>
+        <span class="text-border">|</span>
         <DataTooltip
           as="span"
           placement="top"
@@ -44,12 +46,13 @@ const showFiling = computed(() => showIcp.value || showPolice.value)
             href="https://innovation.runsing.co" target="_blank" rel="noopener noreferrer"
             class="transition-opacity hover:opacity-80"
           >
-            <span class="font-medium text-foreground">潤昇創新 RunSing Innovation</span>
+            <span class="font-medium text-foreground">RunSing Capital 潤昇資本</span>
           </a>
         </DataTooltip>
       </div>
-      <div class="flex flex-wrap gap-1 items-center">
-        設計：
+      <div class="flex flex-wrap items-center gap-x-2 gap-y-1 sm:justify-end">
+        <span>Designed by Joe</span>
+        <span class="text-border">|</span>
         <DataTooltip
           as="span"
           placement="top"
@@ -59,7 +62,7 @@ const showFiling = computed(() => showIcp.value || showPolice.value)
             href="https://innovation.runsing.co" target="_blank" rel="noopener noreferrer"
             class="transition-opacity hover:opacity-80"
           >
-            <span class="font-medium text-foreground">Joe</span>
+            <span class="font-medium text-foreground">v{{ buildVersion }}</span>
           </a>
         </DataTooltip>
       </div>

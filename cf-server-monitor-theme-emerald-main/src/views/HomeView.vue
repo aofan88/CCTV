@@ -107,6 +107,28 @@ const nodeList = computed(() => {
   return filtered
 })
 
+const groupSections = computed(() => {
+  if (appStore.nodeSelectedGroup !== 'all') {
+    return [{ name: appStore.nodeSelectedGroup, label: appStore.nodeSelectedGroup, nodes: nodeList.value }]
+  }
+
+  const sections = nodesStore.groups
+    .map(group => ({
+      name: group,
+      label: group,
+      nodes: nodeList.value.filter(node => isNodeInGroup(node.group, group)),
+    }))
+    .filter(section => section.nodes.length > 0)
+
+  const ungrouped = nodeList.value.filter(node => parseNodeGroups(node.group).length === 0)
+  if (ungrouped.length > 0)
+    sections.push({ name: '__ungrouped__', label: '未分組', nodes: ungrouped })
+
+  return sections.length > 0
+    ? sections
+    : [{ name: 'all', label: '全部節點', nodes: nodeList.value }]
+})
+
 const selectedPingNode = computed(() => {
   if (!selectedPingNodeUuid.value)
     return null
@@ -131,10 +153,6 @@ function handleNodeClick(node: typeof nodesStore.nodes[number]) {
 
 function handlePingClick(node: NodeData) {
   selectedPingNodeUuid.value = node.uuid
-}
-
-function getNodeItemTransitionKey(node: typeof nodesStore.nodes[number]): string {
-  return `${appStore.nodeSelectedGroup}-${node.uuid}`
 }
 
 function getNodeItemTransitionStyle(index: number): Record<string, string> {
@@ -221,30 +239,40 @@ function getNodeItemTransitionStyle(index: number): Record<string, string> {
             </div>
           </div>
           <TabsContent :key="appStore.nodeSelectedGroup" :value="appStore.nodeSelectedGroup" class="pointer-events-auto">
-            <TransitionGroup
-              v-if="nodeList.length !== 0 && appStore.nodeViewMode === 'card'"
-              :appear="!appStore.disablePageAnimation"
-              :css="!appStore.disablePageAnimation"
-              name="node-card-switch"
-              tag="div"
-              class="gap-3 grid grid-cols-1 sm:grid-cols-[repeat(auto-fill,minmax(300px,1fr))]"
-            >
-              <div
-                v-for="(node, index) in nodeList"
-                :key="getNodeItemTransitionKey(node)"
-                class="min-w-0"
-                :style="getNodeItemTransitionStyle(index)"
-              >
-                <NodeCard :node="node" @click="handleNodeClick(node)" @ping-click="handlePingClick" />
-              </div>
-            </TransitionGroup>
-            <NodeList
-              v-else-if="nodeList.length !== 0 && appStore.nodeViewMode === 'list'"
-              :nodes="nodeList"
-              :transition-key="appStore.nodeSelectedGroup"
-              @click="handleNodeClick"
-              @ping-click="handlePingClick"
-            />
+            <div v-if="nodeList.length !== 0" class="flex flex-col gap-6">
+              <section v-for="section in groupSections" :key="section.name" class="node-group-section">
+                <div class="mb-2 flex items-center gap-2 px-1">
+                  <span class="size-1.5 rounded-full bg-primary" />
+                  <h2 class="text-sm font-semibold tracking-wide text-foreground">{{ section.label }}</h2>
+                  <span class="text-xs tabular-nums text-muted-foreground">{{ section.nodes.length }}</span>
+                </div>
+
+                <TransitionGroup
+                  v-if="appStore.nodeViewMode === 'card'"
+                  :appear="!appStore.disablePageAnimation"
+                  :css="!appStore.disablePageAnimation"
+                  name="node-card-switch"
+                  tag="div"
+                  class="gap-3 grid grid-cols-1 sm:grid-cols-[repeat(auto-fill,minmax(300px,1fr))]"
+                >
+                  <div
+                    v-for="(node, index) in section.nodes"
+                    :key="`${section.name}-${node.uuid}`"
+                    class="min-w-0"
+                    :style="getNodeItemTransitionStyle(index)"
+                  >
+                    <NodeCard :node="node" @click="handleNodeClick(node)" @ping-click="handlePingClick" />
+                  </div>
+                </TransitionGroup>
+                <NodeList
+                  v-else
+                  :nodes="section.nodes"
+                  :transition-key="section.name"
+                  @click="handleNodeClick"
+                  @ping-click="handlePingClick"
+                />
+              </section>
+            </div>
             <div v-else class="text-muted-foreground text-center py-8">
               <Empty description="暫無節點" />
             </div>
