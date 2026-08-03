@@ -531,7 +531,7 @@ const memoryChartOption = computed(() => ({
   ],
 }))
 
-// 磁盤圖表
+// 磁碟圖表
 const diskChartOption = computed(() => ({
   animation: false,
   color: [chartColors.tertiary],
@@ -557,7 +557,7 @@ const diskChartOption = computed(() => ({
 
       let html = `<div style="font-weight:600;margin-bottom:6px;color:${chartThemeColors.value.textSecondary}">${timeStr}</div>`
       html += '<div style="display:flex;flex-direction:column;gap:4px">'
-      html += `<div style="display:flex;align-items:center">${colorDot}<span>磁盤已用</span><span style="margin-left:auto;font-weight:600;margin-left:16px">${formatBytes(diskUsed)} (${diskPercent}%)</span></div>`
+      html += `<div style="display:flex;align-items:center">${colorDot}<span>磁碟已用</span><span style="margin-left:auto;font-weight:600;margin-left:16px">${formatBytes(diskUsed)} (${diskPercent}%)</span></div>`
       html += '</div>'
       return html
     },
@@ -566,7 +566,7 @@ const diskChartOption = computed(() => ({
   xAxis: baseXAxisConfig.value,
   yAxis: {
     ...baseYAxisConfig.value,
-    name: '磁盤',
+    name: '磁碟',
     nameTextStyle: { color: chartThemeColors.value.textSecondary, padding: [0, 40, 0, 0] },
     axisLabel: {
       ...baseYAxisConfig.value.axisLabel,
@@ -575,7 +575,7 @@ const diskChartOption = computed(() => ({
   },
   series: [
     {
-      name: '磁盤已用',
+      name: '磁碟已用',
       type: 'line',
       data: chartData.value.map(r => r.disk ?? 0),
       showSymbol: false,
@@ -902,7 +902,7 @@ onMounted(() => {
           </div>
         </CardX>
 
-        <!-- 磁盤卡片 -->
+        <!-- 磁碟卡片 -->
         <CardX
           size="small"
           class="border-none transition-all rounded-md"
@@ -910,7 +910,7 @@ onMounted(() => {
         >
           <template #header>
             <div class="flex items-center justify-between">
-              <span class="text-base font-bold">磁盤</span>
+              <span class="text-base font-bold">磁碟</span>
               <div class="text-xs flex gap-1 items-baseline">
                 <template v-if="latestStatus?.disk != null">
                   <span>{{ formatBytesSplit(latestStatus.disk).value }}</span>

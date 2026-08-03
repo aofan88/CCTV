@@ -41,7 +41,7 @@ const showFiling = computed(() => showIcp.value || showPolice.value)
           :content="formattedServerVersion ?? ''"
         >
           <a
-            href="https://github.com/aofan88/CCTV" target="_blank" rel="noopener noreferrer"
+            href="https://innovation.runsing.co" target="_blank" rel="noopener noreferrer"
             class="transition-opacity hover:opacity-80"
           >
             <span class="font-medium text-foreground">潤昇創新 RunSing Innovation</span>
@@ -56,7 +56,7 @@ const showFiling = computed(() => showIcp.value || showPolice.value)
           :content="`v${buildVersion}\n${buildGitHash}`"
         >
           <a
-            href="https://github.com/aofan88/CCTV" target="_blank" rel="noopener noreferrer"
+            href="https://innovation.runsing.co" target="_blank" rel="noopener noreferrer"
             class="transition-opacity hover:opacity-80"
           >
             <span class="font-medium text-foreground">Joe</span>
