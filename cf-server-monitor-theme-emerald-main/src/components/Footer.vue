@@ -1,29 +1,9 @@
 <script setup lang="ts">
-import type { VersionInfo } from '@/utils/api'
-import { computed, onMounted, ref } from 'vue'
-import { DataTooltip } from '@/components/ui/data-tooltip'
+import { computed } from 'vue'
 import VisitorInfoCard from '@/components/VisitorInfoCard.vue'
 import { useAppStore } from '@/stores/app'
-import { getSharedApi } from '@/utils/api'
 
 const appStore = useAppStore()
-const api = getSharedApi()
-
-const buildVersion = __BUILD_VERSION__
-const buildGitHash = __BUILD_GIT_HASH__
-
-const serverVersion = ref<VersionInfo | null>(null)
-
-onMounted(async () => {
-  try {
-    serverVersion.value = await api.getVersion()
-  }
-  catch {
-    // 靜默失敗
-  }
-})
-
-const formattedServerVersion = computed(() => serverVersion.value?.version ?? null)
 
 const showIcp = computed(() => appStore.icpEnabled && appStore.icpNumber)
 const showPolice = computed(() => appStore.policeEnabled && appStore.policeNumber)
@@ -37,34 +17,15 @@ const showFiling = computed(() => showIcp.value || showPolice.value)
       <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
         <span>© 2026</span>
         <span class="text-border">|</span>
-        <DataTooltip
-          as="span"
-          placement="top"
-          :content="formattedServerVersion ?? ''"
+        <a
+          href="https://innovation.runsing.co" target="_blank" rel="noopener noreferrer"
+          class="font-medium text-foreground transition-opacity hover:opacity-80"
         >
-          <a
-            href="https://innovation.runsing.co" target="_blank" rel="noopener noreferrer"
-            class="transition-opacity hover:opacity-80"
-          >
-            <span class="font-medium text-foreground">RunSing Capital 潤昇資本</span>
-          </a>
-        </DataTooltip>
+          RunSing Innovation 潤昇創新
+        </a>
       </div>
       <div class="flex flex-wrap items-center gap-x-2 gap-y-1 sm:justify-end">
         <span>Designed by Joe</span>
-        <span class="text-border">|</span>
-        <DataTooltip
-          as="span"
-          placement="top"
-          :content="`v${buildVersion}\n${buildGitHash}`"
-        >
-          <a
-            href="https://innovation.runsing.co" target="_blank" rel="noopener noreferrer"
-            class="transition-opacity hover:opacity-80"
-          >
-            <span class="font-medium text-foreground">v{{ buildVersion }}</span>
-          </a>
-        </DataTooltip>
       </div>
     </div>
 

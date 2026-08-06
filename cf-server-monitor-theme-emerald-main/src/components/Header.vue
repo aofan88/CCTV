@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { DataTooltip } from '@/components/ui/data-tooltip'
 import { useAppStore } from '@/stores/app'
 import { buildAdminUrl } from '@/utils/api'
+import { publicAsset } from '@/utils/publicAsset'
 
 const router = useRouter()
 const appStore = useAppStore()
@@ -43,6 +44,7 @@ function handleButtonClick(action: string) {
 }
 
 const sitename = computed(() => appStore.publicSettings?.sitename || '潤昇創新 RunSing Innovation')
+const logoUrl = publicAsset('runsing-logo.jpeg')
 </script>
 
 <template>
@@ -51,7 +53,8 @@ const sitename = computed(() => appStore.publicSettings?.sitename || '潤昇創�
     :class="isScrolled ? 'backdrop-blur-xl' : 'bg-transparent'"
   >
     <div class="px-4 flex-between h-14 max-w-[1280px] mx-auto">
-      <div class="flex items-center cursor-pointer" @click="router.push('/')">
+      <div class="flex items-center gap-3 cursor-pointer" @click="router.push('/')">
+        <img :src="logoUrl" alt="潤昇創新 Logo" class="size-8 rounded-md object-cover">
         <h3 class="m-0 text-lg font-semibold">
           {{ sitename }}
         </h3>
