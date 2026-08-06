@@ -2,7 +2,7 @@
 import type { NodeData } from '@/stores/nodes'
 import { Icon } from '@iconify/vue'
 import { useDebounceFn } from '@vueuse/core'
-import { computed, defineAsyncComponent, nextTick, onActivated, onDeactivated, ref, watch } from 'vue'
+import { computed, nextTick, onActivated, onDeactivated, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import MarkdownRenderer from '@/components/MarkdownRenderer.vue'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
@@ -16,13 +16,12 @@ import { useAppStore } from '@/stores/app'
 import { useNodesStore } from '@/stores/nodes'
 import { isNodeInGroup, parseNodeGroups } from '@/utils/groupHelper'
 import { isRegionMatch } from '@/utils/regionHelper'
+import NodeCard from '@/components/NodeCard.vue'
+import NodeGeneralCards from '@/components/NodeGeneralCards.vue'
+import NodeList from '@/components/NodeList.vue'
+import PingChart from '@/components/PingChart.vue'
 
 defineOptions({ name: 'HomeView' })
-
-const NodeCard = defineAsyncComponent(() => import('@/components/NodeCard.vue'))
-const NodeGeneralCards = defineAsyncComponent(() => import('@/components/NodeGeneralCards.vue'))
-const NodeList = defineAsyncComponent(() => import('@/components/NodeList.vue'))
-const PingChart = defineAsyncComponent(() => import('@/components/PingChart.vue'))
 
 const nodeItemStaggerMs = 35
 const nodeItemStaggerLimit = 12
@@ -247,12 +246,8 @@ function getNodeItemTransitionStyle(index: number): Record<string, string> {
                   <span class="text-xs tabular-nums text-muted-foreground">{{ section.nodes.length }}</span>
                 </div>
 
-                <TransitionGroup
+                <div
                   v-if="appStore.nodeViewMode === 'card'"
-                  :appear="!appStore.disablePageAnimation"
-                  :css="!appStore.disablePageAnimation"
-                  name="node-card-switch"
-                  tag="div"
                   class="gap-3 grid grid-cols-1 sm:grid-cols-[repeat(auto-fill,minmax(300px,1fr))]"
                 >
                   <div
@@ -263,7 +258,7 @@ function getNodeItemTransitionStyle(index: number): Record<string, string> {
                   >
                     <NodeCard :node="node" @click="handleNodeClick(node)" @ping-click="handlePingClick" />
                   </div>
-                </TransitionGroup>
+                </div>
                 <NodeList
                   v-else
                   :nodes="section.nodes"
