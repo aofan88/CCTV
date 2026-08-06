@@ -44,7 +44,8 @@ function handleButtonClick(action: string) {
 }
 
 const sitename = computed(() => appStore.publicSettings?.sitename || '潤昇創新 RunSing Innovation')
-const logoUrl = publicAsset('runsing-logo.jpeg')
+// NodeGet proxies theme assets under /assets only; keep the logo there.
+const logoUrl = publicAsset('assets/runsing-logo.jpeg')
 </script>
 
 <template>
