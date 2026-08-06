@@ -130,6 +130,7 @@ const showVisualPanel = computed(() => showEarth.value || showMaps.value)
 .overview-shell {
   display: grid;
   min-width: 0;
+  padding: 1rem;
   gap: 0.75rem;
   grid-template-columns: repeat(12, minmax(0, 1fr));
 }
@@ -147,8 +148,7 @@ const showVisualPanel = computed(() => showEarth.value || showMaps.value)
   grid-template-columns: repeat(6, minmax(0, 1fr));
 }
 
-.overview-stat,
-.overview-globe {
+.overview-stat {
   min-width: 0;
   border: 1px solid var(--border);
   border-radius: 0.5rem;
@@ -196,8 +196,11 @@ const showVisualPanel = computed(() => showEarth.value || showMaps.value)
 
 .overview-globe {
   grid-column: span 6;
-  min-height: 15rem;
+  min-height: 0;
   overflow: hidden;
+  align-self: center;
+  border: 0;
+  background: transparent;
 }
 
 @media (max-width: 1023px) {
