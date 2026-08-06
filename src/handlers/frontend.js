@@ -10,6 +10,9 @@ import { checkAuth } from '../middleware/auth.js';
 
 const THEME_CACHE_TTL = 3600;
 const THEME_COMMIT_CACHE_TTL = 86400;
+// Change this when the mutable theme branch format changes so old index/assets
+// pairs cannot be mixed by the Cloudflare cache.
+const THEME_CACHE_NAMESPACE = 'v2';
 const IMMUTABLE_ASSET_CACHE_CONTROL = 'public, max-age=31536000, immutable';
 const PREVIEW_COOKIE = 'cfsm_theme_preview';
 const PREVIEW_AUTH_COOKIE = 'cfsm_theme_preview_auth';
@@ -183,7 +186,7 @@ function parseThemeUrl(themeUrl) {
     themeUrl: normalized,
     ref,
     rawBase: `https://raw.githubusercontent.com/${encodedThemePath}`,
-    cacheBase: `https://cfsm-theme-cache.local/${encodedThemePath}`
+    cacheBase: `https://cfsm-theme-cache.local/${THEME_CACHE_NAMESPACE}/${encodedThemePath}`
   };
 }
 
