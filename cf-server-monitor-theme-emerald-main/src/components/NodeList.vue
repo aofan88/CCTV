@@ -197,7 +197,13 @@ function getRowTransitionStyle(index: number): Record<string, string> {
               <!-- 節點名稱 -->
               <div v-else-if="col.key === 'name'" class="space-y-0.5" :class="[!node.online && 'blur-sm opacity-30']">
                 <div class="flex gap-1 items-center text-xs font-semibold">
-                  <span v-if="isTaiwanNode(node)" class="text-base leading-none" title="臺灣">🇹🇼</span>
+                  <img
+                    v-if="isTaiwanNode(node)"
+                    :src="getApiAssetUrl('flags/tw.svg', node.source_index)"
+                    alt="臺灣"
+                    title="臺灣"
+                    class="size-5 rounded-sm"
+                  >
                   <img
                     v-else-if="hasRegion(node.region)" :src="getFlagSrc(node.region, node.source_index)"
                     :alt="getRegionDisplayName(node.region)" class="size-5 rounded-sm"

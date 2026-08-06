@@ -27,6 +27,13 @@ const props = defineProps<{
 const appStore = useAppStore()
 const nodesStore = useNodesStore()
 const displayNodes = computed(() => props.nodes ?? nodesStore.earthNodes)
+
+function getNodeCountryCode(node: NodeData): string | null {
+  const identity = `${node.region || ''} ${node.name || ''}`
+  if (/(^|[^A-Za-z])(TW|台灣|臺灣|中華電信)/i.test(identity))
+    return 'TW'
+  return getCountryCodeFromRegion(node.region)
+}
 const mapName = ref<string>()
 const loading = ref(true)
 const loadError = ref<string | null>(null)
@@ -46,7 +53,7 @@ function resolveCountryDisplayName(region: string, code: string): string {
 const points = computed<EarthMapPoint[]>(() => {
   const map = new Map<string, EarthMapPoint>()
   for (const node of displayNodes.value) {
-    const code = getCountryCodeFromRegion(node.region)
+    const code = getNodeCountryCode(node)
     if (!code)
       continue
     const coord = getCoordByCode(code)

@@ -51,8 +51,7 @@ const sitename = computed(() => appStore.publicSettings?.sitename || '潤昇創�
     :class="isScrolled ? 'backdrop-blur-xl' : 'bg-transparent'"
   >
     <div class="px-4 flex-between h-14 max-w-[1280px] mx-auto">
-      <div class="flex items-center gap-3 cursor-pointer" @click="router.push('/')">
-        <div class="brand-mark" aria-hidden="true">RS</div>
+      <div class="flex items-center cursor-pointer" @click="router.push('/')">
         <h3 class="m-0 text-lg font-semibold">
           {{ sitename }}
         </h3>

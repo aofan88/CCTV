@@ -110,11 +110,18 @@ interface RegionRate {
   down: number
 }
 
+function getNodeCountryCode(node: NodeData): string | null {
+  const identity = `${node.region || ''} ${node.name || ''}`
+  if (/(^|[^A-Za-z])(TW|台灣|臺灣|中華電信)/i.test(identity))
+    return 'TW'
+  return getCountryCodeFromRegion(node.region)
+}
+
 // 節點按地區聚合
 const regionClusters = computed<RegionCluster[]>(() => {
   const map = new Map<string, RegionCluster>()
   for (const node of displayNodes.value) {
-    const code = getCountryCodeFromRegion(node.region)
+    const code = getNodeCountryCode(node)
     if (!code)
       continue
     const coord = getCoordByCode(code)
@@ -139,7 +146,7 @@ const regionRates = computed<Map<string, RegionRate>>(() => {
   for (const node of nodesStore.nodes) {
     if (!node.online)
       continue
-    const code = getCountryCodeFromRegion(node.region)
+    const code = getNodeCountryCode(node)
     if (!code)
       continue
     let entry = map.get(code)
@@ -492,6 +499,10 @@ function formatRate(bytesPerSec: number): string {
   const { value, unit } = formatBytesPerSecondSplit(bytesPerSec, appStore.byteDecimals)
   return `${value} ${unit}`
 }
+
+function getFlagCode(code: string): string {
+  return code.toUpperCase() === 'TW' ? 'tw' : code.toLowerCase()
+}
 </script>
 
 <template>
@@ -508,7 +519,7 @@ function formatRate(bytesPerSec: number): string {
         class="absolute -top-7.5 left-0 pointer-events-none rounded backdrop-blur transition-[opacity,filter] duration-500"
       >
         <img
-          :src="getApiAssetUrl(`flags/${cluster.code.toLowerCase()}.svg`)" :alt="cluster.code"
+          :src="getApiAssetUrl(`flags/${getFlagCode(cluster.code)}.svg`)" :alt="cluster.code"
           class="size-4 block absolute -bottom-2 -left-2 z-1"
         >
         <div class="relative z-2 bg-background/60 rounded py-0.5 px-1 text-xs zoom-80 items-start justify-center text-nowrap">

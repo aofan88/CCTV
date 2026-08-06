@@ -92,7 +92,13 @@ function openPingDialog() {
 
     <template #header-extra>
       <div class="flex gap-2 items-center">
-        <span v-if="isTaiwanNode" class="text-base leading-none" title="臺灣">🇹🇼</span>
+        <img
+          v-if="isTaiwanNode"
+          :src="getApiAssetUrl('flags/tw.svg', props.node.source_index)"
+          alt="臺灣"
+          title="臺灣"
+          class="size-5 shrink-0 rounded-sm"
+        >
         <img v-else-if="hasRegion(props.node.region)"
           :src="getApiAssetUrl(`flags/${getRegionCode(props.node.region).toLowerCase()}.svg`, props.node.source_index)"
           :alt="getRegionDisplayName(props.node.region)" class="size-5 shrink-0 rounded-sm"
