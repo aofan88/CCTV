@@ -1,8 +1,8 @@
 import { createPinia } from 'pinia'
 import { createApp } from 'vue'
-import { getDirectApiAssetUrl } from '@/utils/api'
 import { setupIconify } from '@/utils/iconify'
 import { message } from '@/utils/message'
+import { publicAsset } from '@/utils/publicAsset'
 import App from './App.vue'
 import router from './router'
 
@@ -10,7 +10,7 @@ import './styles/main.css'
 
 const favicon = document.createElement('link')
 favicon.rel = 'icon'
-favicon.href = getDirectApiAssetUrl('favicon.ico')
+favicon.href = publicAsset('assets/runsing-logo.jpeg')
 document.head.appendChild(favicon)
 
 window.$message = message

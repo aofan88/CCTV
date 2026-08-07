@@ -13,6 +13,7 @@ import { getApiAssetUrl } from '@/utils/api'
 import { formatBytesPerSecondWithConfig, formatBytesWithConfig, formatUptimeWithFormat, getStatus } from '@/utils/helper'
 import { formatOfflineTime, getCustomTags, getPriceTags, getRemainingTimeTagClass, getTrafficUsed, getTrafficUsedPercentage, hasRegion, showTrafficProgress } from '@/utils/nodeHelper'
 import { getRegionCode, getRegionDisplayName } from '@/utils/regionHelper'
+import { publicAsset } from '@/utils/publicAsset'
 
 interface ColumnConfig {
   key: string
@@ -36,6 +37,7 @@ const rowStaggerLimit = 12
 
 const appStore = useAppStore()
 const { pickSurfaceClass } = useBackgroundSurface()
+const taiwanFlagUrl = publicAsset('assets/tw-flag.png')
 
 const columns: ColumnConfig[] = [
   { key: 'status', label: '狀態', width: '40px', sortable: true },
@@ -178,11 +180,11 @@ function getRowTransitionStyle(index: number): Record<string, string> {
           v-for="(node, index) in sortedNodes"
           :key="getRowTransitionKey(node)"
           class="relative flex h-16 cursor-pointer flex-col justify-center rounded-lg px-2 shadow-[0_0_4px,0_0_0_1px] shadow-transparent transition-all bg-background/60 hover:bg-background hover:shadow-emerald-600/10"
-          :class="[pickSurfaceClass('', 'backdrop-blur-sm'), !node.online && '!shadow-red-600/10']"
+          :class="[pickSurfaceClass('', 'backdrop-blur-sm'), !node.online && ['offline-row', '!shadow-red-600/10']]"
           :style="getRowTransitionStyle(index)"
           @click="handleClick(node)"
         >
-          <div class="grid gap-2 items-center" :style="gridStyle">
+          <div class="offline-grid grid gap-2 items-center" :style="gridStyle">
             <template v-for="col in columns" :key="col.key">
               <!-- 線上狀態指示器 -->
               <div v-if="col.key === 'status'" class="flex justify-center">
@@ -199,7 +201,7 @@ function getRowTransitionStyle(index: number): Record<string, string> {
                 <div class="flex gap-1 items-center text-xs font-semibold">
                   <img
                     v-if="isTaiwanNode(node)"
-                    :src="getApiAssetUrl('flags/tw.svg', node.source_index)"
+                    :src="taiwanFlagUrl"
                     alt="臺灣"
                     title="臺灣"
                     class="size-5 rounded-sm"
@@ -384,6 +386,10 @@ function getRowTransitionStyle(index: number): Record<string, string> {
 </template>
 
 <style scoped>
+.offline-row .offline-grid > :nth-child(n + 2) {
+  filter: grayscale(1);
+}
+
 .node-row-switch-enter-active,
 .node-row-switch-leave-active {
   transition:

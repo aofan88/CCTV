@@ -14,6 +14,7 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useAppStore } from '@/stores/app'
 import { useNodesStore } from '@/stores/nodes'
 import { getApiAssetUrl } from '@/utils/api'
+import { publicAsset } from '@/utils/publicAsset'
 import { getCoordByCode, getCountryCodeFromRegion } from '@/utils/geoHelper'
 import { formatBytesPerSecondSplit } from '@/utils/helper'
 
@@ -23,6 +24,7 @@ const props = defineProps<{
 
 const appStore = useAppStore()
 const nodesStore = useNodesStore()
+const taiwanFlagUrl = publicAsset('assets/tw-flag.png')
 
 const displayNodes = computed(() => props.nodes ?? nodesStore.earthNodes)
 
@@ -519,8 +521,8 @@ function getFlagCode(code: string): string {
         class="absolute -top-7.5 left-0 pointer-events-none rounded backdrop-blur transition-[opacity,filter] duration-500"
       >
         <img
-          :src="getApiAssetUrl(`flags/${getFlagCode(cluster.code)}.svg`)" :alt="cluster.code"
-          class="size-4 block absolute -bottom-2 -left-2 z-1"
+          :src="cluster.code.toUpperCase() === 'TW' ? taiwanFlagUrl : getApiAssetUrl(`flags/${getFlagCode(cluster.code)}.svg`)" :alt="cluster.code"
+          class="size-4 block absolute -bottom-2 -left-2 z-1" :class="[cluster.onlineServers === 0 && 'grayscale']"
         >
         <div class="relative z-2 bg-background/60 rounded py-0.5 px-1 text-xs zoom-80 items-start justify-center text-nowrap">
           <div class="text-green-600 flex flex-row items-center gap-0.5">

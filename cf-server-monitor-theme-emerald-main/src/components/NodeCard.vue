@@ -9,6 +9,7 @@ import { ProgressThin } from '@/components/ui/progress-thin'
 import { useBackgroundSurface } from '@/composables/useBackgroundSurface'
 import { useAppStore } from '@/stores/app'
 import { getApiAssetUrl } from '@/utils/api'
+import { publicAsset } from '@/utils/publicAsset'
 import { formatBytesPerSecondWithConfig, formatBytesWithConfig, formatDateTime, formatUptimeWithFormat, getStatus } from '@/utils/helper'
 import { formatOfflineTime, getCustomTags, getPingToneClass, getPriceTags, getRemainingTimeTagClass, getTrafficUsed, getTrafficUsedPercentage, hasRegion, PING_PROVIDERS, showTrafficProgress } from '@/utils/nodeHelper'
 import { getRegionCode, getRegionDisplayName } from '@/utils/regionHelper'
@@ -57,6 +58,7 @@ const trafficUsed = computed(() => getTrafficUsed(props.node))
 const priceTags = computed(() => getPriceTags(props.node, appStore.lang))
 const remainingTimeTagClass = computed(() => getRemainingTimeTagClass(props.node))
 const customTags = computed(() => getCustomTags(props.node))
+const taiwanFlagUrl = publicAsset('assets/tw-flag.png')
 const isTaiwanNode = computed(() => {
   const region = String(props.node.region || '').trim()
   const name = String(props.node.name || '')
@@ -84,17 +86,17 @@ function openPingDialog() {
             :class="[props.node.online ? 'bg-emerald-600' : 'bg-red-600']"
           />
         </div>
-        <div class="text-md font-bold flex-1 min-w-0 truncate">
+        <div class="text-md font-bold flex-1 min-w-0 truncate" :class="[!props.node.online && 'grayscale']">
           {{ props.node.name }}
         </div>
       </div>
     </template>
 
     <template #header-extra>
-      <div class="flex gap-2 items-center">
+      <div class="flex gap-2 items-center" :class="[!props.node.online && 'grayscale']">
         <img
           v-if="isTaiwanNode"
-          :src="getApiAssetUrl('flags/tw.svg', props.node.source_index)"
+          :src="taiwanFlagUrl"
           alt="臺灣"
           title="臺灣"
           class="size-5 shrink-0 rounded-sm"
@@ -107,7 +109,7 @@ function openPingDialog() {
     </template>
 
     <template #default>
-      <div class="flex flex-col gap-3">
+      <div class="flex flex-col gap-3" :class="[!props.node.online && 'grayscale']">
         <div class="gap-x-3 gap-y-1 grid grid-cols-2">
           <!-- CPU -->
           <div class="flex flex-col gap-1">
@@ -204,7 +206,7 @@ function openPingDialog() {
             <span class="text-sm text-red-600">離線</span>
             <div>{{ offlineTime }}</div>
           </div>
-          <div class="flex flex-col gap-y-2" :class="[!props.node.online && 'blur-xs opacity-60 pointer-events-none']">
+          <div class="flex flex-col gap-y-2" :class="[!props.node.online && 'blur-xs opacity-60 pointer-events-none grayscale']">
             <div class="flex items-center">
               <span class="truncate">
                 速率
