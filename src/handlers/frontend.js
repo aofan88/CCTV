@@ -14,7 +14,7 @@ const THEME_COMMIT_CACHE_TTL = 86400;
 // pairs cannot be mixed by the Cloudflare cache.
 // Bump when changing the mutable theme-build cache contract so old edge entries
 // cannot continue serving a previous compiled theme.
-const THEME_CACHE_NAMESPACE = 'v4';
+const THEME_CACHE_NAMESPACE = 'v5';
 const IMMUTABLE_ASSET_CACHE_CONTROL = 'public, max-age=31536000, immutable';
 const PREVIEW_COOKIE = 'cfsm_theme_preview';
 const PREVIEW_AUTH_COOKIE = 'cfsm_theme_preview_auth';
@@ -279,8 +279,14 @@ function normalizeAssetPath(pathname) {
   }
 }
 
-function normalizeThemeAssetUrls(html) {
-  return html.replace(/\b(src|href)=(["'])\.?\/?assets\//gi, '$1=$2/assets/');
+function normalizeThemeAssetUrls(html, themeUrl) {
+  const assetQuery = 'theme_url=' + encodeURIComponent(themeUrl);
+
+  // Keep the selected theme attached to every proxied CSS and JS request.
+  return html.replace(
+    /\b(src|href)=(["'])\.?\/?assets\/([^'"]+)\2/gi,
+    (_, attribute, quote, assetPath) => attribute + '=' + quote + '/assets/' + assetPath + '?' + assetQuery + quote
+  );
 }
 
 function stripBrowserCacheHeaders(response) {
@@ -387,7 +393,7 @@ async function loadThemeIndex(themeUrl) {
   );
 
   if (!response.ok) return null;
-  return normalizeThemeAssetUrls(await response.text());
+  return normalizeThemeAssetUrls(await response.text(), themeUrl);
 }
 
 function buildHtmlResponse(html, settings, request, previewThemeUrl = '') {
