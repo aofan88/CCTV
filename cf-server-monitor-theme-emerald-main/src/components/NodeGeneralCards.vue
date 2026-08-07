@@ -47,11 +47,11 @@ const showEarth = computed(() => appStore.earthViewMode === 'earth' || appStore.
 const showMaps = computed(() => appStore.earthViewMode === 'maps')
 const showVisualPanel = computed(() => showEarth.value || showMaps.value)
 const wrapperClass = computed(() => showVisualPanel.value
-  ? 'p-4 grid grid-cols-12 gap-2 h-auto md:h-58'
+  ? 'p-4 grid grid-cols-1 md:grid-cols-2 items-stretch gap-2'
   : 'p-4 grid grid-cols-1 gap-2 h-auto')
 const cardGridClass = computed(() => showVisualPanel.value
-  ? 'col-span-12 md:col-span-6 grid grid-cols-2 grid-rows-2 gap-2'
-  : 'col-span-1 grid grid-cols-2 md:grid-cols-4 gap-2')
+  ? 'min-h-58 grid grid-cols-2 grid-rows-2 gap-2'
+  : 'grid grid-cols-2 md:grid-cols-4 gap-2')
 
 onMounted(async () => {
   const { rates } = await financeHelper.getDailyExchangeRates()
@@ -61,9 +61,6 @@ onMounted(async () => {
 
 <template>
   <div :class="wrapperClass">
-    <NodeEarthGlobe v-if="showEarth" :nodes="globeNodes" class="col-span-12 md:col-span-6 md:col-start-7" />
-    <NodeEarthMaps v-else-if="showMaps" :nodes="globeNodes" class="col-span-12 md:col-span-6 md:col-start-7" />
-
     <div :class="cardGridClass">
       <CardX
         hoverable
@@ -137,5 +134,8 @@ onMounted(async () => {
         </div>
       </CardX>
     </div>
+
+    <NodeEarthGlobe v-if="showEarth" :nodes="globeNodes" class="min-h-58 w-full" />
+    <NodeEarthMaps v-else-if="showMaps" :nodes="globeNodes" class="min-h-58 w-full" />
   </div>
 </template>

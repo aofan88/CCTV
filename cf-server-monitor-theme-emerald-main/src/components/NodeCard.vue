@@ -99,7 +99,7 @@ function openPingDialog() {
           :src="taiwanFlagUrl"
           alt="臺灣"
           title="臺灣"
-          class="size-5 shrink-0 rounded-sm"
+          class="h-5 w-7 shrink-0 rounded-sm object-cover"
         >
         <img v-else-if="hasRegion(props.node.region)"
           :src="getApiAssetUrl(`flags/${getRegionCode(props.node.region).toLowerCase()}.svg`, props.node.source_index)"
@@ -203,7 +203,7 @@ function openPingDialog() {
             v-if="!props.node.online"
             class="absolute inset-0 z-10 flex flex-col items-center justify-center space-y-1"
           >
-            <span class="text-sm text-red-600">離線</span>
+            <span class="text-sm !text-red-500">離線</span>
             <div>{{ offlineTime }}</div>
           </div>
           <div class="flex flex-col gap-y-2" :class="[!props.node.online && 'blur-xs opacity-60 pointer-events-none grayscale']">

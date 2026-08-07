@@ -204,7 +204,7 @@ function getRowTransitionStyle(index: number): Record<string, string> {
                     :src="taiwanFlagUrl"
                     alt="臺灣"
                     title="臺灣"
-                    class="size-5 rounded-sm"
+                    class="h-5 w-7 rounded-sm object-cover"
                   >
                   <img
                     v-else-if="hasRegion(node.region)" :src="getFlagSrc(node.region, node.source_index)"
@@ -371,7 +371,7 @@ function getRowTransitionStyle(index: number): Record<string, string> {
             <div class="grid gap-2 items-center justify-center" :style="gridStyle">
               <div class="h-full space-y-1" :style="offlineOverlayContentStyle">
                 <div class="text-sm font-semibold truncate">
-                  <span class="text-red-500">離線</span> {{ node.name }}
+                  <span class="!text-red-500">離線</span> {{ node.name }}
                 </div>
                 <div class="text-xs text-muted-foreground">
                   {{ formatOfflineTime(node) }}
