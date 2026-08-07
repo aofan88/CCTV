@@ -1113,7 +1113,8 @@ BD_NODE="${BD_NODE:-}"
 write_probe_result() {
     local dest="$1"
     shift
-    local tmp="${dest}.tmp"
+    # 二次安裝或服務重啟期間可能同時存在兩個 worker；暫存檔必須隔離，避免互相 mv。
+    local tmp="${dest}.tmp.${BASHPID:-$$}"
     rm -f "$tmp"
     "$@" > "$tmp" 2>/dev/null || true
     if [ -s "$tmp" ]; then
@@ -1158,8 +1159,12 @@ run_network_worker() {
         local now; now=$(date +%s)
 
         if [ $((now - last_ip)) -ge 600 ] || [ "$last_ip" -eq 0 ]; then
-            get_cf_trace_ip "-4" > /tmp/.cf_ipv4.tmp && mv /tmp/.cf_ipv4.tmp /tmp/.cf_ipv4 || true
-            (if ip -6 route show default >/dev/null 2>&1; then get_cf_trace_ip "-6"; else echo "0"; fi) > /tmp/.cf_ipv6.tmp && mv /tmp/.cf_ipv6.tmp /tmp/.cf_ipv6 || true
+            write_probe_result /tmp/.cf_ipv4 get_cf_trace_ip "-4"
+            if ip -6 route show default >/dev/null 2>&1; then
+                write_probe_result /tmp/.cf_ipv6 get_cf_trace_ip "-6"
+            else
+                printf '0\n' > /tmp/.cf_ipv6
+            fi
             last_ip="$now"
         fi
 
