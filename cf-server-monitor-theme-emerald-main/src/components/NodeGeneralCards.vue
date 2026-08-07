@@ -47,10 +47,10 @@ const showEarth = computed(() => appStore.earthViewMode === 'earth' || appStore.
 const showMaps = computed(() => appStore.earthViewMode === 'maps')
 const showVisualPanel = computed(() => showEarth.value || showMaps.value)
 const wrapperClass = computed(() => showVisualPanel.value
-  ? 'p-4 grid grid-cols-1 md:grid-cols-2 items-stretch gap-2'
+  ? 'p-4 grid grid-cols-1 md:grid-cols-2 items-start gap-2'
   : 'p-4 grid grid-cols-1 gap-2 h-auto')
 const cardGridClass = computed(() => showVisualPanel.value
-  ? 'min-h-58 grid grid-cols-2 grid-rows-2 gap-2'
+  ? 'h-58 max-h-58 self-start grid grid-cols-2 grid-rows-2 gap-2'
   : 'grid grid-cols-2 md:grid-cols-4 gap-2')
 
 onMounted(async () => {
@@ -135,7 +135,7 @@ onMounted(async () => {
       </CardX>
     </div>
 
-    <NodeEarthGlobe v-if="showEarth" :nodes="globeNodes" class="min-h-58 w-full" />
-    <NodeEarthMaps v-else-if="showMaps" :nodes="globeNodes" class="min-h-58 w-full" />
+    <NodeEarthGlobe v-if="showEarth" :nodes="globeNodes" class="h-58 max-h-58 w-full" />
+    <NodeEarthMaps v-else-if="showMaps" :nodes="globeNodes" class="h-58 max-h-58 w-full" />
   </div>
 </template>
