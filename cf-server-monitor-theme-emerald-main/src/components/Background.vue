@@ -134,7 +134,7 @@ onUnmounted(() => {
 <template>
   <div class="background-container" :style="backgroundContainerStyle">
     <Transition name="fade">
-      <div v-if="showDefaultBackground" class="absolute inset-0 bg-background" />
+      <div v-if="showDefaultBackground" class="default-background absolute inset-0" />
     </Transition>
     <Transition name="fade">
       <div v-if="showLoadingBackground" class="background-loading" />
@@ -175,6 +175,13 @@ onUnmounted(() => {
   inset: 0;
   z-index: -1;
   overflow: hidden;
+}
+
+.default-background {
+  background:
+    radial-gradient(ellipse 52% 42% at 78% 12%, rgba(20, 184, 166, 0.12), transparent 72%),
+    radial-gradient(ellipse 48% 38% at 12% 78%, rgba(14, 165, 233, 0.08), transparent 72%),
+    linear-gradient(135deg, #05090f 0%, #04080c 52%, #070b13 100%);
 }
 
 .background-loading {
