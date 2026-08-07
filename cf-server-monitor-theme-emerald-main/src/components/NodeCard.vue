@@ -99,7 +99,7 @@ function openPingDialog() {
           :src="taiwanFlagUrl"
           alt="臺灣"
           title="臺灣"
-          class="h-4 w-6 shrink-0 rounded-sm object-contain"
+          class="flag-fixed shrink-0 rounded-sm"
         >
         <img v-else-if="hasRegion(props.node.region)"
           :src="getApiAssetUrl(`flags/${getRegionCode(props.node.region).toLowerCase()}.svg`, props.node.source_index)"

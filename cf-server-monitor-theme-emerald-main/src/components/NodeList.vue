@@ -204,7 +204,7 @@ function getRowTransitionStyle(index: number): Record<string, string> {
                     :src="taiwanFlagUrl"
                     alt="臺灣"
                     title="臺灣"
-                    class="h-4 w-6 rounded-sm object-contain"
+                    class="flag-fixed rounded-sm"
                   >
                   <img
                     v-else-if="hasRegion(node.region)" :src="getFlagSrc(node.region, node.source_index)"

@@ -522,7 +522,7 @@ function getFlagCode(code: string): string {
       >
         <img
           :src="cluster.code.toUpperCase() === 'TW' ? taiwanFlagUrl : getApiAssetUrl(`flags/${getFlagCode(cluster.code)}.svg`)" :alt="cluster.code"
-          class="h-4 w-6 block absolute -bottom-2 -left-2 z-1 object-contain" :class="[cluster.onlineServers === 0 && 'grayscale']"
+          class="flag-fixed block absolute -bottom-2 -left-2 z-1" :class="[cluster.onlineServers === 0 && 'grayscale']"
         >
         <div class="relative z-2 bg-background/60 rounded py-0.5 px-1 text-xs zoom-80 items-start justify-center text-nowrap">
           <div class="text-green-600 flex flex-row items-center gap-0.5">

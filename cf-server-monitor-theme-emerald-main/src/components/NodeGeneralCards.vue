@@ -47,10 +47,10 @@ const showEarth = computed(() => appStore.earthViewMode === 'earth' || appStore.
 const showMaps = computed(() => appStore.earthViewMode === 'maps')
 const showVisualPanel = computed(() => showEarth.value || showMaps.value)
 const wrapperClass = computed(() => showVisualPanel.value
-  ? 'p-3 md:p-4 grid grid-cols-12 gap-3 items-stretch'
+  ? 'p-3 md:p-4 grid grid-cols-12 gap-3 items-start'
   : 'p-3 md:p-4 grid grid-cols-1 gap-3')
 const cardGridClass = computed(() => showVisualPanel.value
-  ? 'col-span-12 md:col-span-6 md:col-start-1 md:row-start-1 grid grid-cols-2 gap-3 content-start'
+  ? 'self-start col-span-12 md:col-span-6 md:col-start-1 md:row-start-1 grid grid-cols-2 gap-3 content-start'
   : 'grid grid-cols-2 md:grid-cols-4 gap-3')
 
 onMounted(async () => {
