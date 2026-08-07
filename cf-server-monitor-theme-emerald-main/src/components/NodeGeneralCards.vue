@@ -47,11 +47,11 @@ const showEarth = computed(() => appStore.earthViewMode === 'earth' || appStore.
 const showMaps = computed(() => appStore.earthViewMode === 'maps')
 const showVisualPanel = computed(() => showEarth.value || showMaps.value)
 const wrapperClass = computed(() => showVisualPanel.value
-  ? 'p-4 grid grid-cols-12 grid-rows-1 gap-2 h-auto md:h-58'
-  : 'p-4 grid grid-cols-1 gap-2 h-auto')
+  ? 'p-3 md:p-4 grid grid-cols-12 gap-3 items-stretch'
+  : 'p-3 md:p-4 grid grid-cols-1 gap-3')
 const cardGridClass = computed(() => showVisualPanel.value
-  ? 'h-42 -mt-42 md:mt-0 col-span-12 row-start-3 z-9 md:h-auto md:col-span-6 md:row-start-1 grid grid-cols-2 grid-rows-2 gap-2'
-  : 'grid grid-cols-2 md:grid-cols-4 gap-2')
+  ? 'col-span-12 md:col-span-6 md:col-start-1 md:row-start-1 grid grid-cols-2 gap-3 content-start'
+  : 'grid grid-cols-2 md:grid-cols-4 gap-3')
 
 onMounted(async () => {
   const { rates } = await financeHelper.getDailyExchangeRates()
@@ -61,14 +61,14 @@ onMounted(async () => {
 
 <template>
   <div :class="wrapperClass">
-    <NodeEarthGlobe v-if="showEarth" :nodes="globeNodes" class="col-span-12 col-start-1 md:col-span-6 md:col-start-7" />
-    <NodeEarthMaps v-else-if="showMaps" :nodes="globeNodes" class="col-span-12 col-start-1 md:col-span-6 md:col-start-7" />
+    <NodeEarthGlobe v-if="showEarth" :nodes="globeNodes" class="col-span-12 md:col-span-6 md:col-start-7 md:row-start-1 self-stretch" />
+    <NodeEarthMaps v-else-if="showMaps" :nodes="globeNodes" class="col-span-12 md:col-span-6 md:col-start-7 md:row-start-1 self-stretch" />
 
     <div :class="cardGridClass">
       <CardX
         hoverable
-        class="group min-h-28 border-none rounded-md transition-all"
-        :class="pickSurfaceClass('bg-background/60 hover:bg-background', 'bg-background/50 hover:bg-background backdrop-blur-xs')"
+        class="summary-card group min-h-32 rounded-xl"
+        :class="pickSurfaceClass('bg-card/75', 'bg-card/65 backdrop-blur-xs')"
         content-class="h-full !p-3"
       >
         <div class="flex h-full flex-col justify-between gap-2">
@@ -85,8 +85,8 @@ onMounted(async () => {
 
       <CardX
         hoverable
-        class="group min-h-28 border-none rounded-md transition-all"
-        :class="pickSurfaceClass('bg-background/60 hover:bg-background', 'bg-background/50 hover:bg-background backdrop-blur-xs')"
+        class="summary-card group min-h-32 rounded-xl"
+        :class="pickSurfaceClass('bg-card/75', 'bg-card/65 backdrop-blur-xs')"
         content-class="h-full !p-3"
       >
         <div class="flex h-full flex-col justify-between gap-2">
@@ -103,8 +103,8 @@ onMounted(async () => {
 
       <CardX
         hoverable
-        class="group min-h-28 border-none rounded-md transition-all"
-        :class="pickSurfaceClass('bg-background/60 hover:bg-background', 'bg-background/50 hover:bg-background backdrop-blur-xs')"
+        class="summary-card group min-h-32 rounded-xl"
+        :class="pickSurfaceClass('bg-card/75', 'bg-card/65 backdrop-blur-xs')"
         content-class="h-full !p-3"
       >
         <div class="flex h-full flex-col justify-between gap-2">
@@ -121,16 +121,16 @@ onMounted(async () => {
 
       <CardX
         hoverable
-        class="group min-h-28 border-none rounded-md transition-all"
-        :class="pickSurfaceClass('bg-background/60 hover:bg-background', 'bg-background/50 hover:bg-background backdrop-blur-xs')"
+        class="summary-card group min-h-32 rounded-xl"
+        :class="pickSurfaceClass('bg-card/75', 'bg-card/65 backdrop-blur-xs')"
         content-class="h-full !p-3"
       >
         <div class="flex h-full flex-col justify-between gap-2">
           <div class="flex items-start justify-between">
-            <span class="text-xs font-medium tracking-wider text-muted-foreground">即時上下行</span>
+            <span class="text-xs font-medium tracking-wider text-muted-foreground">即時流量</span>
             <Icon icon="tabler:arrows-up-down" width="20" height="20" class="text-cyan-500/60" />
           </div>
-          <div class="flex flex-col text-sm font-bold leading-tight">
+          <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-sm font-bold leading-tight whitespace-nowrap">
             <span class="text-emerald-500">↑ {{ formattedSpeedUp.value }} {{ formattedSpeedUp.unit }}</span>
             <span class="text-blue-500">↓ {{ formattedSpeedDown.value }} {{ formattedSpeedDown.unit }}</span>
           </div>
