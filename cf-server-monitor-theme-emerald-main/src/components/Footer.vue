@@ -27,7 +27,7 @@ const showFiling = computed(() => showIcp.value || showPolice.value)
       <div class="flex flex-wrap items-center gap-x-2 gap-y-1 sm:justify-end">
         <span>Designed by Joe</span>
         <span class="text-border">|</span>
-        <span>v0.1.20</span>
+        <span>v0.1.21</span>
       </div>
     </div>
 
