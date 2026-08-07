@@ -47,11 +47,11 @@ const showEarth = computed(() => appStore.earthViewMode === 'earth' || appStore.
 const showMaps = computed(() => appStore.earthViewMode === 'maps')
 const showVisualPanel = computed(() => showEarth.value || showMaps.value)
 const wrapperClass = computed(() => showVisualPanel.value
-  ? 'p-3 md:p-4 grid grid-cols-12 gap-3 items-start'
-  : 'p-3 md:p-4 grid grid-cols-1 gap-3')
+  ? 'p-4 grid grid-cols-12 grid-rows-1 gap-2 h-auto md:h-58'
+  : 'p-4 grid grid-cols-1 gap-2 h-auto')
 const cardGridClass = computed(() => showVisualPanel.value
-  ? 'self-start col-span-12 md:col-span-6 md:col-start-1 md:row-start-1 grid grid-cols-2 gap-3 content-start'
-  : 'grid grid-cols-2 md:grid-cols-4 gap-3')
+  ? 'h-42 -mt-42 md:mt-0 col-span-12 row-start-3 z-9 md:h-auto md:col-span-6 md:row-start-1 grid grid-cols-2 grid-rows-2 gap-2'
+  : 'grid grid-cols-2 md:grid-cols-4 gap-2')
 
 onMounted(async () => {
   const { rates } = await financeHelper.getDailyExchangeRates()
@@ -67,14 +67,14 @@ onMounted(async () => {
     <div :class="cardGridClass">
       <CardX
         hoverable
-        class="summary-card group min-h-32 rounded-xl"
-        :class="pickSurfaceClass('bg-card/75', 'bg-card/65 backdrop-blur-xs')"
+        class="group min-h-28 border-none rounded-md transition-all"
+        :class="pickSurfaceClass('bg-background/60 hover:bg-background', 'bg-background/50 hover:bg-background backdrop-blur-xs')"
         content-class="h-full !p-3"
       >
         <div class="flex h-full flex-col justify-between gap-2">
           <div class="flex items-start justify-between">
             <span class="text-xs font-medium tracking-wider text-muted-foreground">伺服器總數</span>
-            <Icon icon="tabler:server-2" width="20" height="20" class="text-sky-500/60" />
+            <Icon icon="tabler:server-2" width="20" height="20" class="text-muted-foreground/60 transition-colors group-hover:text-foreground" />
           </div>
           <div class="flex items-baseline gap-1">
             <span class="text-2xl font-bold leading-none tracking-tight">{{ onlineNodes.length }}/{{ offlineNodes }}</span>
@@ -85,14 +85,14 @@ onMounted(async () => {
 
       <CardX
         hoverable
-        class="summary-card group min-h-32 rounded-xl"
-        :class="pickSurfaceClass('bg-card/75', 'bg-card/65 backdrop-blur-xs')"
+        class="group min-h-28 border-none rounded-md transition-all"
+        :class="pickSurfaceClass('bg-background/60 hover:bg-background', 'bg-background/50 hover:bg-background backdrop-blur-xs')"
         content-class="h-full !p-3"
       >
         <div class="flex h-full flex-col justify-between gap-2">
           <div class="flex items-start justify-between">
             <span class="text-xs font-medium tracking-wider text-muted-foreground">當前月費</span>
-            <Icon icon="tabler:receipt-2" width="20" height="20" class="text-emerald-500/60" />
+            <Icon icon="tabler:receipt-2" width="20" height="20" class="text-muted-foreground/60 transition-colors group-hover:text-foreground" />
           </div>
           <div class="flex items-baseline gap-1 min-w-0">
             <span class="text-2xl font-bold leading-none tracking-tight truncate">{{ formattedMonthlyCost.symbol }}{{ formattedMonthlyCost.value }}</span>
@@ -103,14 +103,14 @@ onMounted(async () => {
 
       <CardX
         hoverable
-        class="summary-card group min-h-32 rounded-xl"
-        :class="pickSurfaceClass('bg-card/75', 'bg-card/65 backdrop-blur-xs')"
+        class="group min-h-28 border-none rounded-md transition-all"
+        :class="pickSurfaceClass('bg-background/60 hover:bg-background', 'bg-background/50 hover:bg-background backdrop-blur-xs')"
         content-class="h-full !p-3"
       >
         <div class="flex h-full flex-col justify-between gap-2">
           <div class="flex items-start justify-between">
             <span class="text-xs font-medium tracking-wider text-muted-foreground">累計流量</span>
-            <Icon icon="tabler:arrows-down-up" width="20" height="20" class="text-blue-500/60" />
+            <Icon icon="tabler:arrows-down-up" width="20" height="20" class="text-muted-foreground/60 transition-colors group-hover:text-foreground" />
           </div>
           <div class="flex items-baseline gap-1">
             <span class="text-2xl font-bold leading-none tracking-tight">{{ formattedTraffic.value }}</span>
@@ -121,14 +121,14 @@ onMounted(async () => {
 
       <CardX
         hoverable
-        class="summary-card group min-h-32 rounded-xl"
-        :class="pickSurfaceClass('bg-card/75', 'bg-card/65 backdrop-blur-xs')"
+        class="group min-h-28 border-none rounded-md transition-all"
+        :class="pickSurfaceClass('bg-background/60 hover:bg-background', 'bg-background/50 hover:bg-background backdrop-blur-xs')"
         content-class="h-full !p-3"
       >
         <div class="flex h-full flex-col justify-between gap-2">
           <div class="flex items-start justify-between">
             <span class="text-xs font-medium tracking-wider text-muted-foreground">即時流量</span>
-            <Icon icon="tabler:arrows-up-down" width="20" height="20" class="text-cyan-500/60" />
+            <Icon icon="tabler:arrows-up-down" width="20" height="20" class="text-muted-foreground/60 transition-colors group-hover:text-foreground" />
           </div>
           <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-sm font-bold leading-tight whitespace-nowrap">
             <span class="text-emerald-500">↑ {{ formattedSpeedUp.value }} {{ formattedSpeedUp.unit }}</span>
