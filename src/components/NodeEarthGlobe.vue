@@ -14,7 +14,6 @@ import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useAppStore } from '@/stores/app'
 import { useNodesStore } from '@/stores/nodes'
 import { getApiAssetUrl } from '@/utils/api'
-import { publicAsset } from '@/utils/publicAsset'
 import { getCoordByCode, getCountryCodeFromRegion } from '@/utils/geoHelper'
 import { formatBytesPerSecondSplit } from '@/utils/helper'
 
@@ -24,7 +23,6 @@ const props = defineProps<{
 
 const appStore = useAppStore()
 const nodesStore = useNodesStore()
-const taiwanFlagUrl = publicAsset('assets/tw-flag.png')
 
 const displayNodes = computed(() => props.nodes ?? nodesStore.earthNodes)
 
@@ -112,18 +110,11 @@ interface RegionRate {
   down: number
 }
 
-function getNodeCountryCode(node: NodeData): string | null {
-  const identity = `${node.region || ''} ${node.name || ''}`
-  if (/(^|[^A-Za-z])(TW|台灣|臺灣|中華電信)/i.test(identity))
-    return 'TW'
-  return getCountryCodeFromRegion(node.region)
-}
-
 // 節點按地區聚合
 const regionClusters = computed<RegionCluster[]>(() => {
   const map = new Map<string, RegionCluster>()
   for (const node of displayNodes.value) {
-    const code = getNodeCountryCode(node)
+    const code = getCountryCodeFromRegion(node.region)
     if (!code)
       continue
     const coord = getCoordByCode(code)
@@ -148,7 +139,7 @@ const regionRates = computed<Map<string, RegionRate>>(() => {
   for (const node of nodesStore.nodes) {
     if (!node.online)
       continue
-    const code = getNodeCountryCode(node)
+    const code = getCountryCodeFromRegion(node.region)
     if (!code)
       continue
     let entry = map.get(code)
@@ -501,14 +492,10 @@ function formatRate(bytesPerSec: number): string {
   const { value, unit } = formatBytesPerSecondSplit(bytesPerSec, appStore.byteDecimals)
   return `${value} ${unit}`
 }
-
-function getFlagCode(code: string): string {
-  return code.toUpperCase() === 'TW' ? 'tw' : code.toLowerCase()
-}
 </script>
 
 <template>
-  <div ref="containerRef" class="relative aspect-square w-full max-w-md mx-auto">
+  <div ref="containerRef" class="relative aspect-square w-full max-w-md mx-auto -translate-y-6 md:-translate-y-12">
     <canvas
       ref="canvasRef"
       class="earth-globe-canvas absolute inset-0 w-full h-full select-none touch-none cursor-grab active:cursor-grabbing"
@@ -521,8 +508,8 @@ function getFlagCode(code: string): string {
         class="absolute -top-7.5 left-0 pointer-events-none rounded backdrop-blur transition-[opacity,filter] duration-500"
       >
         <img
-          :src="cluster.code.toUpperCase() === 'TW' ? taiwanFlagUrl : getApiAssetUrl(`flags/${getFlagCode(cluster.code)}.svg`)" :alt="cluster.code"
-          class="flag-fixed block absolute -bottom-2 -left-2 z-1" :class="[cluster.onlineServers === 0 && 'grayscale']"
+          :src="getApiAssetUrl(`flags/${cluster.code.toLowerCase()}.svg`)" :alt="cluster.code"
+          class="size-4 block absolute -bottom-2 -left-2 z-1"
         >
         <div class="relative z-2 bg-background/60 rounded py-0.5 px-1 text-xs zoom-80 items-start justify-center text-nowrap">
           <div class="text-green-600 flex flex-row items-center gap-0.5">

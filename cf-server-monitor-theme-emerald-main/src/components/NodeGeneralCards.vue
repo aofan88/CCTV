@@ -56,11 +56,11 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="px-4 pt-2 relative max-w-[1280px] mx-auto">
-    <!-- Grid container: 12 columns on md and above -->
-    <div class="grid grid-cols-12 gap-3 items-center relative z-1">
+  <div class="px-4 pt-4 relative max-w-[1280px] mx-auto">
+    <!-- Grid container: items-start 緊貼頂部，避免頂部空白 -->
+    <div class="grid grid-cols-12 gap-3 items-start relative z-1">
 
-      <!-- 左側 4 個小卡片 (2x2 網格，佔據左半邊 6 欄) -->
+      <!-- 左側 4 個小卡片 (2x2 網格) -->
       <div
         class="grid grid-cols-2 gap-3 relative z-10"
         :class="showVisualPanel ? 'col-span-12 md:col-span-6' : 'col-span-12 grid-cols-2 sm:grid-cols-4'"
@@ -142,15 +142,15 @@ onMounted(async () => {
         </CardX>
       </div>
 
-      <!-- 右側 3D 地球 / 地圖區域 (右半邊 6 欄，下半部優雅重疊至下方選單/卡片區) -->
+      <!-- 右側 3D 地球區域 (優雅無邊框浮動，下半部輕微重疊至下方選單/卡片區) -->
       <div
         v-if="showVisualPanel"
-        class="col-span-12 md:col-span-6 relative flex items-center justify-center min-h-[280px] md:min-h-[240px] md:-mb-16 z-0 overflow-visible"
+        class="col-span-12 md:col-span-6 relative flex justify-center md:justify-end z-0 -mt-2 md:-mt-8 md:-mb-28 overflow-visible pointer-events-auto"
       >
         <NodeEarthGlobe
           v-if="showEarth"
           :nodes="globeNodes"
-          class="w-full max-w-[380px] md:max-w-none aspect-square"
+          class="w-full max-w-[360px] md:max-w-[440px] aspect-square"
         />
         <NodeEarthMaps
           v-else-if="showMaps"
