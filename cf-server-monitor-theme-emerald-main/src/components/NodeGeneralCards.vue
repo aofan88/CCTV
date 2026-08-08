@@ -3,8 +3,6 @@ import type { NodeData } from '@/stores/nodes'
 import { Icon } from '@iconify/vue'
 import { computed, defineAsyncComponent, onMounted, ref } from 'vue'
 import NodeEarthGlobe from '@/components/NodeEarthGlobe.vue'
-import { CardX } from '@/components/ui/card-x'
-import { useBackgroundSurface } from '@/composables/useBackgroundSurface'
 import { useAppStore } from '@/stores/app'
 import { useNodesStore } from '@/stores/nodes'
 import * as financeHelper from '@/utils/financeHelper'
@@ -19,7 +17,6 @@ const props = defineProps<{
 const NodeEarthMaps = defineAsyncComponent(() => import('@/components/NodeEarthMaps.vue'))
 const appStore = useAppStore()
 const nodesStore = useNodesStore()
-const { pickSurfaceClass } = useBackgroundSurface()
 const exchangeRates = ref(financeHelper.DEFAULT_EXCHANGE_RATES)
 const summaryNodes = computed(() => props.nodes ?? nodesStore.nodes)
 const summaryTransitionKey = computed(() => props.transitionKey ?? 'all')
@@ -46,12 +43,6 @@ const formattedMonthlyCost = computed(() => {
 const showEarth = computed(() => appStore.earthViewMode === 'earth' || appStore.earthViewMode === 'earth-stop')
 const showMaps = computed(() => appStore.earthViewMode === 'maps')
 const showVisualPanel = computed(() => showEarth.value || showMaps.value)
-const wrapperClass = computed(() => showVisualPanel.value
-  ? 'relative overflow-visible p-4 grid grid-cols-1 gap-3 md:grid-cols-12 md:grid-rows-1 md:h-[22rem]'
-  : 'p-4 grid grid-cols-1 gap-2 h-auto')
-const cardGridClass = computed(() => showVisualPanel.value
-  ? 'relative z-10 grid grid-cols-2 grid-rows-2 gap-3 md:col-span-6 md:row-start-1 md:mt-4 md:h-[18rem]'
-  : 'grid grid-cols-2 md:grid-cols-4 gap-2')
 
 onMounted(async () => {
   const { rates } = await financeHelper.getDailyExchangeRates()
@@ -60,83 +51,165 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div :class="wrapperClass">
-    <NodeEarthGlobe v-if="showEarth" :nodes="globeNodes" class="relative z-0 min-h-[20rem] w-full md:col-span-6 md:col-start-7 md:row-start-1 md:h-full" />
-    <NodeEarthMaps v-else-if="showMaps" :nodes="globeNodes" class="relative z-0 min-h-[20rem] w-full md:col-span-6 md:col-start-7 md:row-start-1 md:h-full" />
-
-    <div :class="cardGridClass">
-      <CardX
-        hoverable
-        class="group min-h-28 border-none rounded-md transition-all"
-        :class="pickSurfaceClass('bg-background/60 hover:bg-background', 'bg-background/50 hover:bg-background backdrop-blur-xs')"
-        content-class="h-full !p-3"
-      >
-        <div class="flex h-full flex-col justify-between gap-2">
-          <div class="flex items-start justify-between">
-            <span class="text-xs font-medium tracking-wider text-muted-foreground">伺服器總數</span>
-            <Icon icon="tabler:server-2" width="20" height="20" class="text-muted-foreground/60 transition-colors group-hover:text-foreground" />
-          </div>
-          <div class="flex items-baseline gap-1">
-            <span class="text-2xl font-bold leading-none tracking-tight">{{ onlineNodes.length }}/{{ offlineNodes }}</span>
-            <span class="text-xs font-medium text-muted-foreground">在線 / 離線</span>
-          </div>
+  <section class="overview-shell px-4 pt-4">
+    <div class="overview-summary" :class="showVisualPanel ? 'lg:w-[42%]' : 'w-full'">
+      <article class="overview-stat">
+        <div class="flex items-start justify-between gap-3">
+          <span class="overview-stat-label">伺服器總數</span>
+          <Icon icon="tabler:server-2" :width="18" :height="18" class="overview-stat-icon" />
         </div>
-      </CardX>
-
-      <CardX
-        hoverable
-        class="group min-h-28 border-none rounded-md transition-all"
-        :class="pickSurfaceClass('bg-background/60 hover:bg-background', 'bg-background/50 hover:bg-background backdrop-blur-xs')"
-        content-class="h-full !p-3"
-      >
-        <div class="flex h-full flex-col justify-between gap-2">
-          <div class="flex items-start justify-between">
-            <span class="text-xs font-medium tracking-wider text-muted-foreground">當前月費</span>
-            <Icon icon="tabler:receipt-2" width="20" height="20" class="text-muted-foreground/60 transition-colors group-hover:text-foreground" />
-          </div>
-          <div class="flex items-baseline gap-1 min-w-0">
-            <span class="text-2xl font-bold leading-none tracking-tight truncate">{{ formattedMonthlyCost.symbol }}{{ formattedMonthlyCost.value }}</span>
-            <span class="text-xs font-medium text-muted-foreground">{{ formattedMonthlyCost.currency }} / 月</span>
-          </div>
+        <div class="overview-stat-value">
+          <strong>{{ onlineNodes.length }}/{{ offlineNodes }}</strong>
+          <span>在線 / 離線</span>
         </div>
-      </CardX>
+      </article>
 
-      <CardX
-        hoverable
-        class="group min-h-28 border-none rounded-md transition-all"
-        :class="pickSurfaceClass('bg-background/60 hover:bg-background', 'bg-background/50 hover:bg-background backdrop-blur-xs')"
-        content-class="h-full !p-3"
-      >
-        <div class="flex h-full flex-col justify-between gap-2">
-          <div class="flex items-start justify-between">
-            <span class="text-xs font-medium tracking-wider text-muted-foreground">累計流量</span>
-            <Icon icon="tabler:arrows-down-up" width="20" height="20" class="text-muted-foreground/60 transition-colors group-hover:text-foreground" />
-          </div>
-          <div class="flex items-baseline gap-1">
-            <span class="text-2xl font-bold leading-none tracking-tight">{{ formattedTraffic.value }}</span>
-            <span class="text-xs font-medium text-muted-foreground">{{ formattedTraffic.unit }}</span>
-          </div>
+      <article class="overview-stat">
+        <div class="flex items-start justify-between gap-3">
+          <span class="overview-stat-label">當前月費</span>
+          <Icon icon="tabler:receipt-2" :width="18" :height="18" class="overview-stat-icon" />
         </div>
-      </CardX>
+        <div class="overview-stat-value">
+          <strong>{{ formattedMonthlyCost.symbol }}{{ formattedMonthlyCost.value }}</strong>
+          <span>{{ formattedMonthlyCost.currency }} / 月</span>
+        </div>
+      </article>
 
-      <CardX
-        hoverable
-        class="group min-h-28 border-none rounded-md transition-all"
-        :class="pickSurfaceClass('bg-background/60 hover:bg-background', 'bg-background/50 hover:bg-background backdrop-blur-xs')"
-        content-class="h-full !p-3"
-      >
-        <div class="flex h-full flex-col justify-between gap-2">
-          <div class="flex items-start justify-between">
-            <span class="text-xs font-medium tracking-wider text-muted-foreground">即時流量</span>
-            <Icon icon="tabler:arrows-up-down" width="20" height="20" class="text-muted-foreground/60 transition-colors group-hover:text-foreground" />
-          </div>
-          <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-sm font-bold leading-tight whitespace-nowrap">
-            <span class="text-emerald-500">↑ {{ formattedSpeedUp.value }} {{ formattedSpeedUp.unit }}</span>
-            <span class="text-blue-500">↓ {{ formattedSpeedDown.value }} {{ formattedSpeedDown.unit }}</span>
-          </div>
+      <article class="overview-stat">
+        <div class="flex items-start justify-between gap-3">
+          <span class="overview-stat-label">累計流量</span>
+          <Icon icon="tabler:arrows-down-up" :width="18" :height="18" class="overview-stat-icon" />
         </div>
-      </CardX>
+        <div class="overview-stat-value">
+          <strong>{{ formattedTraffic.value }}</strong>
+          <span>{{ formattedTraffic.unit }}</span>
+        </div>
+      </article>
+
+      <article class="overview-stat">
+        <div class="flex items-start justify-between gap-3">
+          <span class="overview-stat-label">即時流量</span>
+          <Icon icon="tabler:arrows-up-down" :width="18" :height="18" class="overview-stat-icon" />
+        </div>
+        <div class="overview-speed">
+          <span class="text-emerald-500">↑ {{ formattedSpeedUp.value }} {{ formattedSpeedUp.unit }}</span>
+          <span class="text-blue-500">↓ {{ formattedSpeedDown.value }} {{ formattedSpeedDown.unit }}</span>
+        </div>
+      </article>
     </div>
 
-  </div>
+    <div v-if="showVisualPanel" class="overview-globe" :class="showVisualPanel ? 'lg:w-[58%]' : ''">
+      <NodeEarthGlobe v-if="showEarth" :nodes="globeNodes" class="h-full min-h-72 w-full" />
+      <NodeEarthMaps v-else-if="showMaps" :nodes="globeNodes" class="h-full min-h-72 w-full" />
+    </div>
+  </section>
 </template>
+
+<style scoped>
+.overview-shell {
+  display: flex;
+  min-width: 0;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.overview-summary {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.625rem;
+}
+
+.overview-stat,
+.overview-globe {
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: color-mix(in srgb, var(--card) 92%, transparent);
+}
+
+.overview-stat {
+  display: flex;
+  min-height: 7.25rem;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 0.875rem;
+  transition: border-color 180ms ease, transform 180ms ease, background-color 180ms ease;
+}
+
+.overview-stat:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--foreground) 22%, var(--border));
+  background: color-mix(in srgb, var(--card) 98%, var(--foreground) 2%);
+}
+
+.overview-stat-label,
+.overview-stat-value > span {
+  color: var(--muted-foreground);
+  font-size: 0.72rem;
+}
+
+.overview-stat-value {
+  display: flex;
+  min-width: 0;
+  align-items: baseline;
+  gap: 0.3rem;
+}
+
+.overview-stat strong {
+  overflow: hidden;
+  color: var(--foreground);
+  font-size: clamp(1.55rem, 3vw, 2.2rem);
+  line-height: 1;
+  letter-spacing: 0;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.overview-stat-icon {
+  flex: none;
+  color: color-mix(in srgb, var(--muted-foreground) 70%, transparent);
+  transition: color 180ms ease;
+}
+
+.overview-stat:hover .overview-stat-icon {
+  color: var(--foreground);
+}
+
+.overview-speed {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.75rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.overview-globe {
+  min-height: 15rem;
+  overflow: hidden;
+}
+
+@media (max-width: 1023px) {
+  .overview-summary,
+  .overview-globe {
+    width: 100%;
+  }
+
+  .overview-globe {
+    min-height: 19rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .overview-summary {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .overview-stat {
+    min-height: 6.5rem;
+    padding: 0.75rem;
+  }
+}
+</style>
