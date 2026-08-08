@@ -14,7 +14,7 @@ const THEME_COMMIT_CACHE_TTL = 86400;
 // pairs cannot be mixed by the Cloudflare cache.
 // Bump when changing the mutable theme-build cache contract so old edge entries
 // cannot continue serving a previous compiled theme.
-const THEME_CACHE_NAMESPACE = 'v5';
+const THEME_CACHE_NAMESPACE = 'v6';
 const IMMUTABLE_ASSET_CACHE_CONTROL = 'public, max-age=31536000, immutable';
 const PREVIEW_COOKIE = 'cfsm_theme_preview';
 const PREVIEW_AUTH_COOKIE = 'cfsm_theme_preview_auth';
@@ -444,8 +444,15 @@ function buildPreviewUnauthorizedResponse(request, isAsset = false) {
 function resolveThemeUrlForAsset(request, settings) {
   const url = new URL(request.url);
   const queryThemeUrl = getPreviewThemeUrlFromQuery(url);
+  const configuredThemeUrl = normalizeThemeUrl(settings?.theme_url);
+
   if (queryThemeUrl) {
-    return { themeUrl: queryThemeUrl, preview: true };
+    // The worker appends theme_url to configured-theme assets too. That
+    // identity query must not turn a public configured theme into a preview.
+    return {
+      themeUrl: queryThemeUrl,
+      preview: Boolean(configuredThemeUrl && queryThemeUrl !== configuredThemeUrl)
+    };
   }
 
   const cookieThemeUrl = getPreviewThemeUrlFromCookie(request);
@@ -454,7 +461,7 @@ function resolveThemeUrlForAsset(request, settings) {
   }
 
   return {
-    themeUrl: normalizeThemeUrl(settings?.theme_url),
+    themeUrl: configuredThemeUrl,
     preview: false
   };
 }
