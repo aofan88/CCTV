@@ -47,10 +47,10 @@ const showEarth = computed(() => appStore.earthViewMode === 'earth' || appStore.
 const showMaps = computed(() => appStore.earthViewMode === 'maps')
 const showVisualPanel = computed(() => showEarth.value || showMaps.value)
 const wrapperClass = computed(() => showVisualPanel.value
-  ? 'p-4 grid grid-cols-12 grid-rows-1 gap-2 h-auto md:h-58'
+  ? 'relative overflow-visible p-4 grid grid-cols-1 gap-3 md:grid-cols-12 md:grid-rows-1 md:h-[22rem]'
   : 'p-4 grid grid-cols-1 gap-2 h-auto')
 const cardGridClass = computed(() => showVisualPanel.value
-  ? 'h-42 -mt-42 md:mt-0 col-span-12 row-start-3 z-9 md:h-auto md:col-span-6 md:row-start-1 grid grid-cols-2 grid-rows-2 gap-2'
+  ? 'relative z-10 grid grid-cols-2 grid-rows-2 gap-3 md:col-span-6 md:row-start-1 md:mt-4 md:h-[18rem]'
   : 'grid grid-cols-2 md:grid-cols-4 gap-2')
 
 onMounted(async () => {
@@ -61,8 +61,8 @@ onMounted(async () => {
 
 <template>
   <div :class="wrapperClass">
-    <NodeEarthGlobe v-if="showEarth" :nodes="globeNodes" class="col-span-12 md:col-span-6 md:col-start-7 md:row-start-1 self-stretch" />
-    <NodeEarthMaps v-else-if="showMaps" :nodes="globeNodes" class="col-span-12 md:col-span-6 md:col-start-7 md:row-start-1 self-stretch" />
+    <NodeEarthGlobe v-if="showEarth" :nodes="globeNodes" class="relative z-0 min-h-[20rem] w-full md:col-span-6 md:col-start-7 md:row-start-1 md:h-full" />
+    <NodeEarthMaps v-else-if="showMaps" :nodes="globeNodes" class="relative z-0 min-h-[20rem] w-full md:col-span-6 md:col-start-7 md:row-start-1 md:h-full" />
 
     <div :class="cardGridClass">
       <CardX
