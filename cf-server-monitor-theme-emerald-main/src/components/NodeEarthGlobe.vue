@@ -508,7 +508,7 @@ function getFlagCode(code: string): string {
 </script>
 
 <template>
-  <div ref="containerRef" class="relative aspect-square w-full max-w-md mx-auto">
+  <div ref="containerRef" class="relative aspect-square w-full max-w-md mx-auto -translate-y-6 md:-translate-y-12">
     <canvas
       ref="canvasRef"
       class="earth-globe-canvas absolute inset-0 w-full h-full select-none touch-none cursor-grab active:cursor-grabbing"

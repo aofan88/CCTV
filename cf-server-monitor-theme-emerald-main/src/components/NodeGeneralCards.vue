@@ -49,6 +49,14 @@ const showEarth = computed(() => appStore.earthViewMode === 'earth' || appStore.
 const showMaps = computed(() => appStore.earthViewMode === 'maps')
 const showVisualPanel = computed(() => showEarth.value || showMaps.value)
 
+// Keep the upstream 12-column skeleton so the globe and summary share one stable row.
+const wrapperClass = computed(() => showVisualPanel.value
+  ? 'p-4 grid grid-cols-12 grid-rows-1 gap-2 h-auto md:h-58'
+  : 'p-4 grid grid-cols-1 gap-2 h-auto')
+const cardGridClass = computed(() => showVisualPanel.value
+  ? 'h-42 -mt-42 md:mt-0 col-span-12 row-start-3 z-9 md:h-auto md:col-span-6 md:row-start-1 grid grid-cols-12 grid-rows-2 gap-2'
+  : 'col-span-1 grid grid-cols-2 md:grid-cols-4 gap-2')
+
 onMounted(async () => {
   const { rates } = await financeHelper.getDailyExchangeRates()
   exchangeRates.value = rates
@@ -56,109 +64,94 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="px-4 pt-4 relative max-w-[1280px] mx-auto">
-    <!-- Grid container: items-start 緊貼頂部，避免頂部空白 -->
-    <div class="grid grid-cols-12 gap-3 items-start relative z-1">
+  <div :class="wrapperClass">
+    <NodeEarthGlobe v-if="showEarth" :nodes="globeNodes" class="col-span-12 col-start-1 md:col-span-6 md:col-start-7" />
+    <NodeEarthMaps v-else-if="showMaps" :nodes="globeNodes" class="col-span-12 col-start-1 md:col-span-6 md:col-start-7" />
 
-      <!-- 左側 4 個小卡片 (2x2 網格) -->
-      <div
-        class="grid grid-cols-2 gap-3 relative z-10"
-        :class="showVisualPanel ? 'col-span-12 md:col-span-6' : 'col-span-12 grid-cols-2 sm:grid-cols-4'"
+    <div :class="cardGridClass">
+      <CardX
+        hoverable
+        class="group h-full border-none rounded-md transition-all"
+        :class="[
+          pickSurfaceClass('bg-background/60 hover:bg-background', 'bg-background/50 hover:bg-background backdrop-blur-xs'),
+          showVisualPanel ? 'col-span-6 row-span-1 col-start-1 row-start-1' : 'col-span-1 min-h-24',
+        ]"
+        content-class="h-full !p-3"
       >
-        <!-- Card 1: 伺服器總數 -->
-        <CardX
-          hoverable
-          class="group border-none rounded-md transition-all p-3.5"
-          :class="pickSurfaceClass('bg-background/60 hover:bg-background', 'bg-background/50 hover:bg-background backdrop-blur-xs')"
-          content-class="h-full !p-0"
-        >
-          <div class="flex h-full flex-col justify-between gap-2">
-            <div class="flex items-start justify-between">
-              <span class="text-xs font-medium tracking-wider text-muted-foreground">伺服器總數</span>
-              <Icon icon="tabler:server-2" :width="20" :height="20" class="text-slate-500/30 group-hover:text-slate-300 transition-colors" />
-            </div>
-            <div class="flex items-baseline gap-1.5 min-w-0 my-0.5">
-              <span class="text-xl md:text-2xl font-bold leading-none tracking-tight text-foreground">{{ onlineNodeCount }}/{{ offlineNodeCount }}</span>
-              <span class="text-xs font-medium text-muted-foreground">在線 / 離線</span>
-            </div>
+        <div class="flex h-full flex-col justify-between gap-1">
+          <div class="flex items-start justify-between">
+            <span class="text-xs font-medium tracking-wider text-muted-foreground">伺服器總數</span>
+            <Icon icon="tabler:server-2" :width="20" :height="20" class="text-slate-500/20 group-hover:text-slate-300 transition-colors" />
           </div>
-        </CardX>
-
-        <!-- Card 2: 當前月費 -->
-        <CardX
-          hoverable
-          class="group border-none rounded-md transition-all p-3.5"
-          :class="pickSurfaceClass('bg-background/60 hover:bg-background', 'bg-background/50 hover:bg-background backdrop-blur-xs')"
-          content-class="h-full !p-0"
-        >
-          <div class="flex h-full flex-col justify-between gap-2">
-            <div class="flex items-start justify-between">
-              <span class="text-xs font-medium tracking-wider text-muted-foreground">當前月費</span>
-              <Icon icon="tabler:receipt-2" :width="20" :height="20" class="text-slate-500/30 group-hover:text-slate-300 transition-colors" />
-            </div>
-            <div class="flex items-baseline gap-1.5 min-w-0 my-0.5">
-              <span class="text-xl md:text-2xl font-bold leading-none tracking-tight text-foreground">{{ formattedMonthlyCost.symbol }}{{ formattedMonthlyCost.value }}</span>
-              <span class="text-xs font-medium text-muted-foreground truncate">{{ formattedMonthlyCost.currency }} / 月</span>
-            </div>
+          <div class="flex items-baseline gap-1 min-w-0">
+            <span class="text-md md:text-2xl font-bold leading-none tracking-tight">{{ onlineNodeCount }}/{{ offlineNodeCount }}</span>
+            <span class="text-[11px] md:text-xs font-medium text-muted-foreground">在線 / 離線</span>
           </div>
-        </CardX>
+        </div>
+      </CardX>
 
-        <!-- Card 3: 累計流量 -->
-        <CardX
-          hoverable
-          class="group border-none rounded-md transition-all p-3.5"
-          :class="pickSurfaceClass('bg-background/60 hover:bg-background', 'bg-background/50 hover:bg-background backdrop-blur-xs')"
-          content-class="h-full !p-0"
-        >
-          <div class="flex h-full flex-col justify-between gap-2">
-            <div class="flex items-start justify-between">
-              <span class="text-xs font-medium tracking-wider text-muted-foreground">累計流量</span>
-              <Icon icon="tabler:arrows-down-up" :width="20" :height="20" class="text-slate-500/30 group-hover:text-slate-300 transition-colors" />
-            </div>
-            <div class="flex items-baseline gap-1.5 min-w-0 my-0.5">
-              <span class="text-xl md:text-2xl font-bold leading-none tracking-tight text-foreground">{{ formattedTraffic.value }}</span>
-              <span class="text-xs font-medium text-muted-foreground">{{ formattedTraffic.unit }}</span>
-            </div>
-          </div>
-        </CardX>
-
-        <!-- Card 4: 覆蓋國家 -->
-        <CardX
-          hoverable
-          class="group border-none rounded-md transition-all p-3.5"
-          :class="pickSurfaceClass('bg-background/60 hover:bg-background', 'bg-background/50 hover:bg-background backdrop-blur-xs')"
-          content-class="h-full !p-0"
-        >
-          <div class="flex h-full flex-col justify-between gap-2">
-            <div class="flex items-start justify-between">
-              <span class="text-xs font-medium tracking-wider text-muted-foreground">覆蓋國家</span>
-              <Icon icon="tabler:world" :width="20" :height="20" class="text-slate-500/30 group-hover:text-slate-300 transition-colors" />
-            </div>
-            <div class="flex items-baseline gap-1.5 min-w-0 my-0.5">
-              <span class="text-xl md:text-2xl font-bold leading-none tracking-tight text-foreground">{{ coveredCountryCount }}</span>
-              <span class="text-xs font-medium text-muted-foreground">個國家 / 地區</span>
-            </div>
-          </div>
-        </CardX>
-      </div>
-
-      <!-- 右側 3D 地球區域 (優雅無邊框浮動，下半部輕微重疊至下方選單/卡片區) -->
-      <div
-        v-if="showVisualPanel"
-        class="col-span-12 md:col-span-6 relative flex justify-center md:justify-end z-0 -mt-2 md:-mt-8 md:-mb-28 overflow-visible pointer-events-auto"
+      <CardX
+        hoverable
+        class="group h-full border-none rounded-md transition-all"
+        :class="[
+          pickSurfaceClass('bg-background/60 hover:bg-background', 'bg-background/50 hover:bg-background backdrop-blur-xs'),
+          showVisualPanel ? 'col-span-6 row-span-1 col-start-7 row-start-1' : 'col-span-1 min-h-24',
+        ]"
+        content-class="h-full !p-3"
       >
-        <NodeEarthGlobe
-          v-if="showEarth"
-          :nodes="globeNodes"
-          class="w-full max-w-[360px] md:max-w-[440px] aspect-square"
-        />
-        <NodeEarthMaps
-          v-else-if="showMaps"
-          :nodes="globeNodes"
-          class="w-full h-full min-h-[240px]"
-        />
-      </div>
+        <div class="flex h-full flex-col justify-between gap-1">
+          <div class="flex items-start justify-between">
+            <span class="text-xs font-medium tracking-wider text-muted-foreground">當前月費</span>
+            <Icon icon="tabler:receipt-2" :width="20" :height="20" class="text-slate-500/20 group-hover:text-slate-300 transition-colors" />
+          </div>
+          <div class="flex items-baseline gap-1 min-w-0">
+            <span class="text-md md:text-2xl font-bold leading-none tracking-tight">{{ formattedMonthlyCost.symbol }}{{ formattedMonthlyCost.value }}</span>
+            <span class="text-[11px] md:text-xs font-medium text-muted-foreground truncate">{{ formattedMonthlyCost.currency }} / 月</span>
+          </div>
+        </div>
+      </CardX>
 
+      <CardX
+        hoverable
+        class="group h-full border-none rounded-md transition-all"
+        :class="[
+          pickSurfaceClass('bg-background/60 hover:bg-background', 'bg-background/50 hover:bg-background backdrop-blur-xs'),
+          showVisualPanel ? 'col-span-6 row-span-1 col-start-1 row-start-2' : 'col-span-1 min-h-24',
+        ]"
+        content-class="h-full !p-3"
+      >
+        <div class="flex h-full flex-col justify-between gap-1">
+          <div class="flex items-start justify-between">
+            <span class="text-xs font-medium tracking-wider text-muted-foreground">累計流量</span>
+            <Icon icon="tabler:arrows-down-up" :width="20" :height="20" class="text-slate-500/20 group-hover:text-slate-300 transition-colors" />
+          </div>
+          <div class="flex items-baseline gap-1 min-w-0">
+            <span class="text-md md:text-2xl font-bold leading-none tracking-tight">{{ formattedTraffic.value }}</span>
+            <span class="text-[11px] md:text-xs font-medium text-muted-foreground">{{ formattedTraffic.unit }}</span>
+          </div>
+        </div>
+      </CardX>
+
+      <CardX
+        hoverable
+        class="group h-full border-none rounded-md transition-all"
+        :class="[
+          pickSurfaceClass('bg-background/60 hover:bg-background', 'bg-background/50 hover:bg-background backdrop-blur-xs'),
+          showVisualPanel ? 'col-span-6 row-span-1 col-start-7 row-start-2' : 'col-span-1 min-h-24',
+        ]"
+        content-class="h-full !p-3"
+      >
+        <div class="flex h-full flex-col justify-between gap-1">
+          <div class="flex items-start justify-between">
+            <span class="text-xs font-medium tracking-wider text-muted-foreground">覆蓋國家</span>
+            <Icon icon="tabler:world" :width="20" :height="20" class="text-slate-500/20 group-hover:text-slate-300 transition-colors" />
+          </div>
+          <div class="flex items-baseline gap-1 min-w-0">
+            <span class="text-md md:text-2xl font-bold leading-none tracking-tight">{{ coveredCountryCount }}</span>
+            <span class="text-[11px] md:text-xs font-medium text-muted-foreground">個國家 / 地區</span>
+          </div>
+        </div>
+      </CardX>
     </div>
   </div>
 </template>
