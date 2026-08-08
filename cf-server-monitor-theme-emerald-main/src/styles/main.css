@@ -155,32 +155,12 @@
   border-top: 1px solid var(--border);
 }
 
-.summary-card {
-  border: 1px solid color-mix(in srgb, var(--border) 82%, transparent);
-  background: color-mix(in srgb, var(--card) 76%, transparent);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.14);
-  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
-}
-
-.summary-card:hover {
-  transform: translateY(-3px);
-  border-color: color-mix(in srgb, var(--success) 62%, var(--border));
-  background: color-mix(in srgb, var(--card) 92%, transparent);
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--success) 28%, transparent), 0 0 28px color-mix(in srgb, var(--success) 18%, transparent);
-}
-
 .flag-fixed {
   width: 1.5rem;
   height: 1rem;
   max-width: 1.5rem;
   max-height: 1rem;
   object-fit: contain;
-}
-
-@media (max-width: 767px) {
-  .summary-card {
-    min-height: 7.5rem;
-  }
 }
 
 @layer utilities {
