@@ -14,7 +14,7 @@ const THEME_COMMIT_CACHE_TTL = 86400;
 // pairs cannot be mixed by the Cloudflare cache.
 // Bump when changing the mutable theme-build cache contract so old edge entries
 // cannot continue serving a previous compiled theme.
-const THEME_CACHE_NAMESPACE = 'v7';
+const THEME_CACHE_NAMESPACE = 'v8';
 const IMMUTABLE_ASSET_CACHE_CONTROL = 'public, max-age=31536000, immutable';
 const PREVIEW_COOKIE = 'cfsm_theme_preview';
 const PREVIEW_AUTH_COOKIE = 'cfsm_theme_preview_auth';
