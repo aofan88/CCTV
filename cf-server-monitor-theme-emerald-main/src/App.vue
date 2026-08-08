@@ -46,11 +46,7 @@ onUnmounted(() => {
     <Header />
     <main v-if="!appStore.loading" class="flex-1">
       <div class="max-w-[1280px] mx-auto">
-        <RouterView v-slot="{ Component }">
-          <KeepAlive :include="['HomeView']">
-            <component :is="Component" />
-          </KeepAlive>
-        </RouterView>
+        <RouterView />
       </div>
     </main>
     <Footer v-if="!appStore.loading" />
