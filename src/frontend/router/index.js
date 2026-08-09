@@ -8,6 +8,7 @@ const routes = [
   },
   {
     path: '/admin',
+    alias: ['/admin/', 'admin'],
     name: 'Admin',
     component: () => import('../views/admin/index.vue')
   },
