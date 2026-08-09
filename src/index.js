@@ -218,12 +218,12 @@ export default {
       return createOptionsResponse(request, corsAllowedOrigins);
     }
 
-    if (method === 'GET' && path === '/admin/') {
+    if (method === 'GET' && (path === '/admin/' || path === '/admin')) {
       const target = new URL(request.url);
       const search = target.search;
-      target.pathname = '/admin';
+      target.pathname = '/';
       target.search = '';
-      target.hash = `admin${search}`;
+      target.hash = `#/admin${search}`;
       return Response.redirect(target.toString(), 302);
     }
 
