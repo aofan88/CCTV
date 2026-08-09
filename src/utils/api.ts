@@ -1029,7 +1029,7 @@ export async function fetchServer(uuid: string): Promise<CfServer> {
 export function buildAdminUrl(apiIndex = 0): string {
   const bases = getConfiguredApiBases()
   const base = bases[apiIndex] ?? bases[0] ?? window.location.origin
-  return `${base}/admin#/admin`
+  return `${base}/admin`
 }
 
 export class CfMonitorApi {

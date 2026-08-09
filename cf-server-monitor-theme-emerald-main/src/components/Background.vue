@@ -179,6 +179,14 @@ onUnmounted(() => {
 
 .default-background {
   background:
+    radial-gradient(ellipse 52% 42% at 78% 12%, rgba(20, 184, 166, 0.08), transparent 72%),
+    radial-gradient(ellipse 48% 38% at 12% 78%, rgba(14, 165, 233, 0.06), transparent 72%),
+    linear-gradient(135deg, #f8fafc 0%, #f1f5f9 52%, #e2e8f0 100%);
+}
+
+:where(.dark) .default-background,
+.dark .default-background {
+  background:
     radial-gradient(ellipse 52% 42% at 78% 12%, rgba(20, 184, 166, 0.12), transparent 72%),
     radial-gradient(ellipse 48% 38% at 12% 78%, rgba(14, 165, 233, 0.08), transparent 72%),
     linear-gradient(135deg, #05090f 0%, #04080c 52%, #070b13 100%);
