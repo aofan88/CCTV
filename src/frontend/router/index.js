@@ -3,13 +3,14 @@ import { createRouter, createWebHashHistory } from 'vue-router'
 const routes = [
   {
     path: '/',
-    name: 'Dashboard',
-    component: () => import('../views/Dashboard.vue')
+    alias: ['/admin', '/admin/', 'admin', '/#admin', '/#/admin', '#admin', '#/admin'],
+    name: 'Admin',
+    component: () => import('../views/admin/index.vue')
   },
   {
     path: '/admin',
-    alias: ['/admin/', 'admin', '/#admin', '/#/admin'],
-    name: 'Admin',
+    alias: ['/admin/', 'admin', '/#admin', '/#/admin', '#admin', '#/admin'],
+    name: 'AdminPage',
     component: () => import('../views/admin/index.vue')
   },
   {

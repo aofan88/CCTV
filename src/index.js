@@ -218,14 +218,7 @@ export default {
       return createOptionsResponse(request, corsAllowedOrigins);
     }
 
-    if (method === 'GET' && (path === '/admin/' || path === '/admin')) {
-      const target = new URL(request.url);
-      const search = target.search;
-      target.pathname = '/';
-      target.search = '';
-      target.hash = `#/admin${search}`;
-      return Response.redirect(target.toString(), 302);
-    }
+    // Do not redirect /admin to /#/admin; let serveFrontend serve dashboard.html directly for /admin
 
     if (method === 'GET' && path.startsWith('/assets/')) {
       if (isAdminAssetReferrer(request)) {
