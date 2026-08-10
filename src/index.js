@@ -221,7 +221,7 @@ export default {
     if (method === 'GET' && path === '/admin/') {
       const target = new URL(request.url);
       target.pathname = '/admin';
-      target.hash = '/admin';
+      target.hash = '';
       return Response.redirect(target.toString(), 302);
     }
 

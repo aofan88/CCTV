@@ -4,8 +4,8 @@ import test from 'node:test'
 import {
   ADMIN_ENTRY_URL,
   getCanonicalAdminUrl,
+  isAdminHashRoute,
   isAdminDocumentPath,
-  normalizeAdminHash
 } from '../src/frontend/utils/adminRoute.js'
 
 test('recognizes only admin document paths', () => {
@@ -16,20 +16,25 @@ test('recognizes only admin document paths', () => {
   assert.equal(isAdminDocumentPath('/'), false)
 })
 
-test('normalizes legacy and incomplete admin hashes', () => {
-  assert.equal(normalizeAdminHash(''), '#/admin')
-  assert.equal(normalizeAdminHash('#/'), '#/admin')
-  assert.equal(normalizeAdminHash('#admin'), '#/admin')
-  assert.equal(normalizeAdminHash('#admin?tab=settings'), '#/admin?tab=settings')
-  assert.equal(normalizeAdminHash('#/admin?tab=settings'), '#/admin?tab=settings')
+test('recognizes admin hash routes used by static deployments', () => {
+  assert.equal(isAdminHashRoute(''), false)
+  assert.equal(isAdminHashRoute('#/'), false)
+  assert.equal(isAdminHashRoute('#admin'), true)
+  assert.equal(isAdminHashRoute('#admin?tab=settings'), true)
+  assert.equal(isAdminHashRoute('#/admin'), true)
+  assert.equal(isAdminHashRoute('#/admin?tab=settings'), true)
 })
 
 test('builds one canonical admin entry URL', () => {
-  assert.equal(ADMIN_ENTRY_URL, '/admin#/admin')
-  assert.equal(getCanonicalAdminUrl(), '/admin#/admin')
-  assert.equal(getCanonicalAdminUrl({ hash: '#/' }), '/admin#/admin')
+  assert.equal(ADMIN_ENTRY_URL, '/admin')
+  assert.equal(getCanonicalAdminUrl(), '/admin')
+  assert.equal(getCanonicalAdminUrl({ hash: '#/' }), '/admin')
   assert.equal(
     getCanonicalAdminUrl({ search: '?site=1', hash: '#admin?tab=settings' }),
-    '/admin?site=1#/admin?tab=settings'
+    '/admin?site=1&tab=settings'
+  )
+  assert.equal(
+    getCanonicalAdminUrl({ hash: '#/admin?apiIndex=2' }),
+    '/admin?apiIndex=2'
   )
 })

@@ -105,7 +105,7 @@
 
     <div id="view-card" class="view-panel" :class="{ active: isCardView }">
       <div v-if="groupedServers.length === 0" class="empty-state">
-            [!] {{ trans.noServer }}，請在 <a href="/admin#/admin" class="admin-link-color">{{ trans.backToAdmin }}</a> 中添加
+            [!] {{ trans.noServer }}，請在 <a href="/admin" class="admin-link-color">{{ trans.backToAdmin }}</a> 中添加
       </div>
       <div v-else>
         <div v-for="group in groupedServers" :key="group.name" class="group-section">

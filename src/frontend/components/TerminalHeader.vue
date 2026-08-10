@@ -56,6 +56,7 @@ import { t, setLanguage, getLanguage } from '../utils/i18n'
 import { useTheme } from '../composables/useTheme'
 import { DEFAULT_SITE_TITLE } from '../utils/constants'
 import { hasMultipleApiBases } from '../utils/config'
+import { ADMIN_ENTRY_URL } from '../utils/adminRoute'
 
 defineProps({
   title: {
@@ -68,7 +69,7 @@ const { currentTheme, setTheme } = useTheme()
 const currentLang = ref('en')
 const route = useRoute()
 const isAdminPage = ref(route.path === '/admin')
-const adminHref = computed(() => hasMultipleApiBases() ? '/#/admin' : '/admin#/admin')
+const adminHref = computed(() => hasMultipleApiBases() ? '/#/admin' : ADMIN_ENTRY_URL)
 
 const setLang = (lang) => {
   setLanguage(lang)

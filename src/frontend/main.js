@@ -1,12 +1,13 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
+import { createAdminRouter } from './router/admin'
 import './styles/main.css'
 import './styles/light.css'
 import { currentLang, translations } from './utils/i18n'
 import { http } from './utils/http'
 import { initConfig, hasMultipleApiBases } from './utils/config'
-import { getCanonicalAdminUrl, isAdminDocumentPath } from './utils/adminRoute'
+import { getCanonicalAdminUrl, isAdminDocumentPath, isAdminHashRoute } from './utils/adminRoute'
 import { LAST_AGENT_VERSION, LAST_WORKERS_VERSION, VERSION } from './utils/api'
 import { resolveDisplayMode } from './utils/displayMode'
 import { getMikusAssetUrl, isMikusThemeEnabled, normalizeThemeOptions, setMikusThemeClass } from './utils/themeOptions'
@@ -257,19 +258,19 @@ const isAdminPath = () => {
   return isAdminDocumentPath(window.location.pathname)
 }
 
-const bridgeAdminPathToHashRoute = () => {
+const normalizeAdminDocumentUrl = () => {
   if (!isAdminPath()) return
   const canonicalUrl = getCanonicalAdminUrl(window.location)
   const currentUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`
   if (currentUrl === canonicalUrl) return
 
-  // Hash fragments never reach the Worker. Normalize the legacy entry before
-  // Vue Router performs its initial navigation so /admin#/ cannot mount Home.
+  // The Worker document path already identifies the admin app. Remove legacy
+  // hashes without reloading; the admin memory router keeps the URL clean.
   window.history.replaceState(null, '', canonicalUrl)
 }
 
 async function initApp() {
-  bridgeAdminPathToHashRoute()
+  normalizeAdminDocumentUrl()
 
   // Load frontend runtime config (apiBase) first so all subsequent
   // HTTP / WebSocket requests go through the configured origin.
@@ -277,7 +278,8 @@ async function initApp() {
 
   const isMultipleMode = hasMultipleApiBases()
   const currentHash = window.location.hash || ''
-  const isAdmin = isAdminPath() || currentHash.startsWith('#admin') || currentHash.startsWith('#/admin')
+  const isAdminDocument = isAdminPath()
+  const isAdmin = isAdminDocument || isAdminHashRoute(currentHash)
 
   // 多站模式公開頁面：一次 getAll 取得所有站點配置，檢查 Turnstile key 是否可共享。
   let config
@@ -339,7 +341,10 @@ async function initApp() {
 
   const app = createApp(App)
   app.provide('appConfig', config || {})
-  app.use(router)
+  const appRouter = isAdminDocument
+    ? await createAdminRouter(window.location.search)
+    : router
+  app.use(appRouter)
   app.mount('#app').$nextTick(() => {
     if (!isAdmin && !config.is_public && !config.authorization) {
       window.location.replace(getCanonicalAdminUrl())

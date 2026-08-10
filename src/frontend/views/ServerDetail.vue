@@ -297,7 +297,7 @@ import Footer from '../components/Footer.vue'
 import OsIcon from '../components/OsIcon.vue'
 import { fetchServerDetail, fetchAllHistory, fetchConfig, formatBytes, isAdminLoggedIn, createLiveSocket, getFlagRegionCode, isServerOnline } from '../utils/api.js'
 import { getTrafficUsageBytes } from '../composables/useServerCardData'
-import { getPublicAssetUrl } from '../utils/config.js'
+import { getPublicAssetUrl, hasMultipleApiBases } from '../utils/config.js'
 import Chart from 'chart.js/auto'
 import 'chartjs-adapter-date-fns'
 import { t, currentLang, useTranslation } from '../utils/i18n'
@@ -1344,6 +1344,10 @@ const setTimeRange = (hours) => {
 
 const goToLogin = () => {
   showLoginModal.value = false
+  if (!hasMultipleApiBases()) {
+    window.location.assign(`/admin?apiIndex=${encodeURIComponent(String(apiIndex.value))}`)
+    return
+  }
   router.push({
     path: '/admin',
     query: { apiIndex: String(apiIndex.value) }

@@ -19,7 +19,7 @@ const redirectToAdminLogin = () => {
 
   const isAdminDocument = isAdminDocumentPath(window.location.pathname)
 
-  if (isAdminDocument && window.location.hash.startsWith('#/admin')) {
+  if (isAdminDocument) {
     window.location.reload()
     return
   }
