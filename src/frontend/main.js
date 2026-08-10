@@ -6,6 +6,7 @@ import './styles/light.css'
 import { currentLang, translations } from './utils/i18n'
 import { http } from './utils/http'
 import { initConfig, hasMultipleApiBases } from './utils/config'
+import { getCanonicalAdminUrl, isAdminDocumentPath } from './utils/adminRoute'
 import { LAST_AGENT_VERSION, LAST_WORKERS_VERSION, VERSION } from './utils/api'
 import { resolveDisplayMode } from './utils/displayMode'
 import { getMikusAssetUrl, isMikusThemeEnabled, normalizeThemeOptions, setMikusThemeClass } from './utils/themeOptions'
@@ -253,22 +254,18 @@ const renderStartupTurnstile = async (siteKey, apiIndex) => {
 }
 
 const isAdminPath = () => {
-  return window.location.pathname === '/admin' || window.location.pathname.startsWith('/admin/')
+  return isAdminDocumentPath(window.location.pathname)
 }
 
 const bridgeAdminPathToHashRoute = () => {
   if (!isAdminPath()) return
-  const hash = window.location.hash || ''
+  const canonicalUrl = getCanonicalAdminUrl(window.location)
+  const currentUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`
+  if (currentUrl === canonicalUrl) return
 
-  const legacyHashSuffix = hash.startsWith('#/admin')
-    ? hash.slice('#/admin'.length)
-    : hash.startsWith('#admin')
-      ? hash.slice('#admin'.length)
-      : ''
-  const adminHash = `#admin${legacyHashSuffix || window.location.search || ''}`
-  if (hash === adminHash) return
-
-  window.history.replaceState(null, '', `/admin${adminHash}`)
+  // Hash fragments never reach the Worker. Normalize the legacy entry before
+  // Vue Router performs its initial navigation so /admin#/ cannot mount Home.
+  window.history.replaceState(null, '', canonicalUrl)
 }
 
 async function initApp() {
@@ -345,7 +342,7 @@ async function initApp() {
   app.use(router)
   app.mount('#app').$nextTick(() => {
     if (!isAdmin && !config.is_public && !config.authorization) {
-      window.location.replace('/admin#admin')
+      window.location.replace(getCanonicalAdminUrl())
     }
     const loading = document.getElementById('loading')
     if (loading) {

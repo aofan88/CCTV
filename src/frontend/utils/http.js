@@ -1,4 +1,5 @@
 import { getApiBases } from './config'
+import { ADMIN_ENTRY_URL, isAdminDocumentPath } from './adminRoute'
 
 const DEFAULT_ERROR_MESSAGES = {
   401: 'Unauthorized',
@@ -10,19 +11,20 @@ const DEFAULT_ERROR_MESSAGES = {
 const TURNSTILE_VERIFIED_KEY = 'turnstile_verified'
 
 const getAdminPath = () => {
-  return '/admin'
+  return ADMIN_ENTRY_URL
 }
 
 const redirectToAdminLogin = () => {
   if (typeof window === 'undefined') return
 
-  const adminPath = getAdminPath()
-  if (window.location.pathname === adminPath || window.location.pathname.startsWith(`${adminPath}/`)) {
+  const isAdminDocument = isAdminDocumentPath(window.location.pathname)
+
+  if (isAdminDocument && window.location.hash.startsWith('#/admin')) {
     window.location.reload()
     return
   }
 
-  window.location.assign(adminPath)
+  window.location.assign(getAdminPath())
 }
 
 const createHeaders = (includeAuth = true, includeTurnstile = true, baseUrl = null, options = {}) => {
