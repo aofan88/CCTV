@@ -1,0 +1,851 @@
+/* Admin-only visual layer. Every selector is rooted to avoid touching the public UI. */
+.runsing-admin-shell {
+    --bg-primary: #07090d;
+    --bg-secondary: rgba(12, 16, 22, 0.88);
+    --bg-card: rgba(15, 20, 27, 0.78);
+    --bg-hover: rgba(24, 31, 40, 0.82);
+    --border-color: rgba(122, 145, 166, 0.16);
+    --border-active: rgba(112, 169, 211, 0.38);
+    --text-primary: #e8edf3;
+    --text-secondary: #9aa8b8;
+    --text-muted: #697888;
+    --accent-green: #35cf98;
+    --accent-cyan: #44d7c0;
+    --accent-blue: #5ca9ff;
+    --input-bg: rgba(6, 9, 13, 0.86);
+    --input-border: rgba(122, 145, 166, 0.2);
+    --color-inherit: #06100d;
+    min-height: 100vh;
+    color: var(--text-primary);
+    background:
+        radial-gradient(circle at 80% -15%, rgba(45, 143, 149, 0.13), transparent 34rem),
+        radial-gradient(circle at -12% 78%, rgba(50, 100, 170, 0.1), transparent 30rem),
+        #07090d;
+    font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    isolation: isolate;
+    position: relative;
+}
+
+.runsing-admin-shell::before {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    content: "";
+    pointer-events: none;
+    opacity: 0.22;
+    background-image:
+        linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.014) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: linear-gradient(to bottom, #000, transparent 82%);
+}
+
+body.light .runsing-admin-shell {
+    --bg-primary: #f4f7f8;
+    --bg-secondary: rgba(255, 255, 255, 0.88);
+    --bg-card: rgba(255, 255, 255, 0.72);
+    --bg-hover: rgba(235, 242, 244, 0.88);
+    --border-color: rgba(52, 78, 91, 0.14);
+    --border-active: rgba(26, 137, 135, 0.36);
+    --text-primary: #172229;
+    --text-secondary: #536771;
+    --text-muted: #82929a;
+    --accent-green: #149676;
+    --accent-cyan: #118f88;
+    --accent-blue: #2379c9;
+    --input-bg: rgba(255, 255, 255, 0.92);
+    --input-border: rgba(52, 78, 91, 0.18);
+    --color-inherit: #fff;
+    background:
+        radial-gradient(circle at 80% -15%, rgba(17, 143, 136, 0.1), transparent 34rem),
+        radial-gradient(circle at -12% 78%, rgba(35, 121, 201, 0.08), transparent 30rem),
+        #f4f7f8;
+}
+
+.runsing-admin-shell .admin-container {
+    max-width: 1540px;
+    min-height: 100vh;
+    padding: 24px 28px 64px;
+    animation: admin-page-in 0.48s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.runsing-admin-shell .terminal-header {
+    min-height: 56px;
+    margin-bottom: 14px;
+    padding: 10px 18px;
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    background: rgba(10, 14, 19, 0.76);
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.18);
+    backdrop-filter: blur(18px) saturate(130%);
+}
+
+body.light .runsing-admin-shell .terminal-header {
+    background: rgba(255, 255, 255, 0.72);
+    box-shadow: 0 12px 30px rgba(45, 69, 78, 0.08);
+}
+
+.runsing-admin-shell .terminal-dots {
+    width: auto;
+}
+
+.runsing-admin-shell .terminal-dot {
+    width: 7px;
+    height: 7px;
+    opacity: 0.72;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.runsing-admin-shell .terminal-header:hover .terminal-dot {
+    opacity: 1;
+    transform: scale(1.12);
+}
+
+.runsing-admin-shell .terminal-title {
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 650;
+    letter-spacing: 0.01em;
+}
+
+.runsing-admin-shell .lang-toggle,
+.runsing-admin-shell .theme-toggle {
+    border-color: transparent;
+    background: rgba(255, 255, 255, 0.025);
+}
+
+.runsing-admin-shell .main-panel {
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 14px;
+    padding: 22px;
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    background: linear-gradient(145deg, rgba(17, 22, 29, 0.9), rgba(9, 13, 18, 0.82));
+    box-shadow: 0 18px 48px rgba(0, 0, 0, 0.16);
+}
+
+body.light .runsing-admin-shell .main-panel {
+    background: rgba(255, 255, 255, 0.78);
+    box-shadow: 0 16px 36px rgba(51, 71, 79, 0.07);
+}
+
+.runsing-admin-shell .main-panel::before {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: 1px;
+    content: "";
+    background: linear-gradient(90deg, transparent, rgba(68, 215, 192, 0.44), rgba(92, 169, 255, 0.26), transparent);
+    opacity: 0.72;
+}
+
+.runsing-admin-shell .panel-header {
+    margin-bottom: 18px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.runsing-admin-shell .panel-title {
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 650;
+    text-shadow: none;
+}
+
+.runsing-admin-shell .panel-title .prompt {
+    display: grid;
+    width: 24px;
+    height: 24px;
+    place-items: center;
+    border: 1px solid rgba(53, 207, 152, 0.24);
+    border-radius: 7px;
+    color: var(--accent-green);
+    background: rgba(53, 207, 152, 0.08);
+}
+
+.runsing-admin-shell .header-actions {
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.runsing-admin-shell .stats-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    overflow: visible;
+    margin: 0;
+    border: 0;
+}
+
+.runsing-admin-shell .stat-card {
+    position: relative;
+    overflow: hidden;
+    min-height: 112px;
+    padding: 20px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    background: rgba(9, 14, 20, 0.64);
+    text-align: left;
+    transition: transform 0.22s ease, border-color 0.22s ease, background 0.22s ease, box-shadow 0.22s ease;
+}
+
+body.light .runsing-admin-shell .stat-card {
+    background: rgba(247, 250, 251, 0.82);
+}
+
+.runsing-admin-shell .stat-card::after {
+    position: absolute;
+    right: 17px;
+    bottom: 17px;
+    width: 6px;
+    height: 6px;
+    content: "";
+    border-radius: 999px;
+    background: var(--accent-blue);
+    box-shadow: 0 0 12px currentColor;
+    opacity: 0.76;
+}
+
+.runsing-admin-shell .stat-card:nth-child(2)::after { background: var(--accent-green); }
+.runsing-admin-shell .stat-card:nth-child(3)::after { background: var(--accent-red); }
+.runsing-admin-shell .stat-card:nth-child(4)::after { background: var(--accent-yellow); }
+
+.runsing-admin-shell .stat-card:hover {
+    z-index: 1;
+    border-color: rgba(68, 215, 192, 0.35);
+    background: rgba(16, 23, 30, 0.86);
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.18);
+    transform: translateY(-2px);
+}
+
+.runsing-admin-shell .stat-main-value {
+    color: var(--text-primary);
+    font-size: clamp(22px, 2.2vw, 31px);
+    font-weight: 680;
+    letter-spacing: -0.035em;
+    line-height: 1.1;
+    text-shadow: none;
+}
+
+.runsing-admin-shell .stat-card .stat-label {
+    margin-top: 10px;
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 550;
+    letter-spacing: 0.04em;
+    text-transform: none;
+}
+
+.runsing-admin-shell .tabs {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    width: min(720px, 100%);
+    gap: 4px;
+    margin-bottom: 22px;
+    padding: 4px;
+    border: 1px solid var(--border-color);
+    border-radius: 11px;
+    background: rgba(5, 9, 13, 0.54);
+}
+
+body.light .runsing-admin-shell .tabs {
+    background: rgba(234, 240, 242, 0.72);
+}
+
+.runsing-admin-shell .tab-btn {
+    position: relative;
+    min-height: 38px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    color: var(--text-muted);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 580;
+    letter-spacing: 0;
+    text-transform: none;
+    transition: color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+}
+
+.runsing-admin-shell .tab-btn:hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.035);
+}
+
+.runsing-admin-shell .tab-btn.active {
+    color: #06110e;
+    background: linear-gradient(135deg, #54d9ab, #35c5a5);
+    box-shadow: 0 6px 18px rgba(53, 207, 152, 0.16);
+}
+
+.runsing-admin-shell .tab-btn:active,
+.runsing-admin-shell .btn:active,
+.runsing-admin-shell .login-btn:active {
+    transform: scale(0.975);
+}
+
+.runsing-admin-shell .tab-content.active {
+    animation: admin-content-in 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.runsing-admin-shell .btn {
+    min-height: 36px;
+    padding: 8px 14px;
+    border-color: var(--border-color);
+    border-radius: 9px;
+    background: rgba(255, 255, 255, 0.025);
+    color: var(--text-secondary);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 580;
+    letter-spacing: 0;
+    text-transform: none;
+    transition: color 0.18s ease, background 0.18s ease, border-color 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.runsing-admin-shell .btn:hover {
+    border-color: var(--border-active);
+    background: rgba(92, 169, 255, 0.07);
+    color: var(--text-primary);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    transform: translateY(-1px);
+}
+
+.runsing-admin-shell .btn-primary {
+    border-color: rgba(53, 207, 152, 0.3);
+    background: rgba(53, 207, 152, 0.12);
+    color: #68ddb5;
+}
+
+body.light .runsing-admin-shell .btn-primary { color: #08765d; }
+
+.runsing-admin-shell .btn-primary:hover {
+    border-color: rgba(53, 207, 152, 0.56);
+    background: rgba(53, 207, 152, 0.18);
+    color: #8beac8;
+}
+
+.runsing-admin-shell .btn-red {
+    border-color: rgba(248, 81, 73, 0.14);
+    background: rgba(248, 81, 73, 0.045);
+    color: #ff7771;
+}
+
+.runsing-admin-shell .btn-red:hover {
+    border-color: rgba(248, 81, 73, 0.42);
+    background: rgba(248, 81, 73, 0.12);
+    color: #ff9792;
+}
+
+.runsing-admin-shell .btn-icon {
+    min-width: 34px;
+    min-height: 32px;
+    padding: 5px 8px;
+}
+
+.runsing-admin-shell .alert {
+    margin-bottom: 14px;
+    padding: 11px 13px;
+    border: 1px solid rgba(92, 169, 255, 0.16);
+    border-radius: 10px;
+    background: rgba(92, 169, 255, 0.05);
+    color: #8cbdea;
+}
+
+.runsing-admin-shell .toolbar,
+.runsing-admin-shell .batch-actions {
+    gap: 8px;
+}
+
+.runsing-admin-shell .toolbar {
+    padding: 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 11px;
+    background: rgba(7, 11, 16, 0.44);
+}
+
+.runsing-admin-shell .toolbar-input,
+.runsing-admin-shell .toolbar-select,
+.runsing-admin-shell .form-input,
+.runsing-admin-shell .form-select,
+.runsing-admin-shell .form-textarea,
+.runsing-admin-shell .login-input {
+    min-height: 40px;
+    border-color: var(--input-border);
+    border-radius: 9px;
+    background: var(--input-bg) !important;
+    color: var(--text-primary);
+    font-family: inherit;
+    transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+}
+
+.runsing-admin-shell .toolbar-input:focus,
+.runsing-admin-shell .toolbar-select:focus,
+.runsing-admin-shell .form-input:focus,
+.runsing-admin-shell .form-select:focus,
+.runsing-admin-shell .form-textarea:focus,
+.runsing-admin-shell .login-input:focus {
+    outline: none;
+    border-color: rgba(68, 215, 192, 0.64);
+    background: rgba(8, 13, 18, 0.96) !important;
+    box-shadow: 0 0 0 3px rgba(68, 215, 192, 0.09), 0 0 24px rgba(68, 215, 192, 0.04);
+}
+
+body.light .runsing-admin-shell .form-input:focus,
+body.light .runsing-admin-shell .form-select:focus,
+body.light .runsing-admin-shell .form-textarea:focus,
+body.light .runsing-admin-shell .login-input:focus {
+    background: #fff !important;
+}
+
+.runsing-admin-shell .form-label,
+.runsing-admin-shell .login-label {
+    color: var(--text-secondary);
+    font-size: 11px;
+    font-weight: 620;
+    letter-spacing: 0.025em;
+    text-transform: none;
+}
+
+.runsing-admin-shell .settings-grid {
+    gap: 14px;
+}
+
+.runsing-admin-shell .settings-section {
+    margin-bottom: 14px;
+    padding: 18px;
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    background: rgba(10, 15, 21, 0.54);
+    transition: border-color 0.22s ease, background 0.22s ease, transform 0.22s ease;
+}
+
+body.light .runsing-admin-shell .settings-section {
+    background: rgba(248, 251, 252, 0.76);
+}
+
+.runsing-admin-shell .settings-section:hover {
+    border-color: rgba(122, 145, 166, 0.28);
+}
+
+.runsing-admin-shell .section-title {
+    margin-bottom: 18px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-primary);
+    font-size: 12px;
+    font-weight: 650;
+    letter-spacing: 0.025em;
+    text-transform: none;
+}
+
+.runsing-admin-shell .section-title > span:first-child {
+    color: var(--accent-green);
+}
+
+.runsing-admin-shell .checkbox-item,
+.runsing-admin-shell .resource-alert-rule,
+.runsing-admin-shell .config-list,
+.runsing-admin-shell .quota-section {
+    border-color: var(--border-color);
+    border-radius: 10px;
+    background: rgba(8, 12, 17, 0.46);
+}
+
+.runsing-admin-shell .checkbox-item:hover {
+    border-color: rgba(68, 215, 192, 0.28);
+    background: rgba(68, 215, 192, 0.045);
+    transform: translateX(2px);
+}
+
+.runsing-admin-shell .resource-alert-rule {
+    padding: 14px;
+}
+
+.runsing-admin-shell .table-wrapper {
+    border-color: var(--border-color);
+    border-radius: 12px;
+    background: rgba(6, 10, 14, 0.42);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.018);
+}
+
+.runsing-admin-shell .terminal-table {
+    font-family: inherit;
+    font-size: 11px;
+}
+
+.runsing-admin-shell .terminal-table th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    padding: 12px 10px;
+    border-bottom-color: var(--border-color);
+    background: rgba(13, 18, 24, 0.96);
+    color: var(--text-muted);
+    font-size: 10px;
+    font-weight: 650;
+    letter-spacing: 0.06em;
+    backdrop-filter: blur(12px);
+}
+
+body.light .runsing-admin-shell .terminal-table th {
+    background: rgba(240, 245, 247, 0.96);
+}
+
+.runsing-admin-shell .terminal-table td {
+    padding: 11px 10px;
+    border-bottom-color: rgba(122, 145, 166, 0.1);
+    color: var(--text-secondary);
+}
+
+.runsing-admin-shell .server-row {
+    transition: background 0.18s ease, box-shadow 0.18s ease;
+}
+
+.runsing-admin-shell .server-row:hover {
+    background: linear-gradient(90deg, rgba(53, 207, 152, 0.055), rgba(92, 169, 255, 0.025));
+    box-shadow: inset 2px 0 0 rgba(53, 207, 152, 0.56);
+}
+
+.runsing-admin-shell .server-name-link {
+    color: var(--text-primary);
+    font-weight: 620;
+    text-decoration: none;
+    transition: color 0.18s ease;
+}
+
+.runsing-admin-shell .server-name-link:hover {
+    color: var(--accent-green);
+}
+
+.runsing-admin-shell .badge {
+    border-radius: 5px;
+    filter: saturate(0.78);
+}
+
+.runsing-admin-shell .theme-grid {
+    gap: 14px;
+}
+
+.runsing-admin-shell .theme-card,
+.runsing-admin-shell .theme-custom {
+    overflow: hidden;
+    border-color: var(--border-color);
+    border-radius: 12px;
+    background: rgba(10, 15, 21, 0.58);
+    transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+}
+
+.runsing-admin-shell .theme-card:hover {
+    border-color: rgba(68, 215, 192, 0.32);
+    box-shadow: 0 16px 34px rgba(0, 0, 0, 0.16);
+    transform: translateY(-3px);
+}
+
+.runsing-admin-shell .theme-cover {
+    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), filter 0.3s ease;
+}
+
+.runsing-admin-shell .theme-card:hover .theme-cover {
+    filter: saturate(1.08);
+    transform: scale(1.025);
+}
+
+.runsing-admin-shell .modal-overlay {
+    background: rgba(2, 5, 8, 0.74);
+    backdrop-filter: blur(10px) saturate(115%);
+}
+
+.runsing-admin-shell .modal-overlay.active .modal-dialog {
+    animation: admin-modal-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.runsing-admin-shell .modal-dialog {
+    padding: 22px;
+    border-color: rgba(122, 145, 166, 0.24);
+    border-radius: 15px;
+    background: #0d1218;
+    box-shadow: 0 28px 90px rgba(0, 0, 0, 0.52), 0 0 0 1px rgba(255, 255, 255, 0.018) inset;
+}
+
+body.light .runsing-admin-shell .modal-dialog {
+    background: #fff;
+    box-shadow: 0 24px 70px rgba(41, 61, 70, 0.18);
+}
+
+.runsing-admin-shell .modal-header,
+.runsing-admin-shell .modal-footer {
+    border-color: var(--border-color);
+}
+
+.runsing-admin-shell .modal-title {
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 650;
+    letter-spacing: 0.02em;
+    text-transform: none;
+}
+
+.runsing-admin-shell .modal-close {
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    border: 1px solid transparent;
+    border-radius: 9px;
+}
+
+.runsing-admin-shell .modal-close:hover {
+    border-color: rgba(248, 81, 73, 0.2);
+    background: rgba(248, 81, 73, 0.08);
+}
+
+.runsing-admin-shell .warning-box,
+.runsing-admin-shell .danger-box,
+.runsing-admin-shell .success-box {
+    border-radius: 10px;
+}
+
+.runsing-admin-shell .admin-loading-overlay {
+    background: rgba(5, 8, 12, 0.7);
+    backdrop-filter: blur(12px);
+}
+
+.runsing-admin-shell .loading-spinner {
+    border-color: rgba(53, 207, 152, 0.14);
+    border-top-color: var(--accent-green);
+    box-shadow: 0 0 24px rgba(53, 207, 152, 0.12);
+}
+
+/* Login */
+.runsing-admin-shell .login-overlay {
+    gap: 18px;
+    overflow: auto;
+    padding: 38px 18px;
+    background:
+        radial-gradient(circle at 50% 16%, rgba(38, 113, 130, 0.16), transparent 26rem),
+        radial-gradient(circle at 50% 92%, rgba(53, 207, 152, 0.075), transparent 23rem),
+        #080a0e;
+}
+
+body.light .runsing-admin-shell .login-overlay {
+    background:
+        radial-gradient(circle at 50% 16%, rgba(35, 121, 201, 0.09), transparent 26rem),
+        #f4f7f8;
+}
+
+.runsing-admin-shell .login-container {
+    position: relative;
+    overflow: hidden;
+    width: 430px;
+    max-width: 100%;
+    padding: 34px;
+    border: 1px solid rgba(122, 145, 166, 0.2);
+    border-radius: 16px;
+    background: linear-gradient(150deg, rgba(18, 23, 30, 0.94), rgba(9, 13, 18, 0.96));
+    box-shadow: 0 28px 90px rgba(0, 0, 0, 0.34), 0 0 0 1px rgba(255, 255, 255, 0.015) inset;
+    animation: admin-login-in 0.62s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+body.light .runsing-admin-shell .login-container {
+    background: rgba(255, 255, 255, 0.86);
+    box-shadow: 0 24px 70px rgba(43, 65, 74, 0.12);
+}
+
+.runsing-admin-shell .login-container::before {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: 2px;
+    content: "";
+    background: linear-gradient(90deg, transparent, #35cf98 38%, #5ca9ff 68%, transparent);
+    opacity: 0.72;
+}
+
+.runsing-admin-shell .login-container::after {
+    display: block;
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-color);
+    color: var(--text-muted);
+    content: "SECURE CONTROL PLANE  /  TLS";
+    font: 500 9px/1.4 "JetBrains Mono", monospace;
+    letter-spacing: 0.14em;
+    text-align: center;
+}
+
+.runsing-admin-shell .login-header {
+    margin-bottom: 28px;
+}
+
+.runsing-admin-shell .login-icon {
+    position: relative;
+    display: grid;
+    width: 48px;
+    height: 48px;
+    margin: 0 auto 17px;
+    place-items: center;
+    border: 1px solid rgba(53, 207, 152, 0.24);
+    border-radius: 14px;
+    background: linear-gradient(145deg, rgba(53, 207, 152, 0.13), rgba(92, 169, 255, 0.07));
+    font-size: 0;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.14);
+}
+
+.runsing-admin-shell .login-icon::before {
+    width: 14px;
+    height: 16px;
+    border: 2px solid var(--accent-green);
+    border-radius: 4px;
+    content: "";
+    box-shadow: 0 0 16px rgba(53, 207, 152, 0.2);
+}
+
+.runsing-admin-shell .login-icon::after {
+    position: absolute;
+    width: 8px;
+    height: 7px;
+    margin-top: -15px;
+    border: 2px solid var(--accent-green);
+    border-bottom: 0;
+    border-radius: 8px 8px 0 0;
+    content: "";
+}
+
+.runsing-admin-shell .login-title {
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 20px;
+    font-weight: 680;
+    letter-spacing: -0.015em;
+    text-transform: none;
+}
+
+.runsing-admin-shell .login-subtitle {
+    margin-top: 8px;
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+.runsing-admin-shell .password-input-wrapper {
+    position: relative;
+}
+
+.runsing-admin-shell .password-toggle {
+    right: 7px;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    opacity: 0.7;
+    transition: opacity 0.18s ease, background 0.18s ease;
+}
+
+.runsing-admin-shell .password-toggle:hover {
+    background: rgba(255, 255, 255, 0.05);
+    opacity: 1;
+}
+
+.runsing-admin-shell .login-btn {
+    min-height: 46px;
+    border: 1px solid rgba(53, 207, 152, 0.38);
+    border-radius: 10px;
+    background: linear-gradient(135deg, #55d9ac, #37c7a4);
+    color: #06110e;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.025em;
+    text-transform: none;
+    box-shadow: 0 10px 26px rgba(53, 207, 152, 0.14);
+    transition: filter 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.runsing-admin-shell .login-btn:hover {
+    background: linear-gradient(135deg, #62e1b5, #40d0ad);
+    box-shadow: 0 14px 32px rgba(53, 207, 152, 0.22);
+    filter: brightness(1.03);
+    transform: translateY(-1px);
+}
+
+.runsing-admin-shell .login-error {
+    border-color: rgba(248, 81, 73, 0.24);
+    border-radius: 9px;
+    background: rgba(248, 81, 73, 0.07);
+}
+
+.runsing-admin-shell .login-overlay > .footer {
+    margin: 0;
+    border-color: var(--border-color);
+    border-radius: 10px;
+    background: rgba(12, 16, 22, 0.54);
+    animation: admin-login-in 0.62s 0.08s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.runsing-admin-shell .footer {
+    border-color: var(--border-color);
+    border-radius: 10px;
+    background: rgba(10, 14, 19, 0.62);
+    font-family: "JetBrains Mono", monospace;
+    font-size: 10px;
+}
+
+@keyframes admin-page-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes admin-content-in {
+    from { opacity: 0; transform: translateY(7px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes admin-login-in {
+    from { opacity: 0; transform: translateY(16px) scale(0.985); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes admin-modal-in {
+    from { opacity: 0; transform: translateY(14px) scale(0.975); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (max-width: 900px) {
+    .runsing-admin-shell .admin-container { padding: 18px 16px 48px; }
+    .runsing-admin-shell .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .runsing-admin-shell .settings-grid { grid-template-columns: 1fr; }
+    .runsing-admin-shell .main-panel { padding: 18px; }
+}
+
+@media (max-width: 640px) {
+    .runsing-admin-shell .admin-container { padding: 12px 10px 38px; }
+    .runsing-admin-shell .terminal-header { border-radius: 11px; }
+    .runsing-admin-shell .main-panel { padding: 14px; border-radius: 11px; }
+    .runsing-admin-shell .panel-header { align-items: stretch; }
+    .runsing-admin-shell .header-actions { width: 100%; }
+    .runsing-admin-shell .header-actions .btn { flex: 1; justify-content: center; }
+    .runsing-admin-shell .admin-site-select { width: 100%; }
+    .runsing-admin-shell .stats-grid { gap: 7px; }
+    .runsing-admin-shell .stat-card { min-height: 94px; padding: 15px; }
+    .runsing-admin-shell .tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .runsing-admin-shell .toolbar { align-items: stretch; }
+    .runsing-admin-shell .toolbar-input,
+    .runsing-admin-shell .toolbar-select-wrapper,
+    .runsing-admin-shell .toolbar-select { width: 100%; }
+    .runsing-admin-shell .form-row { flex-direction: column; gap: 0; }
+    .runsing-admin-shell .login-overlay { justify-content: flex-start; padding-top: 7vh; }
+    .runsing-admin-shell .login-container { padding: 27px 22px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .runsing-admin-shell *,
+    .runsing-admin-shell *::before,
+    .runsing-admin-shell *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
