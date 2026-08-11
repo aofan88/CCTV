@@ -19,8 +19,7 @@
       @api-index-change="handleApiIndexChange"
     />
 
-    <div v-else class="container admin-container" id="admin-content">
-      <TerminalHeader :title="trans.adminPanel" />
+    <div v-else class="admin-container" id="admin-content">
       <div v-if="adminSiteLoading" class="admin-loading-overlay">
         <div class="loading-content">
           <div class="loading-spinner"></div>
@@ -28,144 +27,223 @@
         </div>
       </div>
 
-      <div class="main-panel">
-        <div class="panel-header">
-          <div class="panel-title">
-            <span class="prompt">$</span> {{ trans.sudoStatus }}
-          </div>
-          <div class="header-actions">
-            <button @click="refreshServers" class="btn" :disabled="adminSiteLoading">↻ {{ trans.refresh }}</button>
-            <select
-              v-if="isMultipleMode"
-              v-model.number="selectedApiIndex"
-              class="form-select admin-site-select"
-              :title="trans.apiEndpoint"
-              :disabled="adminSiteLoading"
-              @change="handleAdminApiIndexChange"
+      <div class="admin-app-layout">
+        <aside class="admin-sidebar">
+          <a href="/#/" class="admin-brand">
+            <span class="admin-brand-mark">51</span>
+            <span class="admin-brand-copy">
+              <strong>51121Club</strong>
+              <small>CONTROL CENTER</small>
+            </span>
+          </a>
+
+          <div class="admin-sidebar-label">WORKSPACE</div>
+          <nav class="admin-side-nav" :aria-label="trans.adminPanel">
+            <button
+              type="button"
+              class="admin-nav-item"
+              :class="{ active: activeTab === 'servers' }"
+              @click="activeTab = 'servers'"
             >
-              <option
-                v-for="(base, index) in apiBases"
-                :key="index"
-                :value="index"
+              <span class="admin-nav-icon">◫</span>
+              <span>{{ trans.servers }}</span>
+              <span class="admin-nav-count">{{ stats.total }}</span>
+            </button>
+            <button
+              type="button"
+              class="admin-nav-item"
+              :class="{ active: activeTab === 'settings' }"
+              @click="activeTab = 'settings'"
+            >
+              <span class="admin-nav-icon">⌁</span>
+              <span>{{ trans.settings }}</span>
+            </button>
+            <button
+              type="button"
+              class="admin-nav-item"
+              :class="{ active: activeTab === 'database' }"
+              @click="activeTab = 'database'"
+            >
+              <span class="admin-nav-icon">◇</span>
+              <span>{{ trans.dbManagement }}</span>
+            </button>
+            <button
+              type="button"
+              class="admin-nav-item"
+              :class="{ active: activeTab === 'themeStore' }"
+              @click="activeTab = 'themeStore'"
+            >
+              <span class="admin-nav-icon">◈</span>
+              <span>{{ trans.themeStore }}</span>
+            </button>
+          </nav>
+
+          <div class="admin-sidebar-status">
+            <span class="admin-live-dot"></span>
+            <span>
+              <strong>Cloudflare Edge</strong>
+              <small>{{ stats.online }} {{ trans.online }}</small>
+            </span>
+          </div>
+        </aside>
+
+        <section class="admin-workspace">
+          <header class="admin-topbar">
+            <div class="admin-topbar-copy">
+              <span class="admin-eyebrow">51121 / ADMIN</span>
+              <h1>{{ activeSectionTitle }}</h1>
+              <p>{{ trans.adminPanel }}</p>
+            </div>
+            <TerminalHeader class="admin-utility-header" :title="trans.adminPanel" />
+          </header>
+
+          <div class="admin-command-bar">
+            <div class="admin-runtime-state">
+              <span class="admin-live-dot"></span>
+              <span>{{ trans.sudoStatus }}</span>
+              <small>{{ currentOrigin }}</small>
+            </div>
+            <div class="admin-command-actions">
+              <select
+                v-if="isMultipleMode"
+                v-model.number="selectedApiIndex"
+                class="form-select admin-site-select"
+                :title="trans.apiEndpoint"
+                :disabled="adminSiteLoading"
+                @change="handleAdminApiIndexChange"
               >
-                [{{ index }}] {{ base }}
-              </option>
-            </select>
-            <button @click="logout" class="btn btn-red">🚪 {{ trans.logout }}</button>
+                <option
+                  v-for="(base, index) in apiBases"
+                  :key="index"
+                  :value="index"
+                >
+                  [{{ index }}] {{ base }}
+                </option>
+              </select>
+              <button @click="refreshServers" class="btn" :disabled="adminSiteLoading">↻ {{ trans.refresh }}</button>
+              <button @click="logout" class="btn btn-red">{{ trans.logout }}</button>
+            </div>
           </div>
-        </div>
 
-        <div class="stats-grid" id="stats-panel">
-          <div class="stat-card">
-            <div class="stat-main-value" id="stat-total">{{ stats.total }}</div>
-            <div class="stat-label">{{ trans.totalServers }}</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-main-value" id="stat-online">{{ stats.online }}</div>
-            <div class="stat-label">{{ trans.online }}</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-main-value" id="stat-offline">{{ stats.offline }}</div>
-            <div class="stat-label">{{ trans.offline }}</div>
-          </div>
-          <div class="stat-card">
-            <div class="stat-main-value" id="stat-avg-cpu">{{ stats.avg_cpu }}%</div>
-            <div class="stat-label">{{ trans.avgCpu }}</div>
-          </div>
-        </div>
-      </div>
+          <section class="admin-overview-panel">
+            <div class="admin-section-heading">
+              <div>
+                <span class="admin-eyebrow">LIVE OVERVIEW</span>
+                <h2>{{ trans.sudoStatus }}</h2>
+              </div>
+              <span class="admin-updated-state"><i></i> LIVE</span>
+            </div>
 
-      <div class="main-panel">
-        <div class="tabs">
-          <button
-            class="tab-btn"
-            :class="{ active: activeTab === 'servers' }"
-            @click="activeTab = 'servers'"
-          >▸ {{ trans.servers }}</button>
-          <button
-            class="tab-btn"
-            :class="{ active: activeTab === 'settings' }"
-            @click="activeTab = 'settings'"
-          >▸ {{ trans.settings }}</button>
-          <button
-            class="tab-btn"
-            :class="{ active: activeTab === 'database' }"
-            @click="activeTab = 'database'"
-          >▸ {{ trans.dbManagement }}</button>
-          <button
-            class="tab-btn"
-            :class="{ active: activeTab === 'themeStore' }"
-            @click="activeTab = 'themeStore'"
-          >▸ {{ trans.themeStore }}</button>
-        </div>
+            <div class="stats-grid" id="stats-panel">
+              <div class="stat-card">
+                <span class="admin-stat-index">01</span>
+                <div class="stat-main-value" id="stat-total">{{ stats.total }}</div>
+                <div class="stat-label">{{ trans.totalServers }}</div>
+              </div>
+              <div class="stat-card">
+                <span class="admin-stat-index">02</span>
+                <div class="stat-main-value" id="stat-online">{{ stats.online }}</div>
+                <div class="stat-label">{{ trans.online }}</div>
+              </div>
+              <div class="stat-card">
+                <span class="admin-stat-index">03</span>
+                <div class="stat-main-value" id="stat-offline">{{ stats.offline }}</div>
+                <div class="stat-label">{{ trans.offline }}</div>
+              </div>
+              <div class="stat-card">
+                <span class="admin-stat-index">04</span>
+                <div class="stat-main-value" id="stat-avg-cpu">{{ stats.avg_cpu }}%</div>
+                <div class="stat-label">{{ trans.avgCpu }}</div>
+              </div>
+            </div>
+          </section>
 
-        <ServerTable
-          v-model:new-server-name="newServerName"
-          v-model:new-server-group="newServerGroup"
-          :trans="trans"
-          :servers="servers"
-          :selected-servers="selectedServers"
-          :groups="groups"
-          :active-tab="activeTab"
-          :selected-api-index="selectedApiIndex"
-          :theme-url="settings.theme_url"
-          :latest-agent-version="latestAgentVersion"
-          :copied-server-id="copiedServerId"
-          :copied-note-server-id="copiedNoteServerId"
-          :copied-spec-key="copiedSpecKey"
-          @add-server="addServer"
-          @batch-delete="batchDelete"
-          @toggle-select-all="toggleSelectAll"
-          @select-all="handleSelectAll"
-          @drag-start="handleDragStart"
-          @drop="handleDrop"
-          @toggle-server="toggleServer"
-          @copy-note="copyServerNote"
-          @copy-spec="copyServerSpec"
-          @copy-cmd="copyCmd"
-          @edit="openEditModal"
-          @delete="openDeleteModal"
-        />
+          <section class="admin-content-surface">
+            <div class="admin-content-header">
+              <div class="admin-content-heading">
+                <span class="admin-content-code">{{ activeSectionCode }}</span>
+                <div>
+                  <h2>{{ activeSectionTitle }}</h2>
+                  <p>{{ trans.adminPanel }}</p>
+                </div>
+              </div>
+              <div class="admin-content-summary">
+                <span>{{ stats.online }}/{{ stats.total }}</span>
+                <small>{{ trans.online }}</small>
+              </div>
+            </div>
 
-        <SettingsPanel
-          ref="settingsPanelRef"
-          :trans="trans"
-          :settings="settings"
-          :servers="servers"
-          :password-visible="passwordVisible"
-          :active-tab="activeTab"
-          :selected-api-base="selectedApiBase"
-          :current-origin="currentOrigin"
-          :saving="saving"
-          :change-admin-password="changeAdminPassword"
-          :test-notification-loading="testNotificationLoading"
-          :d1-usage-loading="d1UsageLoading"
-          @toggle-password="togglePassword"
-          @toggle-admin-password-change="toggleAdminPasswordChange"
-          @save-settings="saveSettings"
-          @upload-bg="uploadBg"
-          @upload-favicon="uploadFavicon"
-          @send-test-notification="sendTestNotification"
-          @query-d1-usage="queryD1Usage"
-        />
+            <ServerTable
+              v-model:new-server-name="newServerName"
+              v-model:new-server-group="newServerGroup"
+              :trans="trans"
+              :servers="servers"
+              :selected-servers="selectedServers"
+              :groups="groups"
+              :active-tab="activeTab"
+              :selected-api-index="selectedApiIndex"
+              :theme-url="settings.theme_url"
+              :latest-agent-version="latestAgentVersion"
+              :copied-server-id="copiedServerId"
+              :copied-note-server-id="copiedNoteServerId"
+              :copied-spec-key="copiedSpecKey"
+              @add-server="addServer"
+              @batch-delete="batchDelete"
+              @toggle-select-all="toggleSelectAll"
+              @select-all="handleSelectAll"
+              @drag-start="handleDragStart"
+              @drop="handleDrop"
+              @toggle-server="toggleServer"
+              @copy-note="copyServerNote"
+              @copy-spec="copyServerSpec"
+              @copy-cmd="copyCmd"
+              @edit="openEditModal"
+              @delete="openDeleteModal"
+            />
 
-        <DatabasePanel
-          :trans="trans"
-          :active-tab="activeTab"
-          :db-loading="dbLoading"
-          :selected-api-index="selectedApiIndex"
-          @open-db-modal="openDbModal"
-        />
+            <SettingsPanel
+              ref="settingsPanelRef"
+              :trans="trans"
+              :settings="settings"
+              :servers="servers"
+              :password-visible="passwordVisible"
+              :active-tab="activeTab"
+              :selected-api-base="selectedApiBase"
+              :current-origin="currentOrigin"
+              :saving="saving"
+              :change-admin-password="changeAdminPassword"
+              :test-notification-loading="testNotificationLoading"
+              :d1-usage-loading="d1UsageLoading"
+              @toggle-password="togglePassword"
+              @toggle-admin-password-change="toggleAdminPasswordChange"
+              @save-settings="saveSettings"
+              @upload-bg="uploadBg"
+              @upload-favicon="uploadFavicon"
+              @send-test-notification="sendTestNotification"
+              @query-d1-usage="queryD1Usage"
+            />
 
-        <ThemeStorePanel
-          :trans="trans"
-          :active-tab="activeTab"
-          :selected-api-index="selectedApiIndex"
-          :current-theme-url="settings.theme_url"
-          :settings="settings"
-          @theme-applied="settings.theme_url = $event"
-          @theme-options-applied="handleThemeOptionsApplied"
-        />
+            <DatabasePanel
+              :trans="trans"
+              :active-tab="activeTab"
+              :db-loading="dbLoading"
+              :selected-api-index="selectedApiIndex"
+              @open-db-modal="openDbModal"
+            />
+
+            <ThemeStorePanel
+              :trans="trans"
+              :active-tab="activeTab"
+              :selected-api-index="selectedApiIndex"
+              :current-theme-url="settings.theme_url"
+              :settings="settings"
+              @theme-applied="settings.theme_url = $event"
+              @theme-options-applied="handleThemeOptionsApplied"
+            />
+          </section>
+
+          <Footer />
+        </section>
       </div>
 
       <EditServerModal
@@ -449,7 +527,6 @@
         </div>
       </div>
 
-      <Footer />
     </div>
   </div>
 </template>
@@ -655,6 +732,18 @@ const loginError = ref('')
 const loginLoading = ref(false)
 const adminSiteLoading = ref(false)
 const activeTab = ref('servers')
+const activeSectionTitle = computed(() => ({
+  servers: trans.servers,
+  settings: trans.settings,
+  database: trans.dbManagement,
+  themeStore: trans.themeStore
+}[activeTab.value] || trans.servers))
+const activeSectionCode = computed(() => ({
+  servers: '01',
+  settings: '02',
+  database: '03',
+  themeStore: '04'
+}[activeTab.value] || '01'))
 const servers = ref([])
 const selectedServers = ref([])
 const stats = ref({ total: '-', online: 0, offline: 0, avg_cpu: 0 })
